@@ -1,5 +1,8 @@
 import Candidate from "../models/Candidate.js";
 import Job from "../models/Job.js";
+import fs from "fs";
+import path from "path";
+import pdf from "pdf-parse";
 
 // Get all candidates
 export const getAllCandidates = async (req, res) => {
@@ -298,5 +301,64 @@ export const calculateMatch = async (req, res) => {
       message: "Server Error",
       error: error.message,
     });
+  }
+};
+
+// Upload resume (PDF) and extract text
+export const uploadResume = async (req, res) => {
+  try {
+    // multer should have placed file on disk as req.file
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "No file uploaded" });
+    }
+
+    const filePath = req.file.path;
+    // Build a public URL for the uploaded file (server must serve /uploads)
+    const fileUrl = `${req.protocol}://${req.get("host")}/uploads/resumes/${req.file.filename}`;
+
+    // Read file and extract text (pdf-parse)
+    const buffer = fs.readFileSync(filePath);
+    let extractedText = "";
+    try {
+      const data = await pdf(buffer);
+      extractedText = data && data.text ? data.text : "";
+    } catch (e) {
+      // If pdf parsing fails, leave extractedText empty but continue
+      console.warn("PDF parse failed:", e.message);
+      extractedText = "";
+    }
+
+    // Find candidate by authenticated user's email or create/update
+    let candidate = null;
+    if (req.user && req.user.email) {
+      candidate = await Candidate.findOne({ email: req.user.email });
+    }
+
+    if (!candidate) {
+      // create a minimal candidate record
+      candidate = await Candidate.create({
+        name: req.user?.name || req.user?.email || "Unknown",
+        email: req.user?.email || `unknown_${Date.now()}@local`,
+        resumeUrl: fileUrl,
+        resumeText: extractedText,
+      });
+    } else {
+      candidate.resumeUrl = fileUrl;
+      candidate.resumeText = extractedText;
+      await candidate.save();
+    }
+
+    return res.json({
+      success: true,
+      message: "Resume uploaded and text extracted",
+      data: {
+        resumeUrl: fileUrl,
+        resumeText: extractedText,
+        candidateId: candidate._id,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "Upload failed", error: error.message });
   }
 };

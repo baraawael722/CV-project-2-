@@ -135,14 +135,15 @@ export default function Profile() {
   const handleCVUpload = (e) => {
     const file = e.target.files[0]
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert('File size must be less than 5MB')
+      if (file.size > 10 * 1024 * 1024) {
+        alert('File size must be less than 10MB')
         return
       }
 
-      const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+      // Server currently accepts PDF only (we extract text from PDF)
+      const allowedTypes = ['application/pdf']
       if (!allowedTypes.includes(file.type)) {
-        alert('Only PDF, DOC, and DOCX files are allowed')
+        alert('Only PDF files are allowed for extracting text')
         return
       }
 
@@ -162,12 +163,28 @@ export default function Profile() {
     try {
       setUploading(true)
 
-      // For now, just simulate upload
-      // In production, you'd use FormData and upload to server
-      setTimeout(() => {
-        alert(`✅ CV "${cvFile.name}" uploaded successfully!`)
-        setUploading(false)
-      }, 1500)
+      const formData = new FormData()
+      formData.append('cv', cvFile)
+
+      const response = await fetch('http://localhost:5000/api/candidates/upload', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      })
+
+      const data = await response.json()
+      if (response.ok) {
+        alert('✅ CV uploaded successfully!')
+        // store extracted text in profile for preview
+        if (data.data && data.data.resumeText) {
+          setProfile(prev => ({ ...prev, resumeExtract: data.data.resumeText }))
+        }
+      } else {
+        alert(`❌ Upload error: ${data.message || 'Server error'}`)
+      }
+      setUploading(false)
 
     } catch (error) {
       console.error('Upload error:', error)
@@ -321,6 +338,16 @@ export default function Profile() {
               </div>
             </div>
 
+            {/* Resume extracted text preview */}
+            {profile.resumeExtract && (
+              <div className="bg-white rounded-xl shadow-md p-6">
+                <h3 className="text-lg font-bold mb-2">Extracted CV Text (preview)</h3>
+                <div className="max-h-48 overflow-auto text-sm text-gray-700 whitespace-pre-wrap">
+                  {profile.resumeExtract}
+                </div>
+              </div>
+            )}
+
             {/* Links Card */}
             <div className="bg-white rounded-xl shadow-md p-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Professional Links</h2>
@@ -379,7 +406,9 @@ export default function Profile() {
             <div className="bg-white rounded-xl shadow-md p-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">CV / Resume 📄</h2>
 
-              {cvFile ? (
+              {user.role !== 'employee' ? (
+                <p className="text-gray-600">CV upload is for employees only.</p>
+              ) : cvFile ? (
                 <div className="border-4 border-solid border-green-500 rounded-xl p-8 bg-green-50 mb-4">
                   <div className="text-center">
                     <div className="text-5xl mb-4">✅</div>

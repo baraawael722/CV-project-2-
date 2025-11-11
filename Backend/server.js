@@ -10,6 +10,7 @@ import analyticsRoutes from "./routes/analyticsRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import connectDB from "./config/database.js";
 import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
+import path from "path";
 
 dotenv.config(); // تحميل متغيرات البيئة من ملف .env
 
@@ -22,6 +23,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
+
+// Serve uploaded files (resumes)
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // Routes
 app.use("/api/auth", authRoutes);
