@@ -1,42 +1,66 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 export default function TopNavbar() {
   const location = useLocation()
-  
-  const navItems = [
-    { name: 'Home', path: '/dashboard', icon: '🏠' },
-    { name: 'Skills', path: '/skills', icon: '💡' },
-    { name: 'Jobs', path: '/jobs', icon: '💼' },
-    { name: 'Learning', path: '/learning', icon: '📚' },
-    { name: 'Interview', path: '/interview', icon: '🎯' },
-    { name: 'Profile', path: '/profile', icon: '👤' }
-  ]
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user')
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
+    }
+  }, [])
+
+  // Navigation items based on role
+  const getNavItems = () => {
+    if (!user) return []
+
+    if (user.role === 'hr') {
+      return [
+        { name: 'Dashboard', path: '/hr-dashboard', icon: '🏠' },
+        { name: 'Jobs', path: '/jobs', icon: '💼' },
+        { name: 'Profile', path: '/profile', icon: '👤' }
+      ]
+    }
+
+    // Employee/User navigation
+    return [
+      { name: 'Home', path: '/dashboard', icon: '🏠' },
+      { name: 'Skills', path: '/skills', icon: '💡' },
+      { name: 'Jobs', path: '/jobs', icon: '💼' },
+      { name: 'Learning', path: '/learning', icon: '📚' },
+      { name: 'Interview', path: '/interview', icon: '🎯' },
+      { name: 'Profile', path: '/profile', icon: '👤' }
+    ]
+  }
+
+  const navItems = getNavItems()
+  const dashboardPath = user?.role === 'hr' ? '/hr-dashboard' : '/dashboard'
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/dashboard" className="flex items-center space-x-2">
+          <Link to={dashboardPath} className="flex items-center space-x-2">
             <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               JobCompass
             </div>
           </Link>
 
-          {/* Navigation Tabs - excluding Profile */}
+          {/* Navigation Tabs */}
           <nav className="hidden md:flex space-x-1">
-            {navItems.slice(0, -1).map((item) => {
+            {navItems.map((item) => {
               const isActive = location.pathname === item.path
               return (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`px-4 py-2 rounded-lg font-bold text-base transition-all duration-300 flex items-center gap-2 ${
-                    isActive
+                  className={`px-4 py-2 rounded-lg font-bold text-base transition-all duration-300 flex items-center gap-2 ${isActive
                       ? 'bg-blue-600 text-white shadow-lg'
                       : 'text-gray-900 hover:bg-blue-50 hover:text-blue-600'
-                  }`}
+                    }`}
                 >
                   <span className="text-xl">{item.icon}</span>
                   {item.name}
@@ -45,20 +69,18 @@ export default function TopNavbar() {
             })}
           </nav>
 
-          {/* Profile Button - Right Side */}
-          <div className="hidden md:flex items-center gap-4">
-            <Link
-              to="/profile"
-              className={`px-6 py-2 rounded-full font-bold text-base transition-all duration-300 flex items-center gap-2 ${
-                location.pathname === '/profile'
-                  ? 'bg-blue-600 text-white shadow-lg'
-                  : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg'
-              }`}
-            >
-              <span>👤</span>
-              Profile
-            </Link>
-          </div>
+          {/* User Info */}
+          {user && (
+            <div className="hidden md:flex items-center gap-3">
+              <div className="text-right">
+                <p className="text-sm font-bold text-gray-900">{user.name}</p>
+                <p className="text-xs text-gray-500 uppercase">{user.role}</p>
+              </div>
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+            </div>
+          )}
 
           {/* Mobile Menu Button */}
           <button className="md:hidden p-2 rounded-lg hover:bg-gray-100">

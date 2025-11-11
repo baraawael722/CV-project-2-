@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار Authentication</title>
+    <style>
+        * {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        h2 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            word-break: break-all;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .badge-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .badge-error {
+            background: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔐 اختبار تسجيل الدخول والتسجيل</h1>
+
+        <!-- Registration Section -->
+        <div class="section">
+            <h2>📝 التسجيل (Register)</h2>
+            <input type="text" id="regName" placeholder="الاسم الكامل" value="محمد أحمد">
+            <input type="email" id="regEmail" placeholder="البريد الإلكتروني" value="mohamed@test.com">
+            <input type="password" id="regPassword" placeholder="كلمة المرور" value="mohamed123">
+            <select id="regRole">
+                <option value="employee">Employee (موظف)</option>
+                <option value="hr">HR (موارد بشرية)</option>
+            </select>
+            <button onclick="testRegister()">إنشاء حساب جديد</button>
+            <div id="regResult"></div>
+        </div>
+
+        <!-- Login Section -->
+        <div class="section">
+            <h2>🔓 تسجيل الدخول (Login)</h2>
+            <input type="email" id="loginEmail" placeholder="البريد الإلكتروني" value="fatma@test.com">
+            <input type="password" id="loginPassword" placeholder="كلمة المرور" value="fatma1234">
+            <select id="loginRole">
+                <option value="employee">Employee (موظف)</option>
+                <option value="hr">HR (موارد بشرية)</option>
+            </select>
+            <button onclick="testLogin()">تسجيل الدخول</button>
+            <div id="loginResult"></div>
+        </div>
+
+        <!-- Check Storage Section -->
+        <div class="section">
+            <h2>💾 البيانات المحفوظة</h2>
+            <button onclick="checkStorage()">عرض البيانات المحفوظة</button>
+            <button onclick="clearStorage()" style="background: #dc3545;">مسح البيانات</button>
+            <div id="storageResult"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api/auth';
+
+        async function testRegister() {
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const role = document.getElementById('regRole').value;
+            const resultDiv = document.getElementById('regResult');
+
+            try {
+                resultDiv.innerHTML = '<div class="result info">⏳ جاري التسجيل...</div>';
+
+                const response = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password, role })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+                            <span class="status-badge badge-success">✓ نجح</span>
+                            <strong>تم التسجيل بنجاح!</strong><br>
+                            <strong>الاسم:</strong> ${data.user.name}<br>
+                            <strong>البريد:</strong> ${data.user.email}<br>
+                            <strong>الدور:</strong> ${data.user.role}<br>
+                            <strong>Token:</strong> ${data.token.substring(0, 40)}...
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+                            <span class="status-badge badge-error">✗ فشل</span>
+                            <strong>خطأ:</strong> ${data.message}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <span class="status-badge badge-error">✗ خطأ شبكة</span>
+                        <strong>خطأ:</strong> ${error.message}<br>
+                        تأكد من أن الـ Backend شغال على المنفذ 5000
+                    </div>
+                `;
+            }
+        }
+
+        async function testLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const role = document.getElementById('loginRole').value;
+            const resultDiv = document.getElementById('loginResult');
+
+            try {
+                resultDiv.innerHTML = '<div class="result info">⏳ جاري تسجيل الدخول...</div>';
+
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, role })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+                            <span class="status-badge badge-success">✓ نجح</span>
+                            <strong>تم تسجيل الدخول بنجاح!</strong><br>
+                            <strong>الاسم:</strong> ${data.user.name}<br>
+                            <strong>البريد:</strong> ${data.user.email}<br>
+                            <strong>الدور:</strong> ${data.user.role}<br>
+                            <strong>Token:</strong> ${data.token.substring(0, 40)}...
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+                            <span class="status-badge badge-error">✗ فشل</span>
+                            <strong>خطأ:</strong> ${data.message}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <span class="status-badge badge-error">✗ خطأ شبكة</span>
+                        <strong>خطأ:</strong> ${error.message}<br>
+                        تأكد من أن الـ Backend شغال على المنفذ 5000
+                    </div>
+                `;
+            }
+        }
+
+        function checkStorage() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            const resultDiv = document.getElementById('storageResult');
+
+            if (token && user) {
+                const userData = JSON.parse(user);
+                resultDiv.innerHTML = `
+                    <div class="result success">
+                        <span class="status-badge badge-success">✓ محفوظ</span>
+                        <strong>المستخدم الحالي:</strong><br>
+                        <strong>الاسم:</strong> ${userData.name}<br>
+                        <strong>البريد:</strong> ${userData.email}<br>
+                        <strong>الدور:</strong> ${userData.role}<br>
+                        <strong>Token:</strong> ${token.substring(0, 40)}...
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="result info">
+                        <strong>لا توجد بيانات محفوظة</strong><br>
+                        قم بتسجيل الدخول أولاً
+                    </div>
+                `;
+            }
+        }
+
+        function clearStorage() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            document.getElementById('storageResult').innerHTML = `
+                <div class="result success">
+                    <span class="status-badge badge-success">✓ تم</span>
+                    تم مسح جميع البيانات المحفوظة
+                </div>
+            `;
+        }
+
+        // Auto-check storage on page load
+        window.onload = checkStorage;
+    </script>
+</body>
+
+</html>

@@ -1,14 +1,80 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 
 export default function Dashboard() {
+  const navigate = useNavigate()
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    // Get user from localStorage
+    const storedUser = localStorage.getItem('user')
+    const token = localStorage.getItem('token')
+
+    if (!storedUser || !token) {
+      navigate('/login')
+      return
+    }
+
+    setUser(JSON.parse(storedUser))
+  }, [navigate])
+
+  if (!user) {
+    return <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
+    </div>
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 text-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white mb-8 shadow-lg">
-          <h1 className="text-4xl font-bold mb-2">Welcome Back! 👋</h1>
+          <h1 className="text-4xl font-bold mb-2">Welcome Back, {user.name}! 👋</h1>
           <p className="text-xl text-white opacity-95">Let's continue your career journey</p>
+        </div>
+
+        {/* CV Upload CTA - Prominent Section */}
+        <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-8 mb-8 shadow-xl transform hover:scale-[1.02] transition-all duration-300">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-5xl">📄</span>
+                <h2 className="text-3xl font-bold text-white">Ready to Get Matched?</h2>
+              </div>
+              <p className="text-xl text-white/90 mb-4">
+                Upload your CV to unlock personalized job recommendations and find your perfect career match!
+              </p>
+              <div className="flex gap-4 text-sm text-white/80">
+                <span className="flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  AI-Powered Analysis
+                </span>
+                <span className="flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Instant Matching
+                </span>
+                <span className="flex items-center gap-2">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Skill Gap Insights
+                </span>
+              </div>
+            </div>
+            <Link
+              to="/profile"
+              className="px-8 py-4 bg-white text-emerald-600 rounded-xl font-bold text-lg shadow-lg hover:shadow-2xl hover:bg-emerald-50 transition-all duration-300 flex items-center gap-3 group"
+            >
+              <span>Go to Upload CV</span>
+              <svg className="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </Link>
+          </div>
         </div>
 
         {/* Career Progress Bar */}
