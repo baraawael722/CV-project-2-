@@ -8,9 +8,9 @@ import candidateRoutes from "./routes/candidateRoutes.js";
 import companyRoutes from "./routes/companyRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import resumeRoutes from "./routes/resumeRoutes.js";
 import connectDB from "./config/database.js";
 import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
-import path from "path";
 
 dotenv.config(); // تحميل متغيرات البيئة من ملف .env
 
@@ -24,9 +24,6 @@ app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
-// Serve uploaded files (resumes)
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
-
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobRoutes);
@@ -34,6 +31,7 @@ app.use("/api/candidates", candidateRoutes);
 app.use("/api/company", companyRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/resumes", resumeRoutes);
 
 // Home Route
 app.get("/", (req, res) => {

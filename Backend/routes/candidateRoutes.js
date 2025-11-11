@@ -22,25 +22,9 @@ import {
 const router = express.Router();
 
 import multer from "multer";
-import path from "path";
 
-// Ensure upload destination exists
-import fs from "fs";
-const uploadDir = path.join(process.cwd(), "uploads", "resumes");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname);
-    const uid = req.user && (req.user._id || req.user.id) ? (req.user._id || req.user.id) : Date.now();
-    cb(null, `${uid}_${Date.now()}${ext}`);
-  },
-});
+// Use memory storage (file will be in req.file.buffer)
+const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
   if (file.mimetype === "application/pdf") cb(null, true);

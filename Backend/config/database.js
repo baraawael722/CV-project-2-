@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { initGridFS } from "./gridfs.js";
 
 const connectDB = async () => {
   try {
@@ -7,6 +8,9 @@ const connectDB = async () => {
     console.log(`MongoDB Connected: ${conn.connection.host}`);
     console.log(`Database Name: ${conn.connection.name}`);
     console.log(`Connection State: ${conn.connection.readyState}`);
+
+    // Initialize GridFS after connection
+    initGridFS();
 
     mongoose.connection.on("connected", () => {
       console.log("Mongoose connected to MongoDB Atlas");

@@ -1,8 +1,9 @@
 import Candidate from "../models/Candidate.js";
 import Job from "../models/Job.js";
-import fs from "fs";
-import path from "path";
 import pdf from "pdf-parse";
+import { getGridFSBucket } from "../config/gridfs.js";
+import { Readable } from "stream";
+import mongoose from "mongoose";
 
 // Helper: Extract fields from CV text using simple regex patterns
 function extractFieldsFromText(text) {
@@ -396,23 +397,42 @@ export const calculateMatch = async (req, res) => {
 // Upload resume (PDF) and extract text
 export const uploadResume = async (req, res) => {
   try {
-    // multer should have placed file on disk as req.file
-    if (!req.file) {
+    // multer memoryStorage places file in req.file.buffer
+    if (!req.file || !req.file.buffer) {
       return res.status(400).json({ success: false, message: "No file uploaded" });
     }
 
-    const filePath = req.file.path;
-    // Build a public URL for the uploaded file (server must serve /uploads)
-    const fileUrl = `${req.protocol}://${req.get("host")}/uploads/resumes/${req.file.filename}`;
+    const bucket = getGridFSBucket();
+    const buffer = req.file.buffer;
+    const filename = `${req.user._id}_${Date.now()}.pdf`;
 
-    // Read file and extract text (pdf-parse)
-    const buffer = fs.readFileSync(filePath);
+    // Upload file to GridFS
+    const uploadStream = bucket.openUploadStream(filename, {
+      contentType: "application/pdf",
+      metadata: {
+        userId: req.user._id,
+        email: req.user.email,
+        uploadedAt: new Date(),
+      },
+    });
+
+    // Create readable stream from buffer and pipe to GridFS
+    const readableStream = Readable.from(buffer);
+    
+    await new Promise((resolve, reject) => {
+      readableStream.pipe(uploadStream)
+        .on("error", reject)
+        .on("finish", resolve);
+    });
+
+    const fileId = uploadStream.id;
+
+    // Extract text from PDF buffer
     let extractedText = "";
     try {
       const data = await pdf(buffer);
       extractedText = data && data.text ? data.text : "";
     } catch (e) {
-      // If pdf parsing fails, leave extractedText empty but continue
       console.warn("PDF parse failed:", e.message);
       extractedText = "";
     }
@@ -431,7 +451,7 @@ export const uploadResume = async (req, res) => {
       candidate = await Candidate.create({
         name: req.user?.name || req.user?.email || "Unknown",
         email: req.user?.email || `unknown_${Date.now()}@local`,
-        resumeUrl: fileUrl,
+        resumeUrl: fileId.toString(), // Store GridFS file ID
         resumeText: extractedText,
         skills: extractedFields.skills.length > 0 ? extractedFields.skills : [],
         experience: extractedFields.experience || 0,
@@ -441,7 +461,7 @@ export const uploadResume = async (req, res) => {
       });
     } else {
       // Update existing candidate with extracted data
-      candidate.resumeUrl = fileUrl;
+      candidate.resumeUrl = fileId.toString(); // Store GridFS file ID
       candidate.resumeText = extractedText;
       
       // Merge skills (avoid duplicates)
@@ -473,9 +493,9 @@ export const uploadResume = async (req, res) => {
 
     return res.json({
       success: true,
-      message: "Resume uploaded and text extracted",
+      message: "Resume uploaded to MongoDB and text extracted",
       data: {
-        resumeUrl: fileUrl,
+        resumeFileId: fileId.toString(),
         resumeText: extractedText,
         extractedFields: extractedFields,
         candidateId: candidate._id,
