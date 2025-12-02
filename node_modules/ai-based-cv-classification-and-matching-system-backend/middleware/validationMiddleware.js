@@ -34,8 +34,8 @@ export const jobValidation = [
     .isArray({ min: 1 })
     .withMessage("At least one skill is required"),
   body("experienceLevel")
-    .isIn(["Entry", "Junior", "Mid", "Senior", "Lead"])
-    .withMessage("Invalid experience level"),
+    .isIn(["Entry Level", "Mid Level", "Senior Level", "Executive"])
+    .withMessage("Invalid experience level (use one of: Entry Level, Mid Level, Senior Level, Executive)"),
   body("salary.min")
     .optional()
     .isNumeric()
@@ -46,8 +46,8 @@ export const jobValidation = [
     .withMessage("Maximum salary must be a number"),
   body("location").trim().notEmpty().withMessage("Location is required"),
   body("jobType")
-    .isIn(["Full-time", "Part-time", "Contract", "Internship"])
-    .withMessage("Invalid job type"),
+    .isIn(["Full-time", "Part-time", "Contract", "Remote"])
+    .withMessage("Invalid job type (use one of: Full-time, Part-time, Contract, Remote)"),
 ];
 
 // Candidate validation rules

@@ -17,11 +17,11 @@ const router = express.Router();
 // All routes require authentication
 router.use(protect);
 
-// Routes that require HR role
+// Routes that require HR role for creation, but GET is public for authenticated users
 router
   .route("/")
-  .get(authorizeRoles("hr"), getAllJobs)
-  .post(authorizeRoles("hr"), jobValidation, validate, createJob);
+  .get(getAllJobs)  // Allow all authenticated users to view jobs
+  .post(authorizeRoles("hr"), jobValidation, validate, createJob);  // Only HR can create
 
 router.get("/search", authorizeRoles("hr"), searchJobs);
 

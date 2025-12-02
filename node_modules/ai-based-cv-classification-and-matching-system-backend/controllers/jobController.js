@@ -4,7 +4,17 @@ import Candidate from "../models/Candidate.js";
 // Get all jobs
 export const getAllJobs = async (req, res) => {
   try {
-    const jobs = await Job.find({ postedBy: req.user.id })
+    let query = {};
+
+    // HR sees only their posted jobs, employees see all active jobs
+    if (req.user.role === 'hr') {
+      query = { postedBy: req.user.id };
+    } else {
+      // Employees see all active jobs
+      query = { status: 'Active' };
+    }
+
+    const jobs = await Job.find(query)
       .sort({ createdAt: -1 })
       .populate("postedBy", "name email");
 

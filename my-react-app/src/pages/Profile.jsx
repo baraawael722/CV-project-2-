@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 export default function Profile() {
@@ -6,6 +6,8 @@ export default function Profile() {
   const [editing, setEditing] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [cvFile, setCvFile] = useState(null)
+  const [hasUploadedCV, setHasUploadedCV] = useState(false)
+  const [cvFileName, setCvFileName] = useState('')
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState({
     name: '',
@@ -21,6 +23,7 @@ export default function Profile() {
     experience: 0,
     experienceLevel: 'Entry Level'
   })
+  const fetchedOnceRef = useRef(false)
 
   useEffect(() => {
     // Get user from localStorage
@@ -51,8 +54,11 @@ export default function Profile() {
       experienceLevel: 'Entry Level'
     })
 
-    // Fetch candidate profile if exists
-    fetchCandidateProfile(token, userData.email)
+    // Fetch candidate profile if exists (avoid duplicate call in StrictMode dev)
+    if (!fetchedOnceRef.current) {
+      fetchedOnceRef.current = true
+      fetchCandidateProfile(token, userData.email)
+    }
   }, [navigate])
 
   const fetchCandidateProfile = async (token, email) => {
@@ -86,6 +92,17 @@ export default function Profile() {
             experience: candidateData.experience || 0,
             experienceLevel: candidateData.experienceLevel || 'Entry Level'
           }))
+
+          // Check if CV has been uploaded
+          if (candidateData.resumeUrl && candidateData.resumeUrl.trim() !== '') {
+            setHasUploadedCV(true)
+            setCvFileName('CV uploaded successfully')
+            console.log('✅ CV already uploaded, resumeUrl:', candidateData.resumeUrl);
+          } else {
+            setHasUploadedCV(false)
+            console.log('ℹ️ No CV uploaded yet');
+          }
+
           console.log('✅ Profile loaded successfully');
         } else {
           console.log('ℹ️ No profile found yet');
@@ -226,6 +243,10 @@ export default function Profile() {
 
         // Clear file selection
         setCvFile(null)
+
+        // Set CV uploaded state
+        setHasUploadedCV(true)
+        setCvFileName(cvFile.name)
 
         // Refresh candidate profile from server
         fetchCandidateProfile(token, user.email)
@@ -457,7 +478,27 @@ export default function Profile() {
 
               {user.role !== 'employee' ? (
                 <p className="text-gray-600">CV upload is for employees only.</p>
+              ) : hasUploadedCV && !cvFile ? (
+                // Show uploaded CV status with Edit button
+                <div className="border-4 border-solid border-green-500 rounded-xl p-8 bg-green-50">
+                  <div className="text-center">
+                    <div className="text-5xl mb-4">✅</div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">CV Uploaded Successfully</h3>
+                    <p className="text-gray-700 mb-4 font-semibold">{cvFileName}</p>
+                    <p className="text-sm text-gray-600 mb-6">Your CV has been uploaded and processed.</p>
+                    <button
+                      onClick={() => {
+                        setHasUploadedCV(false)
+                        setCvFileName('')
+                      }}
+                      className="px-6 py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-all"
+                    >
+                      ✏️ Edit / Change CV
+                    </button>
+                  </div>
+                </div>
               ) : cvFile ? (
+                // Show file selected state
                 <div className="border-4 border-solid border-green-500 rounded-xl p-8 bg-green-50 mb-4">
                   <div className="text-center">
                     <div className="text-5xl mb-4">✅</div>
@@ -489,6 +530,7 @@ export default function Profile() {
                   </div>
                 </div>
               ) : (
+                // Show upload interface
                 <label htmlFor="cv-upload">
                   <div className="border-4 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer">
                     <div className="text-5xl mb-4">📄</div>

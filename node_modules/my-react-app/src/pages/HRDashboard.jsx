@@ -73,6 +73,38 @@ export default function HRDashboard() {
         }
     }
 
+    const handleDeleteJob = async (jobId) => {
+        if (!window.confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
+            return
+        }
+
+        try {
+            const token = localStorage.getItem('token')
+            const res = await fetch(`http://localhost:5000/api/jobs/${jobId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+
+            if (res.ok) {
+                // Remove from list
+                setRecentJobs(recentJobs.filter(job => job._id !== jobId))
+                // Update stats
+                setStats(prev => ({
+                    ...prev,
+                    totalJobs: Math.max(0, prev.totalJobs - 1)
+                }))
+            } else {
+                const data = await res.json()
+                alert(data.message || 'Failed to delete job')
+            }
+        } catch (error) {
+            console.error('Error deleting job:', error)
+            alert('Error deleting job')
+        }
+    }
+
     if (loading || !user) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
@@ -278,9 +310,17 @@ export default function HRDashboard() {
                                                     </span>
                                                 </div>
                                             </div>
-                                            <button className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-semibold hover:bg-purple-700 transition-all">
-                                                Manage
-                                            </button>
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => handleDeleteJob(job._id)}
+                                                    className="px-3 py-1.5 bg-red-100 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-200 transition-all flex items-center gap-1"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                    Delete
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
