@@ -6,6 +6,7 @@ import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import HRDashboard from "./pages/HRDashboard.jsx";
+import MatchedCandidates from "./pages/MatchedCandidates.jsx";
 import Skills from "./pages/Skills.jsx";
 import Jobs from "./pages/Jobs.jsx";
 import Learning from "./pages/Learning.jsx";
@@ -112,6 +113,15 @@ export default function App() {
             <ProtectedRoute allowedRoles={['hr']}>
               <TopNavbar />
               <HRDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/hr/matched-candidates"
+          element={
+            <ProtectedRoute allowedRoles={['hr']}>
+              <TopNavbar />
+              <MatchedCandidates />
             </ProtectedRoute>
           }
         />

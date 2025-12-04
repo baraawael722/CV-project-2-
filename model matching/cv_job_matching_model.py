@@ -3,6 +3,7 @@
 يستخدم BERT و Sentence Transformers لتحقيق دقة عالية
 """
 
+import sys
 import pandas as pd
 import numpy as np
 import torch
@@ -143,10 +144,10 @@ class CVJobMatcher:
         تهيئة النموذج
         model_name: اسم نموذج Sentence Transformer
         """
-        print("🚀 جاري تحميل نموذج BERT...")
+        print("🚀 جاري تحميل نموذج BERT...", file=sys.stderr, flush=True)
         self.device = torch.device(
             'cuda' if torch.cuda.is_available() else 'cpu')
-        print(f"✅ استخدام: {self.device}")
+        print(f"✅ استخدام: {self.device}", file=sys.stderr, flush=True)
 
         # تحميل Sentence Transformer
         self.embedder = SentenceTransformer(model_name)
@@ -555,7 +556,7 @@ class CVJobMatcher:
         self.matching_model.load_state_dict(model_data['matching_model_state'])
         self.matching_model.eval()
 
-        print(f"✅ تم تحميل النموذج من: {path}")
+        print(f"✅ تم تحميل النموذج من: {path}", file=sys.stderr, flush=True)
 
 
 def main():

@@ -5,6 +5,9 @@ export default function HRDashboard() {
     const navigate = useNavigate()
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [matchingCVs, setMatchingCVs] = useState(false)
+    const [matchedCandidates, setMatchedCandidates] = useState([])
+    const [selectedJob, setSelectedJob] = useState(null)
     const [stats, setStats] = useState({
         totalJobs: 0,
         totalCandidates: 0,
@@ -102,6 +105,54 @@ export default function HRDashboard() {
         } catch (error) {
             console.error('Error deleting job:', error)
             alert('Error deleting job')
+        }
+    }
+
+    const handleFindMatchingCVs = async (job) => {
+        setMatchingCVs(true)
+        setSelectedJob(job)
+        setMatchedCandidates([])
+
+        try {
+            const token = localStorage.getItem('token')
+            console.log('🎯 Finding matching CVs for job:', job.title)
+
+            const response = await fetch('http://localhost:5000/api/ml/match-cvs', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ jobId: job._id }),
+                signal: AbortSignal.timeout(90000) // 90 second timeout for BERT processing
+            })
+
+            const data = await response.json()
+            console.log('📥 Matched CVs response:', data)
+
+            if (response.ok && data.success) {
+                const candidates = data.data || []
+                if (candidates.length > 0) {
+                    // Navigate to dedicated page with job and candidates data
+                    navigate('/hr/matched-candidates', {
+                        state: { job, candidates }
+                    })
+                } else {
+                    alert('⚠️ No matching CVs found in database')
+                }
+            } else {
+                console.error('❌ Error:', data.message)
+                alert(data.message || 'Failed to find matching CVs')
+            }
+        } catch (error) {
+            console.error('❌ Error finding matching CVs:', error)
+            if (error.name === 'AbortError') {
+                alert('⏱️ Request timed out. The AI model is taking too long to process.')
+            } else {
+                alert('Error: ' + error.message)
+            }
+        } finally {
+            setMatchingCVs(false)
         }
     }
 
@@ -311,6 +362,25 @@ export default function HRDashboard() {
                                                 </div>
                                             </div>
                                             <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => handleFindMatchingCVs(job)}
+                                                    disabled={matchingCVs}
+                                                    className="px-3 py-1.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg text-sm font-semibold hover:from-purple-600 hover:to-pink-600 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    {matchingCVs ? (
+                                                        <>
+                                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                            AI Matching...
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                                            </svg>
+                                                            Find CVs
+                                                        </>
+                                                    )}
+                                                </button>
                                                 <button
                                                     onClick={() => handleDeleteJob(job._id)}
                                                     className="px-3 py-1.5 bg-red-100 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-200 transition-all flex items-center gap-1"

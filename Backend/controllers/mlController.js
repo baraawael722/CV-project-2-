@@ -198,3 +198,160 @@ export const getMatchInputs = async (req, res) => {
     }
 };
 
+/**
+ * Match CVs to Job Description (for HR)
+ * Finds best matching candidate CVs for a given job description
+ */
+export const matchCVsToJob = async (req, res) => {
+    try {
+        const { jobId } = req.body;
+
+        if (!jobId) {
+            return res.status(400).json({
+                success: false,
+                message: 'jobId is required'
+            });
+        }
+
+        console.log('🎯 HR: Finding matching CVs for job:', jobId);
+
+        // Get the job description
+        const job = await Job.findById(jobId);
+        if (!job) {
+            return res.status(404).json({
+                success: false,
+                message: 'Job not found'
+            });
+        }
+
+        const jobDescription = job.description || '';
+        if (!jobDescription.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: 'Job description is empty'
+            });
+        }
+
+        // Get all candidates with CV text
+        const candidates = await Candidate.find({
+            resumeText: { $exists: true, $ne: '' }
+        });
+
+        if (candidates.length === 0) {
+            return res.status(200).json({
+                success: true,
+                data: [],
+                message: 'No CVs found in database'
+            });
+        }
+
+        console.log(`📄 Found ${candidates.length} candidates with CVs`);
+
+        // Prepare CV texts
+        const cvTexts = candidates.map(c => c.resumeText || '');
+
+        // Call Python script to match CVs to job
+        const { spawn } = await import('child_process');
+        const scriptPath = path.join(__dirname, '..', 'scripts', 'match_cvs_to_job.py');
+
+        const python = spawn('python', [scriptPath], {
+            stdio: ['pipe', 'pipe', 'pipe'],
+            shell: false,
+            env: { ...process.env, PYTHONIOENCODING: 'utf-8' }
+        });
+
+        const inputData = {
+            job_description: jobDescription,
+            cv_texts: cvTexts,
+            top_k: 10
+        };
+
+        // Send input to Python
+        python.stdin.write(JSON.stringify(inputData));
+        python.stdin.end();
+
+        let outputData = '';
+        let errorData = '';
+
+        python.stdout.on('data', (data) => {
+            outputData += data.toString();
+        });
+
+        python.stderr.on('data', (data) => {
+            errorData += data.toString();
+            console.log('🐍 Python:', data.toString().trim());
+        });
+
+        // Wait for Python to complete
+        await new Promise((resolve, reject) => {
+            python.on('close', (code) => {
+                if (code !== 0) {
+                    reject(new Error(`Python script exited with code ${code}: ${errorData}`));
+                } else {
+                    resolve();
+                }
+            });
+
+            python.on('error', (error) => {
+                reject(new Error(`Failed to start Python: ${error.message}`));
+            });
+
+            // Timeout after 60 seconds
+            setTimeout(() => {
+                python.kill();
+                reject(new Error('Python script timeout (60s)'));
+            }, 60000);
+        });
+
+        // Parse Python output
+        const result = JSON.parse(outputData);
+
+        if (!result.success) {
+            throw new Error(result.error || 'Python matcher failed');
+        }
+
+        // Map results back to full candidate objects
+        // Note: Python returns 'job_index' but we're matching CVs, so it's actually cv_index
+        const matchedCandidates = result.matches.map(match => {
+            const cvIndex = match.job_index !== undefined ? match.job_index : match.cv_index;
+            const candidate = candidates[cvIndex];
+
+            if (!candidate) {
+                console.error(`⚠️ No candidate found at index ${cvIndex}`);
+                return null;
+            }
+
+            return {
+                _id: candidate._id,
+                name: candidate.name,
+                email: candidate.email,
+                phone: candidate.phone,
+                skills: candidate.skills,
+                experience: candidate.experience,
+                education: candidate.education,
+                matchScore: Math.round(match.similarity_score * 100) / 100,
+                resumeText: candidate.resumeText.substring(0, 300) + '...' // Preview only
+            };
+        }).filter(c => c !== null);
+
+        console.log(`✅ Matched ${matchedCandidates.length} candidates to job`);
+        matchedCandidates.slice(0, 5).forEach((c, idx) => {
+            console.log(`   ${idx + 1}. ${c.name}: ${c.matchScore}%`);
+        });
+
+        return res.status(200).json({
+            success: true,
+            data: matchedCandidates,
+            jobTitle: job.title,
+            method: 'python_bert_hybrid_cv_matching'
+        });
+
+    } catch (error) {
+        console.error('❌ Error matching CVs to job:', error.message);
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
