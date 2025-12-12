@@ -313,7 +313,7 @@ export default function Profile() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Profile 👤</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Profile</h1>
           <p className="text-lg text-gray-600">Manage your account and preferences</p>
         </div>
 
@@ -329,7 +329,7 @@ export default function Profile() {
                     onClick={() => setEditing(true)}
                     className="px-6 py-2 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-all"
                   >
-                    ✏️ Edit
+                    Edit
                   </button>
                 ) : (
                   <div className="flex gap-2">
@@ -337,13 +337,13 @@ export default function Profile() {
                       onClick={handleSave}
                       className="px-6 py-2 bg-green-600 text-white font-bold rounded-full hover:bg-green-700 transition-all"
                     >
-                      ✅ Save
+                      Save
                     </button>
                     <button
                       onClick={() => setEditing(false)}
                       className="px-6 py-2 bg-gray-300 text-gray-700 font-bold rounded-full hover:bg-gray-400 transition-all"
                     >
-                      ❌ Cancel
+                      Cancel
                     </button>
                   </div>
                 )}
@@ -423,7 +423,7 @@ export default function Profile() {
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Professional Links</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">🔗 LinkedIn</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">LinkedIn</label>
                   {editing ? (
                     <input
                       type="text"
@@ -439,7 +439,7 @@ export default function Profile() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">💻 GitHub</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">GitHub</label>
                   {editing ? (
                     <input
                       type="text"
@@ -455,7 +455,7 @@ export default function Profile() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">🌐 Portfolio</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">Portfolio</label>
                   {editing ? (
                     <input
                       type="text"
@@ -474,7 +474,7 @@ export default function Profile() {
 
             {/* CV Upload */}
             <div className="bg-white rounded-xl shadow-md p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">CV / Resume 📄</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">CV / Resume</h2>
 
               {user.role !== 'employee' ? (
                 <p className="text-gray-600">CV upload is for employees only.</p>
@@ -482,7 +482,9 @@ export default function Profile() {
                 // Show uploaded CV status with Edit button
                 <div className="border-4 border-solid border-green-500 rounded-xl p-8 bg-green-50">
                   <div className="text-center">
-                    <div className="text-5xl mb-4">✅</div>
+                    <svg className="w-20 h-20 mx-auto mb-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
                     <h3 className="text-lg font-bold text-gray-900 mb-2">CV Uploaded Successfully</h3>
                     <p className="text-gray-700 mb-4 font-semibold">{cvFileName}</p>
                     <p className="text-sm text-gray-600 mb-6">Your CV has been uploaded and processed.</p>
@@ -493,7 +495,7 @@ export default function Profile() {
                       }}
                       className="px-6 py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-all"
                     >
-                      ✏️ Edit / Change CV
+                      Edit / Change CV
                     </button>
                   </div>
                 </div>
@@ -501,7 +503,9 @@ export default function Profile() {
                 // Show file selected state
                 <div className="border-4 border-solid border-green-500 rounded-xl p-8 bg-green-50 mb-4">
                   <div className="text-center">
-                    <div className="text-5xl mb-4">✅</div>
+                    <svg className="w-20 h-20 mx-auto mb-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
                     <h3 className="text-lg font-bold text-gray-900 mb-2">File Selected</h3>
                     <p className="text-gray-700 mb-4 font-semibold">{cvFile.name}</p>
                     <p className="text-sm text-gray-600 mb-4">Size: {(cvFile.size / 1024).toFixed(2)} KB</p>
@@ -517,14 +521,14 @@ export default function Profile() {
                             Uploading...
                           </span>
                         ) : (
-                          '📤 Upload CV'
+                          'Upload CV'
                         )}
                       </button>
                       <button
                         onClick={() => setCvFile(null)}
                         className="px-6 py-3 bg-gray-300 text-gray-700 font-bold rounded-full hover:bg-gray-400 transition-all"
                       >
-                        ✖️ Cancel
+                        Cancel
                       </button>
                     </div>
                   </div>
@@ -533,7 +537,9 @@ export default function Profile() {
                 // Show upload interface
                 <label htmlFor="cv-upload">
                   <div className="border-4 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer">
-                    <div className="text-5xl mb-4">📄</div>
+                    <svg className="w-20 h-20 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
                     <h3 className="text-lg font-bold text-gray-900 mb-2">Upload Your CV</h3>
                     <p className="text-gray-600 mb-4">PDF, DOC, or DOCX (Max 5MB)</p>
                     <div className="px-6 py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-all inline-block">

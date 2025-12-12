@@ -18,21 +18,21 @@ export default function TopNavbar() {
 
     if (user.role === 'hr') {
       return [
-        { name: 'Dashboard', path: '/hr/dashboard', icon: '🏠' },
-        { name: 'Jobs', path: '/hr/jobs', icon: '💼' },
-        { name: 'Skills', path: '/hr/skills', icon: '💡' },
-        { name: 'Profile', path: '/hr/profile', icon: '👤' }
+        { name: 'Dashboard', path: '/hr/dashboard', icon: 'home' },
+        { name: 'Jobs', path: '/hr/jobs', icon: 'briefcase' },
+        { name: 'Skills', path: '/hr/skills', icon: 'lightbulb' },
+        { name: 'Profile', path: '/hr/profile', icon: 'user' }
       ]
     }
 
     // Employee/User navigation
     return [
-      { name: 'Home', path: '/employee/dashboard', icon: '🏠' },
-      { name: 'Skills', path: '/employee/skills', icon: '💡' },
-      { name: 'Jobs', path: '/employee/jobs', icon: '💼' },
-      { name: 'Learning', path: '/employee/learning', icon: '📚' },
-      { name: 'Interview', path: '/employee/interview', icon: '🎯' },
-      { name: 'Profile', path: '/employee/profile', icon: '👤' }
+      { name: 'Home', path: '/employee/dashboard', icon: 'home' },
+      { name: 'Skills', path: '/employee/skills', icon: 'lightbulb' },
+      { name: 'Jobs', path: '/employee/jobs', icon: 'briefcase' },
+      { name: 'Learning', path: '/employee/learning', icon: 'book' },
+      { name: 'Interview', path: '/employee/interview', icon: 'target' },
+      { name: 'Profile', path: '/employee/profile', icon: 'user' }
     ]
   }
 
@@ -54,16 +54,16 @@ export default function TopNavbar() {
           <nav className="hidden md:flex space-x-1">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path
+
               return (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`px-4 py-2 rounded-lg font-bold text-base transition-all duration-300 flex items-center gap-2 ${isActive
+                  className={`px-4 py-2 rounded-lg font-bold text-base transition-all duration-300 ${isActive
                     ? 'bg-blue-600 text-white shadow-lg'
                     : 'text-gray-900 hover:bg-blue-50 hover:text-blue-600'
                     }`}
                 >
-                  <span className="text-xl">{item.icon}</span>
                   {item.name}
                 </Link>
               )

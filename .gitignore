@@ -36,11 +36,23 @@ npm-debug.log*
 model matching/*.pkl
 model matching/*.pth
 model matching/*.zip
+model matching/*.csv
+model matching/data*.csv
+model matching/__pycache__/
+model matching/bert-cache/
+model matching/cv-job-matching-colab/
 Backend/uploads/
 ml-service/.venv/
 cv/cv/*.csv
 cv/cv/*.zip
 cv/
+
+# Misc local folders
+run project/
+
+# Python cache inside services
+ml-service/__pycache__/
+Backend/**/__pycache__/
 
 # Python Virtual Environments
 .venv/

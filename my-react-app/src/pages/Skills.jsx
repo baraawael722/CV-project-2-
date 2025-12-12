@@ -41,7 +41,7 @@ export default function Skills() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Skills & CV Analyzer 💡</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Skills & CV Analyzer</h1>
           <p className="text-lg text-gray-600">Upload your CV to get personalized skill insights</p>
         </div>
 
@@ -50,12 +50,15 @@ export default function Skills() {
           <div className="flex flex-col items-center">
             <div className="w-full max-w-2xl">
               <label htmlFor="cv-upload" className="block">
-                <div className={`border-4 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all ${
-                  cvUploaded ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-blue-500 hover:bg-blue-50'
-                }`}>
-                  <div className="text-6xl mb-4">
-                    {cvUploaded ? '✅' : '📄'}
-                  </div>
+                <div className={`border-4 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all ${cvUploaded ? 'border-green-500 bg-green-50' : 'border-gray-300 hover:border-blue-500 hover:bg-blue-50'
+                  }`}>
+                  <svg className="w-20 h-20 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    {cvUploaded ? (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    ) : (
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    )}
+                  </svg>
                   <h3 className="text-xl font-bold text-gray-900 mb-2">
                     {cvUploaded ? 'CV Uploaded Successfully!' : 'Upload Your CV'}
                   </h3>
@@ -83,7 +86,7 @@ export default function Skills() {
                   disabled={analyzing}
                   className="w-full mt-6 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-lg rounded-full hover:shadow-xl transition-all disabled:opacity-50"
                 >
-                  {analyzing ? '🔄 Analyzing...' : '🚀 Analyze My Skills'}
+                  {analyzing ? 'Analyzing...' : 'Analyze My Skills'}
                 </button>
               )}
             </div>
@@ -110,28 +113,29 @@ export default function Skills() {
             {/* Existing Skills */}
             <div className="bg-white rounded-xl shadow-md p-8 mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <span>✅</span> Your Current Skills
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Your Current Skills
               </h2>
               <div className="grid md:grid-cols-2 gap-4">
                 {existingSkills.map((skill, index) => (
                   <div key={index} className="p-4 bg-gray-50 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-bold text-gray-900">{skill.name}</span>
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        skill.status === 'strong' ? 'bg-green-100 text-green-700' :
-                        skill.status === 'good' ? 'bg-blue-100 text-blue-700' :
-                        'bg-yellow-100 text-yellow-700'
-                      }`}>
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${skill.status === 'strong' ? 'bg-green-100 text-green-700' :
+                          skill.status === 'good' ? 'bg-blue-100 text-blue-700' :
+                            'bg-yellow-100 text-yellow-700'
+                        }`}>
                         {skill.level}%
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
-                        className={`h-2 rounded-full ${
-                          skill.status === 'strong' ? 'bg-green-500' :
-                          skill.status === 'good' ? 'bg-blue-500' :
-                          'bg-yellow-500'
-                        }`}
+                        className={`h-2 rounded-full ${skill.status === 'strong' ? 'bg-green-500' :
+                            skill.status === 'good' ? 'bg-blue-500' :
+                              'bg-yellow-500'
+                          }`}
                         style={{ width: `${skill.level}%` }}
                       ></div>
                     </div>
@@ -143,20 +147,21 @@ export default function Skills() {
             {/* Skill Gap */}
             <div className="bg-white rounded-xl shadow-md p-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <span>❗</span> Skills You Need to Learn
+                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                Skills You Need to Learn
               </h2>
               <div className="space-y-4">
                 {missingSkills.map((skill, index) => (
-                  <div key={index} className={`p-6 rounded-lg border-l-4 ${
-                    skill.priority === 'high' ? 'bg-red-50 border-red-500' : 'bg-orange-50 border-orange-500'
-                  }`}>
+                  <div key={index} className={`p-6 rounded-lg border-l-4 ${skill.priority === 'high' ? 'bg-red-50 border-red-500' : 'bg-orange-50 border-orange-500'
+                    }`}>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <h3 className="text-xl font-bold text-gray-900">{skill.name}</h3>
-                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                            skill.priority === 'high' ? 'bg-red-200 text-red-800' : 'bg-orange-200 text-orange-800'
-                          }`}>
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${skill.priority === 'high' ? 'bg-red-200 text-red-800' : 'bg-orange-200 text-orange-800'
+                            }`}>
                             {skill.priority.toUpperCase()} PRIORITY
                           </span>
                         </div>

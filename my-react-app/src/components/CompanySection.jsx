@@ -1,18 +1,15 @@
 import React from 'react';
 
 const companies = [
-  { name: 'Google', logo: 'https://logo.clearbit.com/google.com' },
-  { name: 'Microsoft', logo: 'https://logo.clearbit.com/microsoft.com' },
-  { name: 'Apple', logo: 'https://cdn.simpleicons.org/apple/000000' },
-  { name: 'Amazon', logo: 'https://logo.clearbit.com/amazon.com' },
+  { name: 'Google', logo: 'https://cdn.simpleicons.org/google/4285F4' },
+  { name: 'Amazon', logo: 'https://cdn.simpleicons.org/amazon/FF9900' },
   { name: 'Meta', logo: 'https://cdn.simpleicons.org/meta/0081FB' },
   { name: 'Netflix', logo: 'https://cdn.simpleicons.org/netflix/E50914' },
   { name: 'Tesla', logo: 'https://cdn.simpleicons.org/tesla/CC0000' },
-  { name: 'Samsung', logo: 'https://logo.clearbit.com/samsung.com' },
-  { name: 'Coca Cola', logo: 'https://logo.clearbit.com/coca-cola.com' },
-  { name: 'Starbucks', logo: 'https://logo.clearbit.com/starbucks.com' },
-  { name: 'IBM', logo: 'https://logo.clearbit.com/ibm.com' },
-  { name: 'Intel', logo: 'https://logo.clearbit.com/intel.com' }
+  { name: 'Samsung', logo: 'https://cdn.simpleicons.org/samsung/1428A0' },
+  { name: 'Coca Cola', logo: 'https://cdn.simpleicons.org/cocacola/E41A1C' },
+  { name: 'Starbucks', logo: 'https://cdn.simpleicons.org/starbucks/036635' },
+  { name: 'Intel', logo: 'https://cdn.simpleicons.org/intel/0071C5' }
 ];
 
 const CompanySection = () => {
