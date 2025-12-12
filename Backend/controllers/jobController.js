@@ -226,3 +226,72 @@ export const getJobApplicants = async (req, res) => {
     });
   }
 };
+
+// Apply to a job
+export const applyToJob = async (req, res) => {
+  try {
+    const jobId = req.params.id;
+    const userId = req.user.id;
+    const userEmail = req.user.email;
+
+    // Find the job
+    const job = await Job.findById(jobId);
+    if (!job) {
+      return res.status(404).json({
+        success: false,
+        message: "Job not found",
+      });
+    }
+
+    // Find or create candidate profile
+    let candidate = await Candidate.findOne({ email: userEmail });
+    
+    if (!candidate) {
+      // Create basic candidate profile if doesn't exist
+      candidate = await Candidate.create({
+        email: userEmail,
+        name: req.user.name || 'Candidate',
+        applications: []
+      });
+    }
+
+    // Check if already applied
+    const alreadyApplied = candidate.applications?.some(
+      app => app.jobId && app.jobId.toString() === jobId
+    );
+
+    if (alreadyApplied) {
+      return res.status(400).json({
+        success: false,
+        message: "You have already applied to this job",
+      });
+    }
+
+    // Add application
+    candidate.applications = candidate.applications || [];
+    candidate.applications.push({
+      jobId: jobId,
+      appliedAt: new Date(),
+      status: 'Pending'
+    });
+
+    await candidate.save();
+
+    res.json({
+      success: true,
+      message: "Application submitted successfully",
+      data: {
+        jobId: jobId,
+        jobTitle: job.title,
+        appliedAt: new Date()
+      }
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: error.message,
+    });
+  }
+};
