@@ -10,6 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const ML_SERVICE_URL = process.env.ML_HOST || 'http://127.0.0.1:5001';
+const CV_CLASSIFIER_URL = process.env.CV_CLASSIFIER_URL || 'http://127.0.0.1:5002';
 const USE_PYTHON_MATCHER = process.env.USE_PYTHON_MATCHER !== 'false'; // Default: true
 
 // Initialize Python service on module load
@@ -348,6 +349,80 @@ export const matchCVsToJob = async (req, res) => {
 
     } catch (error) {
         console.error('❌ Error matching CVs to job:', error.message);
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+/**
+ * Classify CV to determine job title/role
+ * Uses cv_classifier_merged.keras model + Groq API
+ */
+export const classifyCV = async (req, res) => {
+    try {
+        console.log('🎯 Classifying CV for user:', req.user.email);
+
+        // Get candidate's CV text
+        const candidate = await Candidate.findOne({ email: req.user.email });
+        if (!candidate || !candidate.resumeText || candidate.resumeText.trim() === '') {
+            return res.status(400).json({
+                success: false,
+                message: 'No CV found. Please upload your CV first.'
+            });
+        }
+
+        const cvText = candidate.resumeText;
+        console.log('📄 CV Text Length:', cvText.length, 'characters');
+
+        // Call CV Classifier Service
+        console.log('🔬 Calling CV Classifier Service at:', CV_CLASSIFIER_URL);
+
+        const response = await axios.post(`${CV_CLASSIFIER_URL}/classify`, {
+            cv_text: cvText,
+            use_groq_analysis: true
+        }, {
+            timeout: 30000 // 30 seconds timeout
+        });
+
+        if (response.data.success) {
+            console.log('✅ Classification successful!');
+            console.log('   Job Title:', response.data.job_title);
+            console.log('   Confidence:', response.data.confidence);
+            console.log('   AI Analysis:', response.data.ai_analysis);
+
+            // Update candidate with classified job title
+            candidate.jobTitle = response.data.job_title;
+            await candidate.save();
+
+            return res.status(200).json({
+                success: true,
+                data: {
+                    jobTitle: response.data.job_title,
+                    confidence: response.data.confidence,
+                    decision_method: response.data.decision_method,
+                    ai_analysis: response.data.ai_analysis,
+                    keras_prediction: response.data.keras_prediction
+                },
+                message: 'CV classified successfully!'
+            });
+        } else {
+            throw new Error(response.data.error || 'Classification failed');
+        }
+
+    } catch (error) {
+        console.error('❌ Error classifying CV:', error.message);
+
+        // Check if it's a connection error
+        if (error.code === 'ECONNREFUSED') {
+            return res.status(503).json({
+                success: false,
+                message: 'CV Classifier Service is not running. Please start it first.',
+                hint: 'Run: python ml-service/cv_classifier_service.py'
+            });
+        }
+
         return res.status(500).json({
             success: false,
             message: error.message

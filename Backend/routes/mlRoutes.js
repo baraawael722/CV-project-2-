@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import { matchCV, matchJobs, getMatchInputs, matchCVsToJob } from '../controllers/mlController.js';
+import { matchCV, matchJobs, getMatchInputs, matchCVsToJob, classifyCV } from '../controllers/mlController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { authorizeRoles } from '../middleware/roleMiddleware.js';
 
@@ -20,5 +20,8 @@ router.post('/match-cvs', protect, authorizeRoles('hr'), matchCVsToJob);
 
 // Public endpoint: view matcher inputs without authentication
 router.get('/match-inputs', getMatchInputs);
+
+// Protected endpoint: Classify CV to determine job title
+router.post('/classify-cv', protect, classifyCV);
 
 export default router;
