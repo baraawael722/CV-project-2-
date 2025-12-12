@@ -1,5 +1,0 @@
-The file `models/best_matching_model.pth` is a binary file that contains the saved state of the best-performing model during training. Since this file is generated during the training process and is not meant to be manually created or edited, it cannot be generated as text content.
-
-To use this file in Google Colab, you should run the training process defined in `notebooks/train_model.ipynb`, which will create and save the `best_matching_model.pth` file automatically when the model training is completed. 
-
-Make sure to upload the necessary CSV files and the `src/cv_job_matching_model.py` script to your Colab environment before running the notebook.
