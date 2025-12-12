@@ -1,404 +1,483 @@
-import React, { useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function HRDashboard() {
-    const navigate = useNavigate()
-    const [user, setUser] = useState(null)
-    const [loading, setLoading] = useState(true)
-    const [matchingCVs, setMatchingCVs] = useState(false)
-    const [matchedCandidates, setMatchedCandidates] = useState([])
-    const [selectedJob, setSelectedJob] = useState(null)
-    const [stats, setStats] = useState({
-        totalJobs: 0,
-        totalCandidates: 0,
-        activeApplications: 0,
-        avgMatchRate: 0
-    })
-    const [recentCandidates, setRecentCandidates] = useState([])
-    const [recentJobs, setRecentJobs] = useState([])
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [matchingCVs, setMatchingCVs] = useState(false);
+  const [matchedCandidates, setMatchedCandidates] = useState([]);
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [stats, setStats] = useState({
+    totalJobs: 0,
+    totalCandidates: 0,
+    activeApplications: 0,
+    avgMatchRate: 0,
+  });
+  const [recentCandidates, setRecentCandidates] = useState([]);
+  const [recentJobs, setRecentJobs] = useState([]);
+  const chartData = [
+    { label: "Mon", view: 180, applied: 90 },
+    { label: "Tue", view: 210, applied: 100 },
+    { label: "Wed", view: 260, applied: 122 },
+    { label: "Thu", view: 240, applied: 115 },
+    { label: "Fri", view: 180, applied: 70 },
+    { label: "Sat", view: 110, applied: 50 },
+    { label: "Sun", view: 140, applied: 70 },
+  ];
 
-    useEffect(() => {
-        // Get user from localStorage
-        const storedUser = localStorage.getItem('user')
-        const token = localStorage.getItem('token')
+  useEffect(() => {
+    // Get user from localStorage
+    const storedUser = localStorage.getItem("user");
+    const token = localStorage.getItem("token");
 
-        if (!storedUser || !token) {
-            navigate('/login')
-            return
-        }
-
-        const userData = JSON.parse(storedUser)
-        if (userData.role !== 'hr') {
-            navigate('/employee/dashboard')
-            return
-        }
-
-        setUser(userData)
-        fetchDashboardData(token)
-    }, [navigate])
-
-    const fetchDashboardData = async (token) => {
-        try {
-            // Fetch candidates
-            const candidatesRes = await fetch('http://localhost:5000/api/candidates', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-
-            // Fetch jobs
-            const jobsRes = await fetch('http://localhost:5000/api/jobs', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-
-            if (candidatesRes.ok && jobsRes.ok) {
-                const candidatesData = await candidatesRes.json()
-                const jobsData = await jobsRes.json()
-
-                // Update stats
-                setStats({
-                    totalJobs: jobsData.count || 0,
-                    totalCandidates: candidatesData.count || 0,
-                    activeApplications: candidatesData.data?.reduce((acc, c) => acc + (c.applications?.length || 0), 0) || 0,
-                    avgMatchRate: 85 // Calculate from actual data
-                })
-
-                // Set recent data
-                setRecentCandidates(candidatesData.data?.slice(0, 5) || [])
-                setRecentJobs(jobsData.data?.slice(0, 5) || [])
-            }
-        } catch (error) {
-            console.error('Error fetching dashboard data:', error)
-        } finally {
-            setLoading(false)
-        }
+    if (!storedUser || !token) {
+      navigate("/login");
+      return;
     }
 
-    const handleDeleteJob = async (jobId) => {
-        if (!window.confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
-            return
-        }
-
-        try {
-            const token = localStorage.getItem('token')
-            const res = await fetch(`http://localhost:5000/api/jobs/${jobId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-
-            if (res.ok) {
-                // Remove from list
-                setRecentJobs(recentJobs.filter(job => job._id !== jobId))
-                // Update stats
-                setStats(prev => ({
-                    ...prev,
-                    totalJobs: Math.max(0, prev.totalJobs - 1)
-                }))
-            } else {
-                const data = await res.json()
-                alert(data.message || 'Failed to delete job')
-            }
-        } catch (error) {
-            console.error('Error deleting job:', error)
-            alert('Error deleting job')
-        }
+    const userData = JSON.parse(storedUser);
+    if (userData.role !== "hr") {
+      navigate("/employee/dashboard");
+      return;
     }
 
-    const handleFindMatchingCVs = async (job) => {
-        setMatchingCVs(true)
-        setSelectedJob(job)
-        setMatchedCandidates([])
+    setUser(userData);
+    fetchDashboardData(token);
+  }, [navigate]);
 
-        try {
-            const token = localStorage.getItem('token')
-            console.log('🎯 Finding matching CVs for job:', job.title)
-
-            const response = await fetch('http://localhost:5000/api/ml/match-cvs', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ jobId: job._id }),
-                signal: AbortSignal.timeout(90000) // 90 second timeout for BERT processing
-            })
-
-            const data = await response.json()
-            console.log('📥 Matched CVs response:', data)
-
-            if (response.ok && data.success) {
-                const candidates = data.data || []
-                if (candidates.length > 0) {
-                    // Navigate to dedicated page with job and candidates data
-                    navigate('/hr/matched-candidates', {
-                        state: { job, candidates }
-                    })
-                } else {
-                    alert('⚠️ No matching CVs found in database')
-                }
-            } else {
-                console.error('❌ Error:', data.message)
-                alert(data.message || 'Failed to find matching CVs')
-            }
-        } catch (error) {
-            console.error('❌ Error finding matching CVs:', error)
-            if (error.name === 'AbortError') {
-                alert('⏱️ Request timed out. The AI model is taking too long to process.')
-            } else {
-                alert('Error: ' + error.message)
-            }
-        } finally {
-            setMatchingCVs(false)
+  const fetchDashboardData = async (token) => {
+    try {
+      // Fetch candidates
+      const candidatesRes = await fetch(
+        "http://localhost:5000/api/candidates",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
+      );
+
+      // Fetch jobs
+      const jobsRes = await fetch("http://localhost:5000/api/jobs", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (candidatesRes.ok && jobsRes.ok) {
+        const candidatesData = await candidatesRes.json();
+        const jobsData = await jobsRes.json();
+
+        // Update stats
+        setStats({
+          totalJobs: jobsData.count || 0,
+          totalCandidates: candidatesData.count || 0,
+          activeApplications:
+            candidatesData.data?.reduce(
+              (acc, c) => acc + (c.applications?.length || 0),
+              0
+            ) || 0,
+          avgMatchRate: 85, // Calculate from actual data
+        });
+
+        // Set recent data
+        setRecentCandidates(candidatesData.data?.slice(0, 5) || []);
+        setRecentJobs(jobsData.data?.slice(0, 5) || []);
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteJob = async (jobId) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete this job? This action cannot be undone."
+      )
+    ) {
+      return;
     }
 
-    if (loading || !user) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mx-auto mb-4"></div>
-                    <p className="text-gray-600 font-semibold">Loading Dashboard...</p>
-                </div>
-            </div>
-        )
-    }
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:5000/api/jobs/${jobId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
+      if (res.ok) {
+        // Remove from list
+        setRecentJobs(recentJobs.filter((job) => job._id !== jobId));
+        // Update stats
+        setStats((prev) => ({
+          ...prev,
+          totalJobs: Math.max(0, prev.totalJobs - 1),
+        }));
+      } else {
+        const data = await res.json();
+        alert(data.message || "Failed to delete job");
+      }
+    } catch (error) {
+      console.error("Error deleting job:", error);
+      alert("Error deleting job");
+    }
+  };
+
+  const handleFindMatchingCVs = async (job) => {
+    setMatchingCVs(true);
+    setSelectedJob(job);
+    setMatchedCandidates([]);
+
+    try {
+      const token = localStorage.getItem("token");
+      console.log("🎯 Finding matching CVs for job:", job.title);
+
+      const response = await fetch("http://localhost:5000/api/ml/match-cvs", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ jobId: job._id }),
+        signal: AbortSignal.timeout(90000), // 90 second timeout for BERT processing
+      });
+
+      const data = await response.json();
+      console.log("📥 Matched CVs response:", data);
+
+      if (response.ok && data.success) {
+        const candidates = data.data || [];
+        if (candidates.length > 0) {
+          // Navigate to dedicated page with job and candidates data
+          navigate("/hr/matched-candidates", {
+            state: { job, candidates },
+          });
+        } else {
+          alert("⚠️ No matching CVs found in database");
+        }
+      } else {
+        console.error("❌ Error:", data.message);
+        alert(data.message || "Failed to find matching CVs");
+      }
+    } catch (error) {
+      console.error("❌ Error finding matching CVs:", error);
+      if (error.name === "AbortError") {
+        alert(
+          "⏱️ Request timed out. The AI model is taking too long to process."
+        );
+      } else {
+        alert("Error: " + error.message);
+      }
+    } finally {
+      setMatchingCVs(false);
+    }
+  };
+
+  if (loading || !user) {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-                {/* Welcome Header */}
-                <div className="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-2xl p-8 text-white mb-8 shadow-xl">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h1 className="text-4xl font-bold mb-2">Welcome, {user.name}! 👔</h1>
-                            <p className="text-xl text-white/90">HR Dashboard - Manage Your Recruitment Pipeline</p>
-                        </div>
-                        <div className="hidden md:block text-6xl">💼</div>
-                    </div>
-                </div>
-
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    {/* Total Jobs */}
-                    <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500 hover:shadow-lg transition-all">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-gray-600 font-semibold mb-1">Total Jobs</p>
-                                <p className="text-3xl font-bold text-gray-900">{stats.totalJobs}</p>
-                            </div>
-                            <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center">
-                                <span className="text-2xl">💼</span>
-                            </div>
-                        </div>
-                        <Link to="/jobs" className="text-blue-600 text-sm font-semibold mt-3 inline-block hover:underline">
-                            View all jobs →
-                        </Link>
-                    </div>
-
-                    {/* Total Candidates */}
-                    <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500 hover:shadow-lg transition-all">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-gray-600 font-semibold mb-1">Total Candidates</p>
-                                <p className="text-3xl font-bold text-gray-900">{stats.totalCandidates}</p>
-                            </div>
-                            <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center">
-                                <span className="text-2xl">👥</span>
-                            </div>
-                        </div>
-                        <p className="text-green-600 text-sm font-semibold mt-3">
-                            +{Math.floor(stats.totalCandidates * 0.12)} this week
-                        </p>
-                    </div>
-
-                    {/* Active Applications */}
-                    <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500 hover:shadow-lg transition-all">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-gray-600 font-semibold mb-1">Applications</p>
-                                <p className="text-3xl font-bold text-gray-900">{stats.activeApplications}</p>
-                            </div>
-                            <div className="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center">
-                                <span className="text-2xl">📋</span>
-                            </div>
-                        </div>
-                        <p className="text-purple-600 text-sm font-semibold mt-3">
-                            Pending review
-                        </p>
-                    </div>
-
-                    {/* Average Match Rate */}
-                    <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-orange-500 hover:shadow-lg transition-all">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-gray-600 font-semibold mb-1">Avg Match Rate</p>
-                                <p className="text-3xl font-bold text-gray-900">{stats.avgMatchRate}%</p>
-                            </div>
-                            <div className="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center">
-                                <span className="text-2xl">🎯</span>
-                            </div>
-                        </div>
-                        <p className="text-orange-600 text-sm font-semibold mt-3">
-                            Quality matches
-                        </p>
-                    </div>
-                </div>
-
-                {/* Quick Actions */}
-                <div className="bg-white rounded-xl shadow-md p-6 mb-8 border border-gray-100">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Quick Actions ⚡</h2>
-                    <div className="grid md:grid-cols-3 gap-4">
-                        <Link to="/jobs" className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg hover:shadow-md transition-all group">
-                            <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-gray-900">Post New Job</h3>
-                                    <p className="text-sm text-gray-600">Create job listing</p>
-                                </div>
-                            </div>
-                        </Link>
-
-                        <button className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg hover:shadow-md transition-all group">
-                            <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-gray-900">Search Candidates</h3>
-                                    <p className="text-sm text-gray-600">Find talent</p>
-                                </div>
-                            </div>
-                        </button>
-
-                        <button className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg hover:shadow-md transition-all group">
-                            <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-gray-900">View Analytics</h3>
-                                    <p className="text-sm text-gray-600">Reports & insights</p>
-                                </div>
-                            </div>
-                        </button>
-                    </div>
-                </div>
-
-                <div className="grid lg:grid-cols-2 gap-8">
-                    {/* Recent Candidates */}
-                    <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-                        <h2 className="text-2xl font-bold text-gray-900 mb-4">Recent Candidates 👥</h2>
-                        {recentCandidates.length === 0 ? (
-                            <div className="text-center py-8">
-                                <div className="text-5xl mb-3">📭</div>
-                                <p className="text-gray-600">No candidates yet</p>
-                                <p className="text-sm text-gray-500 mt-1">Candidates will appear here once they register</p>
-                            </div>
-                        ) : (
-                            <div className="space-y-3">
-                                {recentCandidates.map((candidate) => (
-                                    <div key={candidate._id} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <h3 className="font-bold text-gray-900">{candidate.name}</h3>
-                                                <p className="text-sm text-gray-600">{candidate.email}</p>
-                                                <div className="flex gap-2 mt-2">
-                                                    {candidate.skills?.slice(0, 3).map((skill, idx) => (
-                                                        <span key={idx} className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-semibold">
-                                                            {skill}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-all">
-                                                View
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Recent Jobs */}
-                    <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-                        <h2 className="text-2xl font-bold text-gray-900 mb-4">Recent Job Posts 💼</h2>
-                        {recentJobs.length === 0 ? (
-                            <div className="text-center py-8">
-                                <div className="text-5xl mb-3">📭</div>
-                                <p className="text-gray-600">No job posts yet</p>
-                                <Link to="/jobs" className="inline-block mt-3 px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all">
-                                    Post Your First Job
-                                </Link>
-                            </div>
-                        ) : (
-                            <div className="space-y-3">
-                                {recentJobs.map((job) => (
-                                    <div key={job._id} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex-1">
-                                                <h3 className="font-bold text-gray-900">{job.title}</h3>
-                                                <p className="text-sm text-gray-600">{job.department} • {job.location}</p>
-                                                <div className="flex items-center gap-2 mt-2">
-                                                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-semibold">
-                                                        {job.status || 'Active'}
-                                                    </span>
-                                                    <span className="text-xs text-gray-500">
-                                                        {job.applicantsCount || 0} applicants
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div className="flex gap-2">
-                                                <button
-                                                    onClick={() => handleFindMatchingCVs(job)}
-                                                    disabled={matchingCVs}
-                                                    className="px-3 py-1.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg text-sm font-semibold hover:from-purple-600 hover:to-pink-600 transition-all flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                                                >
-                                                    {matchingCVs ? (
-                                                        <>
-                                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                                            AI Matching...
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                                                            </svg>
-                                                            Find CVs
-                                                        </>
-                                                    )}
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDeleteJob(job._id)}
-                                                    className="px-3 py-1.5 bg-red-100 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-200 transition-all flex items-center gap-1"
-                                                >
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                    </svg>
-                                                    Delete
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-indigo-600 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-gray-600 font-semibold">Loading Dashboard...</p>
         </div>
-    )
+      </div>
+    );
+  }
+
+  const startRange = new Date();
+  const endRange = new Date(Date.now() + 6 * 24 * 60 * 60 * 1000);
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Top bar */}
+      <header className="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-gray-900">
+            Good morning, {user.name}
+          </h1>
+          <p className="text-sm text-gray-500">
+            Here is your job listings statistic report from{" "}
+            {startRange.toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+            })}{" "}
+            -{" "}
+            {endRange.toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+            })}
+            .
+          </p>
+        </div>
+        <div className="flex items-center gap-4">
+          <button
+            className="px-3 py-2 rounded-lg bg-indigo-600 text-white font-semibold shadow hover:bg-indigo-700 transition"
+            onClick={() => navigate("/hr/jobs")}
+          >
+            Post a job
+          </button>
+          <div className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 bg-white">
+            {startRange.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            })}{" "}
+            -{" "}
+            {endRange.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            })}
+          </div>
+        </div>
+      </header>
+
+      {/* Dashboard content */}
+      <main className="p-8 space-y-8">
+        {/* Top stat cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-xl bg-gradient-to-r from-sky-500 to-sky-400 text-white p-6 shadow-md">
+            <p className="text-sm opacity-90">New candidates to review</p>
+            <div className="flex items-center justify-between mt-2">
+              <p className="text-5xl font-bold">
+                {stats.totalCandidates || 76}
+              </p>
+              <span className="text-2xl">→</span>
+            </div>
+          </div>
+          <div className="rounded-xl bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white p-6 shadow-md">
+            <p className="text-sm opacity-90">Schedule for today</p>
+            <div className="flex items-center justify-between mt-2">
+              <p className="text-5xl font-bold">3</p>
+              <span className="text-2xl">→</span>
+            </div>
+          </div>
+          <div className="rounded-xl bg-gradient-to-r from-orange-400 to-orange-500 text-white p-6 shadow-md">
+            <p className="text-sm opacity-90">Messages received</p>
+            <div className="flex items-center justify-between mt-2">
+              <p className="text-5xl font-bold">
+                {stats.activeApplications || 24}
+              </p>
+              <span className="text-2xl">→</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Chart + side metrics */}
+        <div className="grid lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 rounded-xl bg-white border border-gray-200 p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Job statistics
+                </h3>
+                <p className="text-xs text-gray-500">
+                  Showing jobStatistic Jul 19-25
+                </p>
+              </div>
+              <div className="flex gap-2 text-xs">
+                <button className="px-3 py-1 rounded-lg bg-indigo-50 text-indigo-700 font-semibold">
+                  Week
+                </button>
+                <button className="px-3 py-1 rounded-lg border border-gray-200 text-gray-600">
+                  Month
+                </button>
+                <button className="px-3 py-1 rounded-lg border border-gray-200 text-gray-600">
+                  Year
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-6 text-sm font-semibold text-gray-700 mb-4">
+              <button className="border-b-2 border-indigo-600 pb-2">
+                Overview
+              </button>
+              <button className="text-gray-500">Jobs View</button>
+              <button className="text-gray-500">Jobs Applied</button>
+            </div>
+
+            <div className="grid grid-cols-7 gap-3 h-56 items-end mb-6">
+              {chartData.map((item) => (
+                <div
+                  key={item.label}
+                  className="flex flex-col items-center gap-2"
+                >
+                  <div className="w-full flex flex-col justify-end gap-1">
+                    <div className="mx-auto text-[10px] text-white bg-gray-900 rounded px-1 py-[2px]">
+                      {item.view}
+                    </div>
+                    <div
+                      className="w-9 sm:w-10 bg-amber-400 rounded-md"
+                      style={{ height: `${item.view / 4}px` }}
+                    ></div>
+                    <div className="mx-auto text-[10px] text-white bg-gray-900 rounded px-1 py-[2px]">
+                      {item.applied}
+                    </div>
+                    <div
+                      className="w-9 sm:w-10 bg-sky-500 rounded-md"
+                      style={{ height: `${item.applied / 3}px` }}
+                    ></div>
+                  </div>
+                  <p className="text-xs text-gray-600">{item.label}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="border border-gray-200 rounded-xl p-4 shadow-sm">
+                <p className="text-sm text-gray-500">Job Views</p>
+                <p className="text-3xl font-bold text-gray-900">2,342</p>
+                <p className="text-xs text-emerald-600 font-semibold">
+                  This Week 6.4%
+                </p>
+              </div>
+              <div className="border border-gray-200 rounded-xl p-4 shadow-sm">
+                <p className="text-sm text-gray-500">Job Applied</p>
+                <p className="text-3xl font-bold text-gray-900">654</p>
+                <p className="text-xs text-rose-600 font-semibold">
+                  This Week 0.5%
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="rounded-xl bg-white border border-gray-200 p-6 shadow-sm">
+              <p className="text-sm text-gray-500">Job Open</p>
+              <p className="text-5xl font-bold text-gray-900">
+                {stats.totalJobs || 12}
+              </p>
+              <p className="text-sm text-gray-500 mt-1">Jobs Opened</p>
+            </div>
+
+            <div className="rounded-xl bg-white border border-gray-200 p-6 shadow-sm">
+              <h4 className="text-sm font-semibold text-gray-900 mb-3">
+                Applicants Summary
+              </h4>
+              <p className="text-5xl font-bold text-gray-900 mb-4">
+                {stats.totalCandidates || 67}
+              </p>
+              <div className="space-y-2 text-xs text-gray-700">
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded bg-purple-500"></span>Full
+                    Time
+                  </span>
+                  <span className="font-semibold text-gray-900">45</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded bg-orange-400"></span>
+                    Internship
+                  </span>
+                  <span className="font-semibold text-gray-900">32</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded bg-teal-400"></span>
+                    Part-Time
+                  </span>
+                  <span className="font-semibold text-gray-900">24</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded bg-red-500"></span>Contract
+                  </span>
+                  <span className="font-semibold text-gray-900">30</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded bg-sky-500"></span>Remote
+                  </span>
+                  <span className="font-semibold text-gray-900">22</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Keep existing lists for functionality */}
+        <div className="grid lg:grid-cols-2 gap-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Recent Candidates
+            </h2>
+            {recentCandidates.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                No candidates yet
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {recentCandidates.map((candidate) => (
+                  <div
+                    key={candidate._id}
+                    className="p-4 bg-gray-50 rounded-lg flex items-center justify-between"
+                  >
+                    <div>
+                      <p className="font-semibold text-gray-900">
+                        {candidate.name}
+                      </p>
+                      <p className="text-sm text-gray-600">{candidate.email}</p>
+                    </div>
+                    <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition">
+                      View
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Recent Job Posts
+            </h2>
+            {recentJobs.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                No job posts yet
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {recentJobs.map((job) => (
+                  <div key={job._id} className="p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-900">
+                          {job.title}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {job.department} • {job.location}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {job.applicantsCount || 0} applicants
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleFindMatchingCVs(job)}
+                          disabled={matchingCVs}
+                          className="px-3 py-1.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg text-xs font-semibold hover:from-purple-600 hover:to-pink-600 transition disabled:opacity-50"
+                        >
+                          {matchingCVs ? "Matching..." : "Find CVs"}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteJob(job._id)}
+                          className="px-3 py-1.5 bg-red-100 text-red-600 rounded-lg text-xs font-semibold hover:bg-red-200 transition"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
 }
