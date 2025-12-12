@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import JobStatsChart from '../components/JobStatsChart'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -72,6 +73,9 @@ export default function Dashboard() {
             <p className="text-2xl font-bold text-gray-900">85%</p>
           </div>
         </div>
+
+        {/* Job Stats Chart */}
+        <JobStatsChart />
 
         {/* CV Upload CTA - Prominent Section */}
         <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-8 mb-8 shadow-xl transform hover:scale-[1.02] transition-all duration-300">
