@@ -3,6 +3,7 @@
 ## 🎯 النظام الجديد - Smart Skills Matcher
 
 ### ماذا يفعل؟
+
 يقارن المهارات الموجودة في الـ CV مع المهارات المطلوبة في وصف الوظيفة بذكاء شديد!
 
 ---
@@ -10,17 +11,21 @@
 ## 🌟 المميزات:
 
 ### 1️⃣ استخراج ذكي للمهارات:
+
 - ✅ يتعرف على **أكثر من 80 مهارة تقنية**
 - ✅ يفهم المرادفات (مثل: Node.js = NodeJS = Node)
 - ✅ يتعرف على الاختصارات (AWS, GCP, K8s, etc.)
 
 ### 2️⃣ مقارنة دقيقة:
+
 - ✅ **Matched Skills**: المهارات الموجودة في CV والمطلوبة في Job
 - ✅ **Missing Skills**: المهارات المطلوبة لكن غير موجودة
 - ✅ **Match Score**: نسبة التطابق المئوية
 
 ### 3️⃣ لينكات تعليمية:
+
 كل مهارة ناقصة معها **3 روابط YouTube**:
+
 - 🎥 Tutorial
 - 🎥 Learn Course
 - 🎥 Full Course
@@ -30,12 +35,14 @@
 ## 📊 مثال على النتائج:
 
 ### Input:
+
 ```
 CV: "Python, Django, JavaScript, React, HTML, CSS, MySQL, Git"
 Job: "Python, Django, Flask, React, Vue, Docker, Kubernetes, PostgreSQL, MongoDB, AWS, CI/CD, Agile"
 ```
 
 ### Output:
+
 ```json
 {
   "match_score": 37.5,
@@ -67,24 +74,31 @@ Job: "Python, Django, Flask, React, Vue, Docker, Kubernetes, PostgreSQL, MongoDB
 ## 🎓 المهارات التي يتعرف عليها:
 
 ### Programming Languages:
+
 Python, JavaScript, TypeScript, Java, C++, C#, PHP, Ruby, Go, Rust, Swift, Kotlin, R, Scala
 
 ### Frontend:
+
 React, Angular, Vue, HTML, CSS, Sass, Less, Tailwind, Bootstrap, jQuery, Webpack, Vite
 
 ### Backend:
+
 Node.js, Express, Django, Flask, Spring, Laravel, ASP.NET, FastAPI
 
 ### Databases:
+
 SQL, MySQL, PostgreSQL, MongoDB, Redis, Elasticsearch, Oracle, Cassandra, DynamoDB
 
 ### DevOps & Cloud:
+
 Docker, Kubernetes, AWS, Azure, GCP, Jenkins, Terraform, Ansible, CI/CD, Git, Linux, Nginx, Apache
 
 ### Data Science & ML:
+
 Machine Learning, Deep Learning, TensorFlow, PyTorch, Scikit-learn, Pandas, NumPy, Matplotlib, NLP
 
 ### Methodologies:
+
 Agile, Scrum, REST API, GraphQL, Microservices, TDD, Jira
 
 **وأكثر من 80 مهارة أخرى!**
@@ -94,21 +108,25 @@ Agile, Scrum, REST API, GraphQL, Microservices, TDD, Jira
 ## 🚀 كيف يعمل:
 
 ### 1. المستخدم يفتح صفحة تفاصيل الوظيفة:
+
 ```
 http://localhost:5174/employee/jobs/:jobId
 ```
 
 ### 2. الـ Frontend يطلب من Backend:
+
 ```
 GET /api/ml/analyze-job/:jobId
 ```
 
 ### 3. الـ Backend يشغل Python script:
+
 ```python
 python smart_matcher.py --api-mode
 ```
 
 ### 4. Smart Matcher يحلل:
+
 - ✅ يقرأ الـ CV
 - ✅ يقرأ وصف الوظيفة
 - ✅ يستخرج المهارات من الاثنين
@@ -117,6 +135,7 @@ python smart_matcher.py --api-mode
 - ✅ يرجع النتائج
 
 ### 5. الـ Frontend يعرض:
+
 - 📊 Match Score (مع progress bar ملون)
 - ✅ Matched Skills (باللون الأخضر)
 - ❌ Missing Skills (باللون الأحمر مع لينكات YouTube)
@@ -126,12 +145,14 @@ python smart_matcher.py --api-mode
 ## 🧪 الاختبار:
 
 ### اختبر Python Script مباشرة:
+
 ```powershell
 cd e:\cv_resume\CV-project-2-\last-one
 Get-Content test_input.json | python smart_matcher.py --api-mode
 ```
 
 ### النتيجة المتوقعة:
+
 ```
 ✅ success: true
 📊 match_score: XX%
@@ -144,12 +165,14 @@ Get-Content test_input.json | python smart_matcher.py --api-mode
 ## 💡 لماذا Smart Matcher أفضل من ML Model؟
 
 ### ML Model (القديم):
+
 - ❌ يحتاج TensorFlow (ثقيل)
 - ❌ مشاكل في التحميل (NotEqual layer)
 - ❌ بطيء (5-10 ثواني)
 - ❌ معقد
 
 ### Smart Matcher (الجديد):
+
 - ✅ لا يحتاج مكتبات ثقيلة (Python فقط)
 - ✅ يعمل فوراً (< 1 ثانية)
 - ✅ دقة عالية (يتعرف على 80+ مهارة)
@@ -170,6 +193,7 @@ Get-Content test_input.json | python smart_matcher.py --api-mode
 ## ✅ جاهز للاستخدام!
 
 ### أعد تشغيل Backend:
+
 ```powershell
 cd e:\cv_resume\CV-project-2-\Backend
 # Ctrl+C لإيقاف
@@ -177,9 +201,11 @@ npm start
 ```
 
 ### جرب الآن:
+
 ```
 http://localhost:5174/employee/jobs
 ```
+
 اضغط "Apply Now" على أي وظيفة وشاهد التحليل الذكي! 🎉
 
 ---
@@ -202,10 +228,10 @@ http://localhost:5174/employee/jobs
 ❌ Missing Skills (10):
    • Docker (90%)
      🎥 Tutorial | 🎥 Learn | 🎥 Full Course
-   
+
    • Kubernetes (90%)
      🎥 Tutorial | 🎥 Learn | 🎥 Full Course
-   
+
    • AWS (90%)
      🎥 Tutorial | 🎥 Learn | 🎥 Full Course
 ```
