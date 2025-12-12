@@ -355,3 +355,181 @@ export const matchCVsToJob = async (req, res) => {
     }
 };
 
+/**
+ * Analyze a specific job against user's CV
+ * Returns matched and missing skills
+ */
+export const analyzeJobForUser = async (req, res) => {
+    try {
+        const { jobId } = req.params;
+        const userEmail = req.user.email;
+
+        console.log('🎯 Analyzing job', jobId, 'for user:', userEmail);
+
+        // Get the job
+        const job = await Job.findById(jobId);
+        if (!job) {
+            return res.status(404).json({
+                success: false,
+                message: 'Job not found'
+            });
+        }
+
+        // Get candidate's CV
+        const candidate = await Candidate.findOne({ email: userEmail });
+        if (!candidate || !candidate.resumeText || candidate.resumeText.trim() === '') {
+            return res.status(400).json({
+                success: false,
+                message: 'No CV found. Please upload your CV first.'
+            });
+        }
+
+        const cvText = candidate.resumeText;
+        const jobDescription = job.description || '';
+
+        if (!jobDescription.trim()) {
+            return res.status(400).json({
+                success: false,
+                message: 'Job description is empty'
+            });
+        }
+
+        console.log('📄 CV Text Length:', cvText.length);
+        console.log('💼 Job Description Length:', jobDescription.length);
+
+        // Extract skills from job requirements
+        const requiredSkills = job.requiredSkills || [];
+
+        let matchScore = 0;
+        let matchedSkills = [];
+        let missingSkills = [];
+
+        // Try to call Python script for hybrid ML+Smart analysis
+        try {
+            const { spawn } = await import('child_process');
+            const scriptPath = path.join(__dirname, '..', '..', 'last-one', 'hybrid_matcher.py');
+
+            console.log('🤖 Running Hybrid Matcher (Smart + ML):', scriptPath);
+
+            const python = spawn('python', [scriptPath, '--api-mode'], {
+                cwd: path.join(__dirname, '..', '..', 'last-one'),
+                stdio: ['pipe', 'pipe', 'pipe'],
+                shell: true,
+                env: { ...process.env, PYTHONIOENCODING: 'utf-8' }
+            });
+
+            const inputData = {
+                cv_text: cvText,
+                job_description: jobDescription,
+                threshold: 0.3,
+                top_n: 15
+            };
+
+            // Send input to Python
+            python.stdin.write(JSON.stringify(inputData));
+            python.stdin.end();
+
+            let outputData = '';
+            let errorData = '';
+
+            python.stdout.on('data', (data) => {
+                outputData += data.toString();
+            });
+
+            python.stderr.on('data', (data) => {
+                errorData += data.toString();
+                console.log('🐍 Python:', data.toString().trim());
+            });
+
+            // Wait for Python to complete
+            await new Promise((resolve, reject) => {
+                python.on('close', (code) => {
+                    if (code !== 0) {
+                        console.error('❌ Python stderr:', errorData);
+                        reject(new Error(`Python script exited with code ${code}`));
+                    } else {
+                        resolve();
+                    }
+                });
+
+                python.on('error', (error) => {
+                    reject(new Error(`Failed to start Python: ${error.message}`));
+                });
+
+                // Timeout after 60 seconds
+                setTimeout(() => {
+                    python.kill();
+                    reject(new Error('Python script timeout (60s)'));
+                }, 60000);
+            });
+
+            // Parse Python output
+            let result;
+            try {
+                result = JSON.parse(outputData);
+                if (result.success) {
+                    matchScore = result.match_score || 0;
+                    matchedSkills = result.matched_skills || [];
+                    missingSkills = result.missing_skills || [];
+                    
+                    console.log('✅ ML Analysis successful:');
+                    console.log(`   📊 Match Score: ${matchScore}%`);
+                    console.log(`   ✅ Matched: ${matchedSkills.length} skills`);
+                    console.log(`   ❌ Missing: ${missingSkills.length} skills`);
+                }
+            } catch (parseError) {
+                console.error('❌ Failed to parse Python output:', outputData);
+                throw new Error('Invalid Python output');
+            }
+        } catch (pythonError) {
+            console.warn('⚠️ ML analysis failed, using basic matching:', pythonError.message);
+            
+            // Fallback: Calculate match score based on required skills
+            const cvLower = cvText.toLowerCase();
+            matchedSkills = requiredSkills.filter(skill => 
+                cvLower.includes(skill.toLowerCase())
+            ).map(skill => ({ 
+                skill, 
+                confidence: '100%',
+                source: 'keyword_match'
+            }));
+            
+            const missingSkillsList = requiredSkills.filter(skill => 
+                !cvLower.includes(skill.toLowerCase())
+            );
+            
+            missingSkills = missingSkillsList.map(skill => ({
+                skill,
+                confidence: '75%',
+                source: 'keyword_match',
+                youtube_search: `https://www.youtube.com/results?search_query=${encodeURIComponent(skill + ' tutorial')}`,
+                youtube_direct: `https://www.youtube.com/results?search_query=${encodeURIComponent('learn ' + skill)}`
+            }));
+            
+            matchScore = requiredSkills.length > 0 
+                ? (matchedSkills.length / requiredSkills.length) * 100 
+                : 50;
+        }
+
+        console.log(`✅ Final Analysis: ${matchedSkills.length} matched, ${missingSkills.length} missing, ${matchScore.toFixed(1)}% match`);
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                matchScore: Math.round(matchScore * 100) / 100,
+                matchedSkills: matchedSkills,
+                missingSkills: missingSkills,
+                totalRequired: requiredSkills.length,
+                analysis: `Matched ${matchedSkills.length} skills. Found ${missingSkills.length} skills to improve.`
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Error in analyzeJobForUser:', error.message);
+        return res.status(500).json({
+            success: false,
+            message: error.message || 'Failed to analyze job'
+        });
+    }
+};
+

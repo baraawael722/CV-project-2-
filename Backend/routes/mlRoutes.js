@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import { matchCV, matchJobs, getMatchInputs, matchCVsToJob } from '../controllers/mlController.js';
+import { matchCV, matchJobs, getMatchInputs, matchCVsToJob, analyzeJobForUser } from '../controllers/mlController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { authorizeRoles } from '../middleware/roleMiddleware.js';
 
@@ -14,6 +14,9 @@ router.post('/match', upload.single('cvFile'), matchCV);
 // Match jobs using ML (can be GET or POST)
 router.get('/match-jobs', protect, matchJobs);
 router.post('/match-jobs', protect, matchJobs);
+
+// Protected endpoint: analyze specific job for user (skills analysis)
+router.get('/analyze-job/:jobId', protect, analyzeJobForUser);
 
 // HR only: Match CVs to a job description
 router.post('/match-cvs', protect, authorizeRoles('hr'), matchCVsToJob);

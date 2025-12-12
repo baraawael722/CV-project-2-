@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 export default function Jobs() {
+  const navigate = useNavigate()
   const [filter, setFilter] = useState('all')
   const [savedJobs, setSavedJobs] = useState([])
   const [jobs, setJobs] = useState([])
@@ -309,7 +311,10 @@ export default function Jobs() {
                   </div>
 
                   <div className="flex gap-3">
-                    <button className="flex-1 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all shadow-md">
+                    <button 
+                      onClick={() => navigate(`/employee/jobs/${job._id || job.id}`)}
+                      className="flex-1 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all shadow-md"
+                    >
                       Apply Now
                     </button>
                     <button
@@ -321,7 +326,10 @@ export default function Jobs() {
                     >
                       {savedJobs.includes(job._id || job.id) ? 'Saved' : 'Save'}
                     </button>
-                    <button className="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-all shadow-sm border border-gray-300">
+                    <button 
+                      onClick={() => navigate(`/employee/jobs/${job._id || job.id}`)}
+                      className="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-all shadow-sm border border-gray-300"
+                    >
                       Details
                     </button>
                     {user?.role === 'hr' && (

@@ -7,6 +7,7 @@ import {
   deleteJob,
   searchJobs,
   getJobApplicants,
+  applyToJob,
 } from "../controllers/jobController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { authorizeRoles } from "../middleware/roleMiddleware.js";
@@ -30,6 +31,9 @@ router
   .get(getJob)
   .put(authorizeRoles("hr"), jobValidation, validate, updateJob)
   .delete(authorizeRoles("hr"), deleteJob);
+
+// Apply to a job (employees only)
+router.post("/:id/apply", authorizeRoles("employee", "user"), applyToJob);
 
 router.get("/:id/applicants", authorizeRoles("hr"), getJobApplicants);
 

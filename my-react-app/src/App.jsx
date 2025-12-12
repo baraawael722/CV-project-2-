@@ -9,6 +9,7 @@ import HRDashboard from "./pages/HRDashboard.jsx";
 import MatchedCandidates from "./pages/MatchedCandidates.jsx";
 import Skills from "./pages/Skills.jsx";
 import Jobs from "./pages/Jobs.jsx";
+import JobDetails from "./pages/JobDetails.jsx";
 import Learning from "./pages/Learning.jsx";
 import Interview from "./pages/Interview.jsx";
 import Profile from "./pages/Profile.jsx";
@@ -75,6 +76,15 @@ export default function App() {
             <ProtectedRoute allowedRoles={['employee', 'user']}>
               <TopNavbar />
               <Jobs />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/employee/jobs/:jobId"
+          element={
+            <ProtectedRoute allowedRoles={['employee', 'user']}>
+              <TopNavbar />
+              <JobDetails />
             </ProtectedRoute>
           }
         />
