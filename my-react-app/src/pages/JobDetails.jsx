@@ -27,25 +27,10 @@ export default function JobDetails() {
           throw new Error(jobData?.message || "Failed to load job");
 
         setJob(jobData.data || jobData.job);
-
-        // Fetch skill analysis
-        setAnalysisLoading(true);
-        const analysisRes = await fetch(
-          `http://localhost:5000/api/ml/analyze-job/${jobId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        if (analysisRes.ok) {
-          const analysisData = await analysisRes.json();
-          setSkillAnalysis(analysisData.data);
-        }
       } catch (e) {
         setError(e.message);
       } finally {
         setLoading(false);
-        setAnalysisLoading(false);
       }
     };
 
@@ -53,6 +38,33 @@ export default function JobDetails() {
       fetchJobDetails();
     }
   }, [jobId]);
+
+  const handleAnalyzeSkills = async () => {
+    try {
+      setAnalysisLoading(true);
+      setError(null);
+      const token = localStorage.getItem("token");
+
+      const analysisRes = await fetch(
+        `http://localhost:5000/api/ml/analyze-job/${jobId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const analysisData = await analysisRes.json();
+
+      if (!analysisRes.ok) {
+        throw new Error(analysisData?.message || "Failed to analyze skills");
+      }
+
+      setSkillAnalysis(analysisData.data);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setAnalysisLoading(false);
+    }
+  };
 
   const handleApply = async () => {
     try {
@@ -242,9 +254,31 @@ export default function JobDetails() {
               <button
                 onClick={handleApply}
                 disabled={applying}
-                className="w-full px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-lg rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-lg rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed mb-4"
               >
                 {applying ? "Applying..." : "Apply Now"}
+              </button>
+
+              {/* Analyze Match & Skills Button */}
+              <button
+                onClick={handleAnalyzeSkills}
+                disabled={analysisLoading}
+                className="w-full px-8 py-4 bg-gradient-to-r from-green-500 to-teal-500 text-white font-bold text-lg rounded-lg hover:from-green-600 hover:to-teal-600 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
+                </svg>
+                {analysisLoading ? "Analyzing..." : "🔬 Analyze Match & Skills"}
               </button>
             </div>
 

@@ -7,6 +7,7 @@ import {
   matchCVsToJob,
   classifyCV,
   analyzeJobForUser,
+  chatModel,
 } from "../controllers/mlController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { authorizeRoles } from "../middleware/roleMiddleware.js";
@@ -16,6 +17,9 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // Public endpoint: forward CV to Python ML service
 router.post("/match", upload.single("cvFile"), matchCV);
+
+// Chat endpoint for frontend chatbot (employee interview page)
+router.post("/chat", protect, chatModel);
 
 // Protected endpoint: match jobs with user's CV
 // Match jobs using ML (can be GET or POST)
@@ -32,6 +36,6 @@ router.post("/match-cvs", protect, authorizeRoles("hr"), matchCVsToJob);
 router.get("/match-inputs", getMatchInputs);
 
 // Protected endpoint: Classify CV to determine job title
-router.post('/classify-cv', protect, classifyCV);
+router.post("/classify-cv", protect, classifyCV);
 
 export default router;

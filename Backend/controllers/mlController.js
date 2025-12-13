@@ -10,7 +10,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const ML_SERVICE_URL = process.env.ML_HOST || "http://127.0.0.1:5001";
-const CV_CLASSIFIER_URL = process.env.CV_CLASSIFIER_URL || 'http://127.0.0.1:5002';
+const CV_CLASSIFIER_URL =
+  process.env.CV_CLASSIFIER_URL || "http://127.0.0.1:5002";
 const USE_PYTHON_MATCHER = process.env.USE_PYTHON_MATCHER !== "false"; // Default: true
 
 // Initialize Python service on module load
@@ -164,12 +165,10 @@ export const getMatchInputs = async (req, res) => {
       !candidate.resumeText ||
       candidate.resumeText.trim() === ""
     ) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "No candidate resumeText found. Provide ?email=",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "No candidate resumeText found. Provide ?email=",
+      });
     }
 
     const cvText = candidate.resumeText;
@@ -265,6 +264,87 @@ export const getMatchInputs = async (req, res) => {
     });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+/**
+ * Chat endpoint to power frontend chatbot (employee interview page)
+ * POST /api/ml/chat
+ * Body: { question: string, context?: string }
+ * Uses GROQ API if `GROQ_API_KEY` is set, otherwise proxies to ML_SERVICE_URL `/chat`.
+ */
+export const chatModel = async (req, res) => {
+  try {
+    const { question, context } = req.body || {};
+    if (!question || question.trim() === "") {
+      return res
+        .status(400)
+        .json({ success: false, message: "question is required" });
+    }
+
+    // Prefer using Groq API when API key is available
+    if (process.env.GROQ_API_KEY) {
+      const GROQ_API_URL =
+        process.env.GROQ_API_URL ||
+        "https://api.groq.com/openai/v1/chat/completions";
+      const model = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+
+      const payload = {
+        model,
+        messages: [
+          {
+            role: "system",
+            content:
+              context ||
+              "You are a professional career assistant chatbot. Use only the provided CV content when answering.",
+          },
+          { role: "user", content: question },
+        ],
+        temperature: 0.2,
+        max_tokens: 1024,
+      };
+
+      console.log("🤖 Calling Groq API:", GROQ_API_URL);
+      console.log("📝 Model:", model);
+      console.log("❓ Question:", question.substring(0, 100));
+
+      const response = await axios.post(GROQ_API_URL, payload, {
+        headers: {
+          Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        timeout: 60000,
+      });
+
+      const answer =
+        response.data?.choices?.[0]?.message?.content ||
+        response.data?.output ||
+        response.data?.text ||
+        JSON.stringify(response.data);
+
+      console.log("✅ Groq API response received");
+      return res.status(200).json({ success: true, answer });
+    }
+
+    // Fallback: ask the configured ML service (if it exposes a /chat proxy)
+    const resp = await axios.post(
+      `${ML_SERVICE_URL}/chat`,
+      { question, context },
+      { timeout: 60000 }
+    );
+    return res.status(resp.status).json(resp.data);
+  } catch (err) {
+    console.error("❌ chatModel error:", err?.message || err);
+    if (err.response) {
+      console.error("📋 Response status:", err.response.status);
+      console.error(
+        "📋 Response data:",
+        JSON.stringify(err.response.data, null, 2)
+      );
+    }
+    const status = err.response?.status || 500;
+    const data = err.response?.data || { success: false, error: err.message };
+    return res.status(status).json(data);
   }
 };
 
@@ -439,73 +519,80 @@ export const matchCVsToJob = async (req, res) => {
  * Uses cv_classifier_merged.keras model + Groq API
  */
 export const classifyCV = async (req, res) => {
-    try {
-        console.log('🎯 Classifying CV for user:', req.user.email);
+  try {
+    console.log("🎯 Classifying CV for user:", req.user.email);
 
-        // Get candidate's CV text
-        const candidate = await Candidate.findOne({ email: req.user.email });
-        if (!candidate || !candidate.resumeText || candidate.resumeText.trim() === '') {
-            return res.status(400).json({
-                success: false,
-                message: 'No CV found. Please upload your CV first.'
-            });
-        }
-
-        const cvText = candidate.resumeText;
-        console.log('📄 CV Text Length:', cvText.length, 'characters');
-
-        // Call CV Classifier Service
-        console.log('🔬 Calling CV Classifier Service at:', CV_CLASSIFIER_URL);
-
-        const response = await axios.post(`${CV_CLASSIFIER_URL}/classify`, {
-            cv_text: cvText,
-            use_groq_analysis: true
-        }, {
-            timeout: 30000 // 30 seconds timeout
-        });
-
-        if (response.data.success) {
-            console.log('✅ Classification successful!');
-            console.log('   Job Title:', response.data.job_title);
-            console.log('   Confidence:', response.data.confidence);
-            console.log('   AI Analysis:', response.data.ai_analysis);
-
-            // Update candidate with classified job title
-            candidate.jobTitle = response.data.job_title;
-            await candidate.save();
-
-            return res.status(200).json({
-                success: true,
-                data: {
-                    jobTitle: response.data.job_title,
-                    confidence: response.data.confidence,
-                    decision_method: response.data.decision_method,
-                    ai_analysis: response.data.ai_analysis,
-                    keras_prediction: response.data.keras_prediction
-                },
-                message: 'CV classified successfully!'
-            });
-        } else {
-            throw new Error(response.data.error || 'Classification failed');
-        }
-
-    } catch (error) {
-        console.error('❌ Error classifying CV:', error.message);
-
-        // Check if it's a connection error
-        if (error.code === 'ECONNREFUSED') {
-            return res.status(503).json({
-                success: false,
-                message: 'CV Classifier Service is not running. Please start it first.',
-                hint: 'Run: python ml-service/cv_classifier_service.py'
-            });
-        }
-
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
+    // Get candidate's CV text
+    const candidate = await Candidate.findOne({ email: req.user.email });
+    if (
+      !candidate ||
+      !candidate.resumeText ||
+      candidate.resumeText.trim() === ""
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "No CV found. Please upload your CV first.",
+      });
     }
+
+    const cvText = candidate.resumeText;
+    console.log("📄 CV Text Length:", cvText.length, "characters");
+
+    // Call CV Classifier Service
+    console.log("🔬 Calling CV Classifier Service at:", CV_CLASSIFIER_URL);
+
+    const response = await axios.post(
+      `${CV_CLASSIFIER_URL}/classify`,
+      {
+        cv_text: cvText,
+        use_groq_analysis: true,
+      },
+      {
+        timeout: 30000, // 30 seconds timeout
+      }
+    );
+
+    if (response.data.success) {
+      console.log("✅ Classification successful!");
+      console.log("   Job Title:", response.data.job_title);
+      console.log("   Confidence:", response.data.confidence);
+      console.log("   AI Analysis:", response.data.ai_analysis);
+
+      // Update candidate with classified job title
+      candidate.jobTitle = response.data.job_title;
+      await candidate.save();
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          jobTitle: response.data.job_title,
+          confidence: response.data.confidence,
+          decision_method: response.data.decision_method,
+          ai_analysis: response.data.ai_analysis,
+          keras_prediction: response.data.keras_prediction,
+        },
+        message: "CV classified successfully!",
+      });
+    } else {
+      throw new Error(response.data.error || "Classification failed");
+    }
+  } catch (error) {
+    console.error("❌ Error classifying CV:", error.message);
+
+    // Check if it's a connection error
+    if (error.code === "ECONNREFUSED") {
+      return res.status(503).json({
+        success: false,
+        message: "CV Classifier Service is not running. Please start it first.",
+        hint: "Run: python ml-service/cv_classifier_service.py",
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
 
 /**
@@ -554,8 +641,211 @@ export const analyzeJobForUser = async (req, res) => {
     console.log("📄 CV Text Length:", cvText.length);
     console.log("💼 Job Description Length:", jobDescription.length);
 
-    // Extract skills from job requirements
-    const requiredSkills = job.requiredSkills || [];
+    // Extract skills from Job Description using intelligent pattern matching
+    const extractSkillsFromText = (text) => {
+      const commonSkills = [
+        // Programming Languages
+        "python",
+        "javascript",
+        "java",
+        "c++",
+        "c#",
+        "php",
+        "ruby",
+        "go",
+        "rust",
+        "swift",
+        "kotlin",
+        "typescript",
+        "r",
+        "matlab",
+        "scala",
+        "perl",
+        "dart",
+        "objective-c",
+
+        // Web Technologies
+        "html",
+        "css",
+        "html5",
+        "css3",
+        "react",
+        "vue",
+        "angular",
+        "node.js",
+        "nodejs",
+        "express",
+        "next.js",
+        "nuxt",
+        "gatsby",
+        "svelte",
+        "jquery",
+        "bootstrap",
+        "tailwind",
+        "sass",
+        "less",
+
+        // Backend & Frameworks
+        "django",
+        "flask",
+        "fastapi",
+        "spring",
+        "spring boot",
+        ".net",
+        "asp.net",
+        "laravel",
+        "ruby on rails",
+        "rails",
+        "nest.js",
+        "koa",
+        "fastify",
+
+        // Databases
+        "sql",
+        "mysql",
+        "postgresql",
+        "mongodb",
+        "redis",
+        "sqlite",
+        "oracle",
+        "sql server",
+        "cassandra",
+        "dynamodb",
+        "elasticsearch",
+        "mariadb",
+        "firebase",
+        "firestore",
+
+        // Cloud & DevOps
+        "aws",
+        "azure",
+        "gcp",
+        "google cloud",
+        "docker",
+        "kubernetes",
+        "jenkins",
+        "gitlab",
+        "github actions",
+        "terraform",
+        "ansible",
+        "ci/cd",
+        "linux",
+        "bash",
+        "shell scripting",
+
+        // Mobile Development
+        "react native",
+        "flutter",
+        "ios",
+        "android",
+        "xamarin",
+        "cordova",
+        "ionic",
+
+        // Data Science & ML
+        "machine learning",
+        "deep learning",
+        "tensorflow",
+        "pytorch",
+        "keras",
+        "scikit-learn",
+        "pandas",
+        "numpy",
+        "data analysis",
+        "data science",
+        "nlp",
+        "computer vision",
+        "ai",
+
+        // Tools & Others
+        "git",
+        "github",
+        "gitlab",
+        "bitbucket",
+        "jira",
+        "agile",
+        "scrum",
+        "rest api",
+        "graphql",
+        "microservices",
+        "websocket",
+        "oauth",
+        "jwt",
+        "testing",
+        "unit testing",
+        "jest",
+        "mocha",
+        "pytest",
+        "selenium",
+        "cypress",
+        "postman",
+        "swagger",
+        "webpack",
+        "babel",
+        "npm",
+        "yarn",
+
+        // Concepts & Methodologies
+        "oop",
+        "functional programming",
+        "design patterns",
+        "solid",
+        "tdd",
+        "bdd",
+        "mvc",
+        "mvvm",
+        "clean code",
+        "refactoring",
+        "version control",
+        "code review",
+
+        // Soft Skills (commonly required)
+        "communication",
+        "teamwork",
+        "problem solving",
+        "leadership",
+        "time management",
+        "analytical",
+        "critical thinking",
+        "collaboration",
+        "adaptability",
+      ];
+
+      const textLower = text.toLowerCase();
+      const foundSkills = new Set();
+
+      // Find skills mentioned in the text
+      commonSkills.forEach((skill) => {
+        // Use word boundaries for better matching
+        const pattern = new RegExp(
+          `\\b${skill.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`,
+          "i"
+        );
+        if (pattern.test(textLower)) {
+          foundSkills.add(skill);
+        }
+      });
+
+      return Array.from(foundSkills);
+    };
+
+    // Extract skills from job description
+    const jobDescriptionSkills = extractSkillsFromText(jobDescription);
+
+    // Combine with required skills from database
+    const allRequiredSkills = [
+      ...new Set([...(job.requiredSkills || []), ...jobDescriptionSkills]),
+    ];
+
+    console.log(
+      `📋 Found ${jobDescriptionSkills.length} skills in Job Description`
+    );
+    console.log(`📋 Total required skills: ${allRequiredSkills.length}`);
+    console.log(
+      `📋 Skills found:`,
+      allRequiredSkills.slice(0, 10).join(", "),
+      "..."
+    );
 
     let matchScore = 0;
     let matchedSkills = [];
@@ -652,7 +942,12 @@ export const analyzeJobForUser = async (req, res) => {
 
       // Fallback: Calculate match score based on required skills
       const cvLower = cvText.toLowerCase();
-      matchedSkills = requiredSkills
+
+      // Extract skills from CV
+      const cvSkills = extractSkillsFromText(cvText);
+
+      // Find matched skills
+      matchedSkills = allRequiredSkills
         .filter((skill) => cvLower.includes(skill.toLowerCase()))
         .map((skill) => ({
           skill,
@@ -660,14 +955,15 @@ export const analyzeJobForUser = async (req, res) => {
           source: "keyword_match",
         }));
 
-      const missingSkillsList = requiredSkills.filter(
+      // Find missing skills
+      const missingSkillsList = allRequiredSkills.filter(
         (skill) => !cvLower.includes(skill.toLowerCase())
       );
 
       missingSkills = missingSkillsList.map((skill) => ({
         skill,
-        confidence: "75%",
-        source: "keyword_match",
+        confidence: "95%",
+        source: "extracted_from_job_description",
         youtube_search: `https://www.youtube.com/results?search_query=${encodeURIComponent(
           skill + " tutorial"
         )}`,
@@ -677,9 +973,13 @@ export const analyzeJobForUser = async (req, res) => {
       }));
 
       matchScore =
-        requiredSkills.length > 0
-          ? (matchedSkills.length / requiredSkills.length) * 100
+        allRequiredSkills.length > 0
+          ? (matchedSkills.length / allRequiredSkills.length) * 100
           : 50;
+
+      console.log(
+        `📊 Fallback analysis: ${matchedSkills.length}/${allRequiredSkills.length} skills matched`
+      );
     }
 
     console.log(
@@ -694,8 +994,9 @@ export const analyzeJobForUser = async (req, res) => {
         matchScore: Math.round(matchScore * 100) / 100,
         matchedSkills: matchedSkills,
         missingSkills: missingSkills,
-        totalRequired: requiredSkills.length,
-        analysis: `Matched ${matchedSkills.length} skills. Found ${missingSkills.length} skills to improve.`,
+        totalRequired: allRequiredSkills.length,
+        extractedSkillsCount: jobDescriptionSkills.length,
+        analysis: `Matched ${matchedSkills.length} out of ${allRequiredSkills.length} required skills. ${jobDescriptionSkills.length} skills extracted from job description.`,
       },
     });
   } catch (error) {
