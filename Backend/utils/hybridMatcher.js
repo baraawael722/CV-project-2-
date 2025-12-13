@@ -230,13 +230,13 @@ function hybridMatch(cvText, jobs, topK = 10) {
 
         const matchedCount = matchedRequired.length;
         const totalCount = normalizedReqSkills.length;
-        
+
         // Get title for domain detection
         const title = (job.title || '').toLowerCase();
-        
+
         // BLACKLIST: Completely unrelated domains = ZERO
         const isBlacklistedDomain = /(marketing|accountant|account|finance|sales|hr|recruiter|designer|copywriter|content writer|far to job)/.test(title);
-        
+
         if (isBlacklistedDomain) {
             return {
                 job,
@@ -255,11 +255,11 @@ function hybridMatch(cvText, jobs, topK = 10) {
 
         // Backend/fullstack detection
         const isBackendTitle = /(back[- ]?end|backend|full[- ]?stack|fullstack|node\.?js|express|react|angular|vue|api|server|developer|engineer)/.test(title);
-        
+
         // For backend/fullstack: also check title keywords (e.g., "React + Node" in title)
         const titleKeywords = tokenize(title).filter(t => t.length > 2 && !/full|time|part|contract|remote|entry|mid|senior/.test(t));
         const titleMatches = titleKeywords.filter(tk => cvTokenSet.has(stem(normalize(tk)))).length;
-        
+
         // Required skills scoring
         let requiredSkillScore = 0;
         if (totalCount === 0 || matchedCount === 0) {

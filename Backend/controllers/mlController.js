@@ -983,8 +983,7 @@ export const analyzeJobForUser = async (req, res) => {
     }
 
     console.log(
-      `✅ Final Analysis: ${matchedSkills.length} matched, ${
-        missingSkills.length
+      `✅ Final Analysis: ${matchedSkills.length} matched, ${missingSkills.length
       } missing, ${matchScore.toFixed(1)}% match`
     );
 
