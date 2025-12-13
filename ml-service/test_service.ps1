@@ -4,7 +4,7 @@ Write-Host "========================================`n" -ForegroundColor Green
 
 # Test 1: Full Stack Developer
 $body1 = @{ 
-    cv_text = "Senior Full Stack Developer with 5 years experience in Python Django React Node.js AWS. Built REST APIs and cloud services." 
+    cv_text           = "Senior Full Stack Developer with 5 years experience in Python Django React Node.js AWS. Built REST APIs and cloud services." 
     use_groq_analysis = $false 
 } | ConvertTo-Json -Compress
 
@@ -16,7 +16,7 @@ Write-Host "   Method: $($r1.decision_method)`n" -ForegroundColor Gray
 
 # Test 2: Data Scientist
 $body2 = @{ 
-    cv_text = "Data Scientist expert in machine learning deep learning TensorFlow PyTorch pandas numpy scikit-learn. Building AI models and predictive analytics." 
+    cv_text           = "Data Scientist expert in machine learning deep learning TensorFlow PyTorch pandas numpy scikit-learn. Building AI models and predictive analytics." 
     use_groq_analysis = $false 
 } | ConvertTo-Json -Compress
 
@@ -28,7 +28,7 @@ Write-Host "   Method: $($r2.decision_method)`n" -ForegroundColor Gray
 
 # Test 3: Frontend Developer
 $body3 = @{ 
-    cv_text = "Frontend Developer specialized in React Vue Angular JavaScript TypeScript HTML CSS. Creating beautiful responsive web interfaces." 
+    cv_text           = "Frontend Developer specialized in React Vue Angular JavaScript TypeScript HTML CSS. Creating beautiful responsive web interfaces." 
     use_groq_analysis = $false 
 } | ConvertTo-Json -Compress
 
