@@ -61,7 +61,7 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8">
       {/* Main Container - Split Layout */}
-      <div className="w-full max-w-4xl bg-white shadow-2xl rounded-2xl overflow-hidden animate-fadeIn py-6">
+      <div className="w-full max-w-4xl bg-white shadow-2xl rounded-2xl overflow-hidden animate-fadeIn">
         <style>{`
           @keyframes fadeIn {
             from {
@@ -103,7 +103,7 @@ export default function Login() {
             }
           }
         `}</style>
-        <div className="grid md:grid-cols-2 md:gap-6 h-full">
+        <div className="grid md:grid-cols-2 h-full">
           {/* Left Side: Login Form */}
           <div className="flex flex-col justify-center p-4 md:p-6 animate-slideLeft">
             <div className="max-w-md mx-auto w-full">
@@ -341,201 +341,17 @@ export default function Login() {
           </div>
 
           {/* Right Side: Illustration */}
-          <div className="hidden md:flex flex-col justify-center items-center bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-4 relative animate-slideRight">
-            <div className="max-w-xs text-center">
-              {/* Modern Login illustration - Person at laptop */}
-              <div className="mb-6 flex justify-center">
-                <svg
-                  width="200"
-                  height="200"
-                  viewBox="0 0 200 200"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  {/* Background circle */}
-                  <circle
-                    cx="100"
-                    cy="100"
-                    r="90"
-                    fill="#DDD6FE"
-                    opacity="0.3"
-                  />
-
-                  {/* Desk */}
-                  <rect
-                    x="40"
-                    y="130"
-                    width="120"
-                    height="8"
-                    rx="4"
-                    fill="#C7D2FE"
-                  />
-                  <rect
-                    x="45"
-                    y="138"
-                    width="4"
-                    height="30"
-                    rx="2"
-                    fill="#A78BFA"
-                  />
-                  <rect
-                    x="151"
-                    y="138"
-                    width="4"
-                    height="30"
-                    rx="2"
-                    fill="#A78BFA"
-                  />
-
-                  {/* Laptop */}
-                  <rect
-                    x="70"
-                    y="105"
-                    width="60"
-                    height="25"
-                    rx="2"
-                    fill="#6366F1"
-                  />
-                  <rect
-                    x="73"
-                    y="108"
-                    width="54"
-                    height="19"
-                    rx="1"
-                    fill="#818CF8"
-                  />
-                  <line
-                    x1="100"
-                    y1="130"
-                    x2="100"
-                    y2="135"
-                    stroke="#6366F1"
-                    strokeWidth="3"
-                  />
-                  <rect
-                    x="85"
-                    y="135"
-                    width="30"
-                    height="3"
-                    rx="1.5"
-                    fill="#6366F1"
-                  />
-
-                  {/* Screen content */}
-                  <circle cx="90" cy="117" r="4" fill="#C7D2FE" />
-                  <line
-                    x1="100"
-                    y1="115"
-                    x2="120"
-                    y2="115"
-                    stroke="#DDD6FE"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                  <line
-                    x1="100"
-                    y1="120"
-                    x2="115"
-                    y2="120"
-                    stroke="#DDD6FE"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-
-                  {/* Person head */}
-                  <circle cx="100" cy="65" r="18" fill="#FBBF24" />
-
-                  {/* Hair */}
-                  <path
-                    d="M82 60c3-10 15-15 25-12 8 2 11 8 11 12"
-                    fill="#78350F"
-                  />
-
-                  {/* Face */}
-                  <circle cx="93" cy="65" r="2" fill="#1F2937" />
-                  <circle cx="107" cy="65" r="2" fill="#1F2937" />
-                  <path
-                    d="M96 72c2 2 6 2 8 0"
-                    stroke="#F59E0B"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-
-                  {/* Body */}
-                  <rect
-                    x="82"
-                    y="83"
-                    width="36"
-                    height="25"
-                    rx="6"
-                    fill="#6366F1"
-                  />
-
-                  {/* Arms */}
-                  <path
-                    d="M82 90 Q70 95 70 105"
-                    stroke="#FBBF24"
-                    strokeWidth="8"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M118 90 Q130 95 130 105"
-                    stroke="#FBBF24"
-                    strokeWidth="8"
-                    strokeLinecap="round"
-                  />
-
-                  {/* Coffee cup */}
-                  <rect
-                    x="25"
-                    y="120"
-                    width="12"
-                    height="14"
-                    rx="2"
-                    fill="white"
-                    stroke="#6366F1"
-                    strokeWidth="2"
-                  />
-                  <ellipse cx="31" cy="120" rx="7" ry="3" fill="#A78BFA" />
-                  <path
-                    d="M37 125c3 0 5 2 5 4s-2 4-5 4"
-                    stroke="#6366F1"
-                    strokeWidth="2"
-                    fill="none"
-                  />
-
-                  {/* Floating icons */}
-                  <circle cx="150" cy="70" r="6" fill="#34D399" opacity="0.7" />
-                  <path
-                    d="M148 70l2 2 4-4"
-                    stroke="white"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-
-                  <rect
-                    x="145"
-                    y="100"
-                    width="12"
-                    height="12"
-                    rx="2"
-                    fill="#F59E0B"
-                    opacity="0.7"
-                  />
-                  <path
-                    d="M151 103v6M148 106h6"
-                    stroke="white"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </div>
-
-              <h3 className="text-sm font-semibold text-gray-900">
+          <div className="hidden md:flex flex-col justify-center items-center relative animate-slideRight overflow-hidden">
+            <img
+              src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              alt="Welcome Back"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="relative max-w-xs text-center z-10 px-8">
+              <h3 className="text-3xl font-bold text-white drop-shadow-lg" style={{textShadow: '2px 2px 8px rgba(0,0,0,0.8)'}}>
                 Welcome Back!
               </h3>
-              <p className="text-xs text-gray-600 mt-1">
+              <p className="text-base text-white mt-3 drop-shadow-lg" style={{textShadow: '1px 1px 6px rgba(0,0,0,0.8)'}}>
                 Sign in to continue your career journey
               </p>
             </div>

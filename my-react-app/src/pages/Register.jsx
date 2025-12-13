@@ -77,7 +77,7 @@ export default function Register() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8">
       {/* Main Container - Split Layout */}
-      <div className="w-full max-w-4xl bg-white shadow-2xl rounded-2xl overflow-hidden animate-fadeIn py-6">
+      <div className="w-full max-w-4xl bg-white shadow-2xl rounded-2xl overflow-hidden animate-fadeIn">
         <style>{`
           @keyframes fadeIn {
             from {
@@ -119,7 +119,7 @@ export default function Register() {
             }
           }
         `}</style>
-        <div className="grid md:grid-cols-2 md:gap-6 h-full">
+        <div className="grid md:grid-cols-2 h-full">
           {/* Left Side: Registration Form */}
           <div className="flex flex-col justify-center p-4 md:p-6 animate-slideLeft">
             <div className="max-w-md mx-auto w-full">
@@ -450,121 +450,17 @@ export default function Register() {
           </div>
 
           {/* Right Side: Illustration */}
-          <div className="hidden md:flex flex-col justify-center items-center bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-4 relative animate-slideRight">
-            <div className="max-w-xs text-center">
-              {/* Modern Register illustration - Person with welcome gesture */}
-              <div className="mb-6 flex justify-center">
-                <svg
-                  width="200"
-                  height="200"
-                  viewBox="0 0 200 200"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  {/* Background circle */}
-                  <circle
-                    cx="100"
-                    cy="100"
-                    r="90"
-                    fill="#EEF2FF"
-                    opacity="0.5"
-                  />
-
-                  {/* Head */}
-                  <circle cx="100" cy="60" r="22" fill="#FDE68A" />
-                  <path
-                    d="M78 58c0-12 10-22 22-22s22 10 22 22"
-                    stroke="#92400E"
-                    strokeWidth="2"
-                    fill="none"
-                  />
-
-                  {/* Hair */}
-                  <path d="M78 52c2-8 10-14 22-14s20 6 22 14" fill="#92400E" />
-
-                  {/* Face details */}
-                  <circle cx="93" cy="60" r="2" fill="#1F2937" />
-                  <circle cx="107" cy="60" r="2" fill="#1F2937" />
-                  <path
-                    d="M95 68c2 2 8 2 10 0"
-                    stroke="#F59E0B"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-
-                  {/* Body */}
-                  <rect
-                    x="75"
-                    y="82"
-                    width="50"
-                    height="60"
-                    rx="8"
-                    fill="#6366F1"
-                  />
-
-                  {/* Left arm - waving */}
-                  <path
-                    d="M75 90 Q60 85 55 95 L60 100 Q70 95 75 100"
-                    fill="#FDE68A"
-                  />
-                  <circle cx="55" cy="95" r="8" fill="#FDE68A" />
-
-                  {/* Right arm */}
-                  <path d="M125 90 Q135 100 130 110 L125 108" fill="#FDE68A" />
-
-                  {/* Document/Form icon */}
-                  <rect
-                    x="135"
-                    y="95"
-                    width="35"
-                    height="45"
-                    rx="4"
-                    fill="white"
-                    stroke="#A78BFA"
-                    strokeWidth="2"
-                  />
-                  <line
-                    x1="142"
-                    y1="105"
-                    x2="163"
-                    y2="105"
-                    stroke="#C7D2FE"
-                    strokeWidth="2"
-                  />
-                  <line
-                    x1="142"
-                    y1="115"
-                    x2="163"
-                    y2="115"
-                    stroke="#C7D2FE"
-                    strokeWidth="2"
-                  />
-                  <line
-                    x1="142"
-                    y1="125"
-                    x2="155"
-                    y2="125"
-                    stroke="#C7D2FE"
-                    strokeWidth="2"
-                  />
-
-                  {/* Sparkles */}
-                  <circle cx="45" cy="70" r="3" fill="#F59E0B" opacity="0.6" />
-                  <circle cx="155" cy="65" r="4" fill="#EC4899" opacity="0.6" />
-                  <circle
-                    cx="160"
-                    cy="140"
-                    r="3"
-                    fill="#8B5CF6"
-                    opacity="0.6"
-                  />
-                </svg>
-              </div>
-
-              <h3 className="text-sm font-semibold text-gray-900">
+          <div className="hidden md:flex flex-col justify-center items-center relative animate-slideRight overflow-hidden">
+            <img
+              src="https://images.unsplash.com/photo-1556740738-b6a63e27c4df?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              alt="Join Our Community"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="relative max-w-xs text-center z-10 px-8">
+              <h3 className="text-3xl font-bold text-white drop-shadow-lg" style={{textShadow: '2px 2px 8px rgba(0,0,0,0.8)'}}>
                 Join Our Community
               </h3>
-              <p className="text-xs text-gray-600 mt-1">
+              <p className="text-base text-white mt-3 drop-shadow-lg" style={{textShadow: '1px 1px 6px rgba(0,0,0,0.8)'}}>
                 Create your account and start your career journey
               </p>
             </div>
