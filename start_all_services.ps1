@@ -30,8 +30,9 @@ function Start-ServiceInNewTerminal {
 
 Write-Host "Services to start:" -ForegroundColor Green
 Write-Host "   1. CV Classifier Service (Python) - Port 5002" -ForegroundColor White
-Write-Host "   2. Backend Server (Node.js) - Port 5000" -ForegroundColor White
-Write-Host "   3. Frontend (React) - Port 5174" -ForegroundColor White
+Write-Host "   2. Skill Analyzer Service (TensorFlow) - Port 5003" -ForegroundColor White
+Write-Host "   3. Backend Server (Node.js) - Port 5000" -ForegroundColor White
+Write-Host "   4. Frontend (React) - Port 5174" -ForegroundColor White
 Write-Host ""
 
 $start = Read-Host "Start all services? (Y/n)"
@@ -48,16 +49,22 @@ if ($start -eq "" -or $start -eq "Y" -or $start -eq "y") {
     $services += $service1
     Start-Sleep -Seconds 2
     
+    # Start Skill Analyzer Service
+    $analyzerPath = Join-Path (Get-Location) "ml-service"
+    $service2 = Start-ServiceInNewTerminal -Title "Skill Analyzer Service" -Command "python skill_analyzer_service.py" -WorkingDirectory $analyzerPath
+    $services += $service2
+    Start-Sleep -Seconds 2
+    
     # Start Backend
     $backendPath = Join-Path (Get-Location) "Backend"
-    $service2 = Start-ServiceInNewTerminal -Title "Backend Server" -Command "npm start" -WorkingDirectory $backendPath
-    $services += $service2
+    $service3 = Start-ServiceInNewTerminal -Title "Backend Server" -Command "npm start" -WorkingDirectory $backendPath
+    $services += $service3
     Start-Sleep -Seconds 2
     
     # Start Frontend
     $frontendPath = Join-Path (Get-Location) "my-react-app"
-    $service3 = Start-ServiceInNewTerminal -Title "Frontend Dev Server" -Command "npm run dev" -WorkingDirectory $frontendPath
-    $services += $service3
+    $service4 = Start-ServiceInNewTerminal -Title "Frontend Dev Server" -Command "npm run dev" -WorkingDirectory $frontendPath
+    $services += $service4
     
     Write-Host ""
     Write-Host "All services started successfully!" -ForegroundColor Green
@@ -66,6 +73,7 @@ if ($start -eq "" -or $start -eq "Y" -or $start -eq "y") {
     Write-Host "   Frontend:          http://localhost:5174" -ForegroundColor White
     Write-Host "   Backend API:       http://localhost:5000" -ForegroundColor White
     Write-Host "   CV Classifier:     http://localhost:5002" -ForegroundColor White
+    Write-Host "   Skill Analyzer:    http://localhost:5003" -ForegroundColor White
     Write-Host ""
     Write-Host "Next steps:" -ForegroundColor Yellow
     Write-Host "   1. Open browser: http://localhost:5174" -ForegroundColor White

@@ -597,7 +597,7 @@ export const classifyCV = async (req, res) => {
 
 /**
  * Analyze a specific job against user's CV
- * Returns matched and missing skills
+ * Returns matched and missing skills using TensorFlow model
  */
 export const analyzeJobForUser = async (req, res) => {
   try {
@@ -641,364 +641,90 @@ export const analyzeJobForUser = async (req, res) => {
     console.log("📄 CV Text Length:", cvText.length);
     console.log("💼 Job Description Length:", jobDescription.length);
 
-    // Extract skills from Job Description using intelligent pattern matching
-    const extractSkillsFromText = (text) => {
-      const commonSkills = [
-        // Programming Languages
-        "python",
-        "javascript",
-        "java",
-        "c++",
-        "c#",
-        "php",
-        "ruby",
-        "go",
-        "rust",
-        "swift",
-        "kotlin",
-        "typescript",
-        "r",
-        "matlab",
-        "scala",
-        "perl",
-        "dart",
-        "objective-c",
-
-        // Web Technologies
-        "html",
-        "css",
-        "html5",
-        "css3",
-        "react",
-        "vue",
-        "angular",
-        "node.js",
-        "nodejs",
-        "express",
-        "next.js",
-        "nuxt",
-        "gatsby",
-        "svelte",
-        "jquery",
-        "bootstrap",
-        "tailwind",
-        "sass",
-        "less",
-
-        // Backend & Frameworks
-        "django",
-        "flask",
-        "fastapi",
-        "spring",
-        "spring boot",
-        ".net",
-        "asp.net",
-        "laravel",
-        "ruby on rails",
-        "rails",
-        "nest.js",
-        "koa",
-        "fastify",
-
-        // Databases
-        "sql",
-        "mysql",
-        "postgresql",
-        "mongodb",
-        "redis",
-        "sqlite",
-        "oracle",
-        "sql server",
-        "cassandra",
-        "dynamodb",
-        "elasticsearch",
-        "mariadb",
-        "firebase",
-        "firestore",
-
-        // Cloud & DevOps
-        "aws",
-        "azure",
-        "gcp",
-        "google cloud",
-        "docker",
-        "kubernetes",
-        "jenkins",
-        "gitlab",
-        "github actions",
-        "terraform",
-        "ansible",
-        "ci/cd",
-        "linux",
-        "bash",
-        "shell scripting",
-
-        // Mobile Development
-        "react native",
-        "flutter",
-        "ios",
-        "android",
-        "xamarin",
-        "cordova",
-        "ionic",
-
-        // Data Science & ML
-        "machine learning",
-        "deep learning",
-        "tensorflow",
-        "pytorch",
-        "keras",
-        "scikit-learn",
-        "pandas",
-        "numpy",
-        "data analysis",
-        "data science",
-        "nlp",
-        "computer vision",
-        "ai",
-
-        // Tools & Others
-        "git",
-        "github",
-        "gitlab",
-        "bitbucket",
-        "jira",
-        "agile",
-        "scrum",
-        "rest api",
-        "graphql",
-        "microservices",
-        "websocket",
-        "oauth",
-        "jwt",
-        "testing",
-        "unit testing",
-        "jest",
-        "mocha",
-        "pytest",
-        "selenium",
-        "cypress",
-        "postman",
-        "swagger",
-        "webpack",
-        "babel",
-        "npm",
-        "yarn",
-
-        // Concepts & Methodologies
-        "oop",
-        "functional programming",
-        "design patterns",
-        "solid",
-        "tdd",
-        "bdd",
-        "mvc",
-        "mvvm",
-        "clean code",
-        "refactoring",
-        "version control",
-        "code review",
-
-        // Soft Skills (commonly required)
-        "communication",
-        "teamwork",
-        "problem solving",
-        "leadership",
-        "time management",
-        "analytical",
-        "critical thinking",
-        "collaboration",
-        "adaptability",
-      ];
-
-      const textLower = text.toLowerCase();
-      const foundSkills = new Set();
-
-      // Find skills mentioned in the text
-      commonSkills.forEach((skill) => {
-        // Use word boundaries for better matching
-        const pattern = new RegExp(
-          `\\b${skill.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`,
-          "i"
-        );
-        if (pattern.test(textLower)) {
-          foundSkills.add(skill);
-        }
-      });
-
-      return Array.from(foundSkills);
-    };
-
-    // Extract skills from job description
-    const jobDescriptionSkills = extractSkillsFromText(jobDescription);
-
-    // Combine with required skills from database
-    const allRequiredSkills = [
-      ...new Set([...(job.requiredSkills || []), ...jobDescriptionSkills]),
-    ];
-
-    console.log(
-      `📋 Found ${jobDescriptionSkills.length} skills in Job Description`
-    );
-    console.log(`📋 Total required skills: ${allRequiredSkills.length}`);
-    console.log(
-      `📋 Skills found:`,
-      allRequiredSkills.slice(0, 10).join(", "),
-      "..."
-    );
-
-    let matchScore = 0;
-    let matchedSkills = [];
-    let missingSkills = [];
-
-    // Try to call Python script for hybrid ML+Smart analysis
+    // Call TensorFlow Skill Analyzer Service
     try {
-      const { spawn } = await import("child_process");
-      const scriptPath = path.join(
-        __dirname,
-        "..",
-        "..",
-        "last-one",
-        "hybrid_matcher.py"
-      );
-
-      console.log("🤖 Running Hybrid Matcher (Smart + ML):", scriptPath);
-
-      const python = spawn("python", [scriptPath, "--api-mode"], {
-        cwd: path.join(__dirname, "..", "..", "last-one"),
-        stdio: ["pipe", "pipe", "pipe"],
-        shell: true,
-        env: { ...process.env, PYTHONIOENCODING: "utf-8" },
-      });
-
-      const inputData = {
+      console.log("🤖 Calling TensorFlow Skill Analyzer Service...");
+      const SKILL_ANALYZER_URL = process.env.SKILL_ANALYZER_URL || "http://127.0.0.1:5003";
+      
+      const analyzerResponse = await axios.post(`${SKILL_ANALYZER_URL}/analyze`, {
         cv_text: cvText,
-        job_description: jobDescription,
-        threshold: 0.3,
-        top_n: 15,
-      };
-
-      // Send input to Python
-      python.stdin.write(JSON.stringify(inputData));
-      python.stdin.end();
-
-      let outputData = "";
-      let errorData = "";
-
-      python.stdout.on("data", (data) => {
-        outputData += data.toString();
+        job_desc: jobDescription
+      }, {
+        timeout: 30000 // 30 seconds timeout
       });
 
-      python.stderr.on("data", (data) => {
-        errorData += data.toString();
-        console.log("🐍 Python:", data.toString().trim());
-      });
+      if (analyzerResponse.data.success) {
+        const analysisData = analyzerResponse.data.data;
+        
+        console.log("✅ TensorFlow Analysis Complete:");
+        console.log(`   - Match: ${analysisData.match_percentage}%`);
+        console.log(`   - Matched Skills: ${analysisData.matched_skills.length}`);
+        console.log(`   - Missing Skills: ${analysisData.missing_skills.length}`);
 
-      // Wait for Python to complete
-      await new Promise((resolve, reject) => {
-        python.on("close", (code) => {
-          if (code !== 0) {
-            console.error("❌ Python stderr:", errorData);
-            reject(new Error(`Python script exited with code ${code}`));
-          } else {
-            resolve();
+        return res.status(200).json({
+          success: true,
+          data: {
+            jobTitle: job.title,
+            company: job.company,
+            matchPercentage: analysisData.match_percentage,
+            matchedSkills: analysisData.matched_skills,
+            missingSkills: analysisData.missing_skills,
+            totalJobSkills: analysisData.job_skills.length,
+            totalCvSkills: analysisData.cv_skills.length
           }
         });
-
-        python.on("error", (error) => {
-          reject(new Error(`Failed to start Python: ${error.message}`));
-        });
-
-        // Timeout after 60 seconds
-        setTimeout(() => {
-          python.kill();
-          reject(new Error("Python script timeout (60s)"));
-        }, 60000);
-      });
-
-      // Parse Python output
-      let result;
-      try {
-        result = JSON.parse(outputData);
-        if (result.success) {
-          matchScore = result.match_score || 0;
-          matchedSkills = result.matched_skills || [];
-          missingSkills = result.missing_skills || [];
-
-          console.log("✅ ML Analysis successful:");
-          console.log(`   📊 Match Score: ${matchScore}%`);
-          console.log(`   ✅ Matched: ${matchedSkills.length} skills`);
-          console.log(`   ❌ Missing: ${missingSkills.length} skills`);
-        }
-      } catch (parseError) {
-        console.error("❌ Failed to parse Python output:", outputData);
-        throw new Error("Invalid Python output");
+      } else {
+        throw new Error("Skill Analyzer returned unsuccessful response");
       }
-    } catch (pythonError) {
-      console.warn(
-        "⚠️ ML analysis failed, using basic matching:",
-        pythonError.message
-      );
-
-      // Fallback: Calculate match score based on required skills
-      const cvLower = cvText.toLowerCase();
-
-      // Extract skills from CV
+    } catch (mlError) {
+      console.error("❌ TensorFlow Service Error:", mlError.message);
+      
+      // Fallback to simple keyword matching if ML service fails
+      console.log("⚠️  Falling back to simple keyword matching...");
+      
+      // Extract skills from text
+      const extractSkillsFromText = (text) => {
+        const commonSkills = [
+          "python", "javascript", "java", "react", "vue", "angular", "node.js",
+          "django", "flask", "fastapi", "express", "mongodb", "postgresql", 
+          "mysql", "redis", "docker", "kubernetes", "aws", "azure", "git",
+          "typescript", "html", "css", "sql", "graphql", "rest api"
+        ];
+        
+        const textLower = text.toLowerCase();
+        return commonSkills.filter(skill => textLower.includes(skill));
+      };
+      
       const cvSkills = extractSkillsFromText(cvText);
-
-      // Find matched skills
-      matchedSkills = allRequiredSkills
-        .filter((skill) => cvLower.includes(skill.toLowerCase()))
-        .map((skill) => ({
-          skill,
-          confidence: "100%",
-          source: "keyword_match",
-        }));
-
-      // Find missing skills
-      const missingSkillsList = allRequiredSkills.filter(
-        (skill) => !cvLower.includes(skill.toLowerCase())
-      );
-
-      missingSkills = missingSkillsList.map((skill) => ({
+      const jobSkills = extractSkillsFromText(jobDescription);
+      const matchedSkills = jobSkills.filter(skill => cvSkills.includes(skill));
+      const missingSkillsList = jobSkills.filter(skill => !cvSkills.includes(skill));
+      
+      const matchPercentage = jobSkills.length > 0 
+        ? (matchedSkills.length / jobSkills.length) * 100 
+        : 0;
+      
+      const missingSkills = missingSkillsList.map(skill => ({
         skill,
-        confidence: "95%",
-        source: "extracted_from_job_description",
-        youtube_search: `https://www.youtube.com/results?search_query=${encodeURIComponent(
-          skill + " tutorial"
-        )}`,
-        youtube_direct: `https://www.youtube.com/results?search_query=${encodeURIComponent(
-          "learn " + skill
-        )}`,
+        confidence: 0.5,
+        priority: "MEDIUM",
+        youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(skill + " tutorial")}`
       }));
 
-      matchScore =
-        allRequiredSkills.length > 0
-          ? (matchedSkills.length / allRequiredSkills.length) * 100
-          : 50;
-
-      console.log(
-        `📊 Fallback analysis: ${matchedSkills.length}/${allRequiredSkills.length} skills matched`
-      );
+      return res.status(200).json({
+        success: true,
+        data: {
+          jobTitle: job.title,
+          company: job.company,
+          matchPercentage: Math.round(matchPercentage * 100) / 100,
+          matchedSkills,
+          missingSkills,
+          totalJobSkills: jobSkills.length,
+          totalCvSkills: cvSkills.length,
+          fallback: true
+        }
+      });
     }
-
-    console.log(
-      `✅ Final Analysis: ${matchedSkills.length} matched, ${
-        missingSkills.length
-      } missing, ${matchScore.toFixed(1)}% match`
-    );
-
-    return res.status(200).json({
-      success: true,
-      data: {
-        matchScore: Math.round(matchScore * 100) / 100,
-        matchedSkills: matchedSkills,
-        missingSkills: missingSkills,
-        totalRequired: allRequiredSkills.length,
-        extractedSkillsCount: jobDescriptionSkills.length,
-        analysis: `Matched ${matchedSkills.length} out of ${allRequiredSkills.length} required skills. ${jobDescriptionSkills.length} skills extracted from job description.`,
-      },
-    });
   } catch (error) {
     console.error("❌ Error in analyzeJobForUser:", error.message);
     return res.status(500).json({
