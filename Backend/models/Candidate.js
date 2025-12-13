@@ -51,6 +51,11 @@ const candidateSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    jobTitle: {
+      type: String,
+      default: "",
+      trim: true,
+    },
     linkedinUrl: {
       type: String,
       default: "",

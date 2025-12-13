@@ -60,3 +60,6 @@ venv/
 env/
 ENV/
 
+
+# Large model files
+*.keras

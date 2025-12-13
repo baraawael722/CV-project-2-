@@ -1,6 +1,21 @@
-# CV Project Monorepo
+# CV Project - Job Matching & CV Classification Platform
 
-This repository now combines Backend (Express + MongoDB) and Frontend (React + Vite) in a single workspace using npm workspaces.
+مشروع متكامل لمطابقة السير الذاتية مع الوظائف + تصنيف ذكي للسيرة الذاتية باستخدام AI
+
+This repository combines Backend (Express + MongoDB), Frontend (React + Vite), and ML Services (Python) in a single workspace.
+
+## ⭐ New Feature: CV Classification System
+
+**تم إضافة نظام تصنيف ذكي للسير الذاتية!**
+
+- 🤖 يستخدم موديل Keras + Groq AI (مجاني)
+- 🎯 يصنف CV إلى 15 فئة وظيفية
+- ⚡ دقة عالية بفضل دمج الموديلين
+- 📊 تحليل شامل للمهارات والخبرات
+
+**للبدء السريع**: راجع [CV_CLASSIFIER_QUICK_START.md](./CV_CLASSIFIER_QUICK_START.md)  
+**للتفاصيل الكاملة**: راجع [CV_CLASSIFIER_README.md](./CV_CLASSIFIER_README.md)  
+**دليل الاستخدام**: راجع [CV_CLASSIFIER_USAGE.md](./CV_CLASSIFIER_USAGE.md)
 
 ## Structure
 - `Backend/` Express API server

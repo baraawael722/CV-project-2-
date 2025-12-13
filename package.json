@@ -7,12 +7,13 @@
     "my-react-app"
   ],
   "scripts": {
-    "dev": "concurrently \"npm:dev --workspace Backend\" \"npm:dev --workspace my-react-app\"",
+    "dev": "concurrently \"npm:backend:dev\" \"npm:frontend:dev\" \"npm:ml:dev\"",
     "start": "npm run start --workspace Backend",
     "build": "npm run build --workspace my-react-app",
     "install:all": "npm install",
     "backend:dev": "npm run dev --workspace Backend",
-    "frontend:dev": "npm run dev --workspace my-react-app"
+    "frontend:dev": "npm run dev --workspace my-react-app",
+    "ml:dev": "cd ml-service && python cv_classifier_service.py"
   },
   "devDependencies": {
     "concurrently": "^9.0.1"

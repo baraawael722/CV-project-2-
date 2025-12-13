@@ -8,6 +8,8 @@ export default function Profile() {
   const [cvFile, setCvFile] = useState(null)
   const [hasUploadedCV, setHasUploadedCV] = useState(false)
   const [cvFileName, setCvFileName] = useState('')
+  const [classifying, setClassifying] = useState(false)
+  const [classificationResult, setClassificationResult] = useState(null)
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState({
     name: '',
@@ -280,6 +282,55 @@ export default function Profile() {
     }))
   }
 
+  const handleClassifyCV = async () => {
+    const token = localStorage.getItem('token')
+
+    if (!token) {
+      alert('❌ Please login first')
+      return
+    }
+
+    if (!hasUploadedCV) {
+      alert('❌ Please upload your CV first before classification')
+      return
+    }
+
+    try {
+      setClassifying(true)
+      console.log('🔬 Starting CV classification...')
+
+      const response = await fetch('http://localhost:5000/api/ml/classify-cv', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const data = await response.json()
+      console.log('📦 Classification result:', data)
+
+      if (response.ok && data.success) {
+        setClassificationResult(data.data)
+        alert(`✅ Classification Complete!\n\nJob Title: ${data.data.jobTitle}\nConfidence: ${(data.data.confidence * 100).toFixed(1)}%`)
+
+        // Update profile with job title
+        setProfile(prev => ({
+          ...prev,
+          jobTitle: data.data.jobTitle
+        }))
+      } else {
+        throw new Error(data.message || 'Classification failed')
+      }
+
+    } catch (error) {
+      console.error('❌ Classification error:', error)
+      alert(`❌ Classification failed: ${error.message}`)
+    } finally {
+      setClassifying(false)
+    }
+  }
+
   const savedJobs = [
     { id: 1, title: 'Senior React Developer', company: 'TechCorp', match: 95 },
     { id: 2, title: 'Frontend Engineer', company: 'StartupXYZ', match: 88 },
@@ -480,24 +531,135 @@ export default function Profile() {
                 <p className="text-gray-600">CV upload is for employees only.</p>
               ) : hasUploadedCV && !cvFile ? (
                 // Show uploaded CV status with Edit button
-                <div className="border-4 border-solid border-green-500 rounded-xl p-8 bg-green-50">
-                  <div className="text-center">
-                    <svg className="w-20 h-20 mx-auto mb-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">CV Uploaded Successfully</h3>
-                    <p className="text-gray-700 mb-4 font-semibold">{cvFileName}</p>
-                    <p className="text-sm text-gray-600 mb-6">Your CV has been uploaded and processed.</p>
-                    <button
-                      onClick={() => {
-                        setHasUploadedCV(false)
-                        setCvFileName('')
-                      }}
-                      className="px-6 py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-all"
-                    >
-                      Edit / Change CV
-                    </button>
+                <div className="space-y-4">
+                  <div className="border-4 border-solid border-green-500 rounded-xl p-8 bg-green-50">
+                    <div className="text-center">
+                      <svg className="w-20 h-20 mx-auto mb-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <h3 className="text-lg font-bold text-gray-900 mb-2">CV Uploaded Successfully</h3>
+                      <p className="text-gray-700 mb-4 font-semibold">{cvFileName}</p>
+                      <p className="text-sm text-gray-600 mb-6">Your CV has been uploaded and processed.</p>
+                      <div className="flex gap-3 justify-center">
+                        <button
+                          onClick={() => {
+                            setHasUploadedCV(false)
+                            setCvFileName('')
+                          }}
+                          className="px-6 py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-all"
+                        >
+                          Edit / Change CV
+                        </button>
+                        <button
+                          onClick={handleClassifyCV}
+                          disabled={classifying}
+                          className="px-6 py-3 bg-purple-600 text-white font-bold rounded-full hover:bg-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {classifying ? (
+                            <span className="flex items-center gap-2">
+                              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                              Classifying...
+                            </span>
+                          ) : (
+                            '🔬 Classify Job Role'
+                          )}
+                        </button>
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Show classification result if available */}
+                  {classificationResult && (
+                    <div className="space-y-4">
+                      <div className="border-4 border-solid border-purple-500 rounded-xl p-6 bg-purple-50">
+                        <h4 className="text-lg font-bold text-purple-900 mb-4">🎯 Classification Result</h4>
+                        <div className="grid grid-cols-2 gap-4 mb-4">
+                          <div>
+                            <p className="text-sm text-gray-600 mb-1">Job Title:</p>
+                            <p className="text-xl font-bold text-purple-900">{classificationResult.jobTitle}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600 mb-1">Confidence:</p>
+                            <p className="text-xl font-bold text-purple-900">{(classificationResult.confidence * 100).toFixed(1)}%</p>
+                          </div>
+                        </div>
+                        <div className="text-sm text-purple-700 bg-purple-100 p-2 rounded">
+                          Method: {classificationResult.decision_method || 'unknown'}
+                        </div>
+                      </div>
+
+                      {/* AI Analysis Details */}
+                      {classificationResult.ai_analysis && (
+                        <div className="border-4 border-solid border-blue-500 rounded-xl p-6 bg-blue-50">
+                          <h4 className="text-lg font-bold text-blue-900 mb-4">🤖 AI Analysis</h4>
+
+                          {classificationResult.ai_analysis.primary_role && (
+                            <div className="mb-4">
+                              <p className="text-sm text-gray-700 font-semibold mb-1">Primary Role:</p>
+                              <p className="text-blue-900 text-lg">{classificationResult.ai_analysis.primary_role}</p>
+                            </div>
+                          )}
+
+                          {classificationResult.ai_analysis.experience_years && (
+                            <div className="mb-4">
+                              <p className="text-sm text-gray-700 font-semibold mb-1">Experience:</p>
+                              <p className="text-blue-900">{classificationResult.ai_analysis.experience_years} years</p>
+                            </div>
+                          )}
+
+                          {classificationResult.ai_analysis.skills && classificationResult.ai_analysis.skills.length > 0 && (
+                            <div className="mb-4">
+                              <p className="text-sm text-gray-700 font-semibold mb-2">Technical Skills:</p>
+                              <div className="flex flex-wrap gap-2">
+                                {classificationResult.ai_analysis.skills.map((skill, idx) => (
+                                  <span key={idx} className="px-3 py-1 bg-blue-200 text-blue-900 rounded-full text-sm font-semibold">
+                                    {skill}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {classificationResult.ai_analysis.languages && classificationResult.ai_analysis.languages.length > 0 && (
+                            <div className="mb-4">
+                              <p className="text-sm text-gray-700 font-semibold mb-2">Languages:</p>
+                              <div className="flex flex-wrap gap-2">
+                                {classificationResult.ai_analysis.languages.map((lang, idx) => (
+                                  <span key={idx} className="px-3 py-1 bg-indigo-200 text-indigo-900 rounded-full text-sm font-semibold">
+                                    {lang}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {classificationResult.ai_analysis.projects && classificationResult.ai_analysis.projects.length > 0 && (
+                            <div className="mb-4">
+                              <p className="text-sm text-gray-700 font-semibold mb-2">Projects:</p>
+                              <ul className="list-disc list-inside space-y-1">
+                                {classificationResult.ai_analysis.projects.map((project, idx) => (
+                                  <li key={idx} className="text-blue-900 text-sm">{project}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                          {classificationResult.ai_analysis.recommended_categories && classificationResult.ai_analysis.recommended_categories.length > 0 && (
+                            <div>
+                              <p className="text-sm text-gray-700 font-semibold mb-2">Recommended Roles:</p>
+                              <div className="flex flex-wrap gap-2">
+                                {classificationResult.ai_analysis.recommended_categories.map((cat, idx) => (
+                                  <span key={idx} className="px-3 py-1 bg-green-200 text-green-900 rounded-full text-sm font-semibold">
+                                    {cat}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               ) : cvFile ? (
                 // Show file selected state
