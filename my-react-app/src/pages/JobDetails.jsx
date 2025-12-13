@@ -527,14 +527,16 @@ export default function JobDetails() {
                                     </span>
                                     {skill.confidence && (
                                       <span className="text-xs text-red-600 font-semibold">
-                                        {skill.confidence}
+                                        Confidence:{" "}
+                                        {(skill.confidence * 100).toFixed(0)}% |
+                                        Priority: {skill.priority}
                                       </span>
                                     )}
                                   </div>
                                 </div>
-                                {skill.youtube_search && (
+                                {(skill.youtube || skill.youtube_search) && (
                                   <a
-                                    href={skill.youtube_search}
+                                    href={skill.youtube || skill.youtube_search}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="flex items-center gap-2 text-xs text-white bg-red-600 hover:bg-red-700 px-3 py-2 rounded-md transition-colors"

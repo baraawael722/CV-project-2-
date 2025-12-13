@@ -641,14 +641,14 @@ export const analyzeJobForUser = async (req, res) => {
     console.log("📄 CV Text Length:", cvText.length);
     console.log("💼 Job Description Length:", jobDescription.length);
 
-    // Call TensorFlow Skill Analyzer Service
+    // Call TensorFlow Skill Matcher Service (last-one model)
     try {
-      console.log("🤖 Calling TensorFlow Skill Analyzer Service...");
-      const SKILL_ANALYZER_URL =
-        process.env.SKILL_ANALYZER_URL || "http://127.0.0.1:5003";
+      console.log("🤖 Calling TensorFlow Skill Matcher Service...");
+      const SKILL_MATCHER_URL =
+        process.env.SKILL_MATCHER_URL || "http://127.0.0.1:5004";
 
       const analyzerResponse = await axios.post(
-        `${SKILL_ANALYZER_URL}/analyze`,
+        `${SKILL_MATCHER_URL}/analyze`,
         {
           cv_text: cvText,
           job_desc: jobDescription,
@@ -675,6 +675,7 @@ export const analyzeJobForUser = async (req, res) => {
           data: {
             jobTitle: job.title,
             company: job.company,
+            matchScore: analysisData.match_percentage, // For Frontend compatibility
             matchPercentage: analysisData.match_percentage,
             matchedSkills: analysisData.matched_skills,
             missingSkills: analysisData.missing_skills,
