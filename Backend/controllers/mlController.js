@@ -12,23 +12,23 @@ const __dirname = path.dirname(__filename);
 const ML_SERVICE_URL = process.env.ML_HOST || "http://127.0.0.1:5001";
 const CV_CLASSIFIER_URL =
   process.env.CV_CLASSIFIER_URL || "http://127.0.0.1:5002";
-const USE_PYTHON_MATCHER = process.env.USE_PYTHON_MATCHER !== "false"; // Default: true
+const USE_PYTHON_MATCHER = process.env.USE_PYTHON_MATCHER !== "false"; // Default: true (Python BERT matcher)
 
-// Initialize Python service on module load
+// Python service DISABLED - using JavaScript matcher only for reliable results
 let pythonServiceReady = false;
-const pythonMatcher = getPythonMatcher();
+// const pythonMatcher = getPythonMatcher();
 
-pythonMatcher
-  .start()
-  .then(() => {
-    pythonServiceReady = true;
-    console.log("✅ Python BERT Matcher Service started successfully!");
-  })
-  .catch((error) => {
-    pythonServiceReady = false;
-    console.error("❌ Failed to start Python service:", error.message);
-    console.log("⚠️  Will fallback to JavaScript matcher");
-  });
+// pythonMatcher
+//   .start()
+//   .then(() => {
+//     pythonServiceReady = true;
+//     console.log("✅ Python BERT Matcher Service started successfully!");
+//   })
+//   .catch((error) => {
+//     pythonServiceReady = false;
+//     console.error("❌ Failed to start Python service:", error.message);
+//     console.log("⚠️  Will fallback to JavaScript matcher");
+//   });
 
 export const matchCV = async (req, res) => {
   try {

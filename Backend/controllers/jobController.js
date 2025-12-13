@@ -18,10 +18,42 @@ export const getAllJobs = async (req, res) => {
       .sort({ createdAt: -1 })
       .populate("postedBy", "name email");
 
+    // For employees: calculate match scores using Python BERT matcher
+    let enrichedJobs = jobs;
+    if (req.user.role === "employee") {
+      try {
+        // Import pythonMatcher here to avoid circular dependency
+        const { getPythonMatcher } = await import("../utils/pythonMatcher.js");
+        const pythonMatcher = getPythonMatcher();
+        
+        const candidate = await Candidate.findOne({ email: req.user.email });
+        if (candidate && candidate.resumeText && candidate.resumeText.trim()) {
+          const cvText = candidate.resumeText;
+          const jobDescriptions = jobs.map((job) => job.description || "");
+          
+          // Use Python BERT matcher for accurate semantic similarity
+          const matches = await pythonMatcher.match(cvText, jobDescriptions, jobs.length);
+          
+          enrichedJobs = jobs.map((job, idx) => {
+            const matchData = matches.find((m) => m.job_index === idx);
+            const jobObj = job.toObject();
+            jobObj.matchScore = matchData ? Math.round(matchData.similarity_score * 100) / 100 : 0;
+            return jobObj;
+          });
+          
+          // Sort by match score descending
+          enrichedJobs.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+        }
+      } catch (matchError) {
+        console.error("❌ Failed to calculate match scores:", matchError.message);
+        // Continue without match scores
+      }
+    }
+
     res.json({
       success: true,
-      count: jobs.length,
-      data: jobs,
+      count: enrichedJobs.length,
+      data: enrichedJobs,
     });
   } catch (error) {
     res.status(500).json({
