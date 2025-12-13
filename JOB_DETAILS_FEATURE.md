@@ -5,6 +5,7 @@
 تم إضافة ميزة جديدة لعرض تفاصيل الوظيفة مع تحليل ذكي للمهارات باستخدام نموذج الـ Machine Learning الموجود في مجلد `last-one`.
 
 This new feature allows employees to:
+
 - View complete job details including company information
 - See AI-powered skills analysis comparing their CV with the job requirements
 - Get personalized recommendations for missing skills with YouTube learning links
@@ -13,6 +14,7 @@ This new feature allows employees to:
 ## Features / المميزات
 
 ### 1. Job Details Page / صفحة تفاصيل الوظيفة
+
 - **Company Information**: اسم الشركة ووصفها
 - **Job Description**: الوصف الكامل للوظيفة
 - **Required Skills**: المهارات المطلوبة
@@ -20,6 +22,7 @@ This new feature allows employees to:
 - **Job Type**: نوع الوظيفة (دوام كامل، عن بعد، إلخ)
 
 ### 2. AI Skills Analysis / تحليل المهارات بالذكاء الاصطناعي
+
 - **Match Score**: نسبة التطابق بين الـ CV والوظيفة
 - **Matched Skills**: المهارات الموجودة في الـ CV والمطابقة للوظيفة
 - **Missing Skills**: المهارات الناقصة مع روابط تعليمية على YouTube
@@ -27,12 +30,14 @@ This new feature allows employees to:
 ## How It Works / كيف يعمل
 
 ### Frontend Flow:
+
 1. المستخدم يضغط على "Apply Now" أو "Details" في صفحة الوظائف
 2. ينتقل إلى `/employee/jobs/:jobId`
 3. يتم عرض تفاصيل الوظيفة
 4. يتم استدعاء API للحصول على تحليل المهارات
 
 ### Backend Flow:
+
 1. **Endpoint**: `GET /api/ml/analyze-job/:jobId`
 2. يحصل على معلومات الوظيفة من قاعدة البيانات
 3. يحصل على الـ CV الخاص بالمستخدم
@@ -41,6 +46,7 @@ This new feature allows employees to:
 6. يرجع المهارات المطابقة والناقصة
 
 ### ML Model Integration:
+
 - **Model Location**: `last-one/cv_job_matcher_model.h5`
 - **Python Script**: `last-one/easy_predict_api.py`
 - **Input**: CV text + Job description
@@ -49,12 +55,14 @@ This new feature allows employees to:
 ## API Endpoints
 
 ### 1. Get Job Details
+
 ```
 GET /api/jobs/:jobId
 Authorization: Bearer {token}
 ```
 
 ### 2. Analyze Job for User
+
 ```
 GET /api/ml/analyze-job/:jobId
 Authorization: Bearer {token}
@@ -83,6 +91,7 @@ Response:
 ```
 
 ### 3. Apply to Job
+
 ```
 POST /api/jobs/:jobId/apply
 Authorization: Bearer {token}
@@ -127,6 +136,7 @@ last-one/
 ## Usage / الاستخدام
 
 ### For Employees:
+
 1. اذهب إلى صفحة الوظائف: `http://localhost:5174/employee/jobs`
 2. اضغط على "Apply Now" أو "Details" على أي وظيفة
 3. شاهد تفاصيل الوظيفة والتحليل الذكي للمهارات
@@ -134,6 +144,7 @@ last-one/
 5. اضغط "Apply Now" للتقديم على الوظيفة
 
 ### Prerequisites / المتطلبات:
+
 - ✅ يجب رفع الـ CV أولاً من صفحة Profile
 - ✅ النموذج والملفات يجب أن تكون موجودة في مجلد `last-one`
 - ✅ Python وجميع المكتبات المطلوبة مثبتة
@@ -141,6 +152,7 @@ last-one/
 ## Model Files Required / الملفات المطلوبة للنموذج
 
 في مجلد `last-one`:
+
 - ✅ `cv_job_matcher_model.h5`
 - ✅ `tokenizer.pkl`
 - ✅ `skills_list.json`
@@ -156,6 +168,7 @@ last-one/
 ## Testing / الاختبار
 
 ### Test the Feature:
+
 ```bash
 # 1. تأكد من تشغيل الـ backend
 cd Backend
@@ -172,6 +185,7 @@ http://localhost:5174/employee/jobs
 ```
 
 ### Check Python Script:
+
 ```bash
 cd last-one
 python easy_predict_api.py --api-mode

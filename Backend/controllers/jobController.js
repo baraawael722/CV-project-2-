@@ -7,11 +7,11 @@ export const getAllJobs = async (req, res) => {
     let query = {};
 
     // HR sees only their posted jobs, employees see all active jobs
-    if (req.user.role === 'hr') {
+    if (req.user.role === "hr") {
       query = { postedBy: req.user.id };
     } else {
       // Employees see all active jobs
-      query = { status: 'Active' };
+      query = { status: "Active" };
     }
 
     const jobs = await Job.find(query)
@@ -245,19 +245,19 @@ export const applyToJob = async (req, res) => {
 
     // Find or create candidate profile
     let candidate = await Candidate.findOne({ email: userEmail });
-    
+
     if (!candidate) {
       // Create basic candidate profile if doesn't exist
       candidate = await Candidate.create({
         email: userEmail,
-        name: req.user.name || 'Candidate',
-        applications: []
+        name: req.user.name || "Candidate",
+        applications: [],
       });
     }
 
     // Check if already applied
     const alreadyApplied = candidate.applications?.some(
-      app => app.jobId && app.jobId.toString() === jobId
+      (app) => app.jobId && app.jobId.toString() === jobId
     );
 
     if (alreadyApplied) {
@@ -272,7 +272,7 @@ export const applyToJob = async (req, res) => {
     candidate.applications.push({
       jobId: jobId,
       appliedAt: new Date(),
-      status: 'Pending'
+      status: "Pending",
     });
 
     await candidate.save();
@@ -283,10 +283,9 @@ export const applyToJob = async (req, res) => {
       data: {
         jobId: jobId,
         jobTitle: job.title,
-        appliedAt: new Date()
-      }
+        appliedAt: new Date(),
+      },
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,

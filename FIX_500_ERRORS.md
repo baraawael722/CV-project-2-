@@ -1,4 +1,5 @@
 # حل مشكلة الأخطاء 500
+
 ## Fix for 500 Internal Server Errors
 
 ---
@@ -6,10 +7,12 @@
 ## ✅ تم إصلاح المشاكل التالية:
 
 ### 1. مشكلة `/api/ml/analyze-job/:jobId`
+
 **السبب**: Python script كان يفشل ويوقف الـ Backend
 **الحل**: تم إضافة fallback mechanism - إذا فشل Python، سيستخدم basic matching
 
-### 2. مشكلة `/api/jobs/:jobId/apply`  
+### 2. مشكلة `/api/jobs/:jobId/apply`
+
 **السبب**: حقل `phone` غير موجود في User model
 **الحل**: تم حذف `phone` من الـ create statement
 
@@ -18,11 +21,13 @@
 ## 🔄 الآن الميزة تعمل في وضعين:
 
 ### وضع 1: مع Python ML Model (متقدم)
+
 - إذا كان Python مثبت والملفات موجودة
 - سيستخدم نموذج الذكاء الاصطناعي المتقدم
 - نتائج أدق للمهارات الناقصة
 
 ### وضع 2: بدون Python (أساسي)
+
 - إذا فشل Python أو غير مثبت
 - سيستخدم basic keyword matching
 - يقارن المهارات المطلوبة بالـ CV مباشرة
@@ -33,6 +38,7 @@
 ## 🚀 التشغيل الآن:
 
 ### 1. أعد تشغيل الـ Backend:
+
 ```powershell
 # أوقف الـ server الحالي (Ctrl+C)
 # ثم شغله من جديد:
@@ -41,15 +47,18 @@ npm start
 ```
 
 ### 2. تأكد من تشغيل الـ Frontend:
+
 ```powershell
 cd e:\cv_resume\CV-project-2-\my-react-app
 npm run dev
 ```
 
 ### 3. جرب الميزة:
+
 ```
 http://localhost:5174/employee/jobs
 ```
+
 - اضغط على "Apply Now" على أي وظيفة
 - يجب أن تعمل الآن! ✅
 
@@ -66,6 +75,7 @@ http://localhost:5174/employee/jobs
 3. ✅ **عرض النتائج** - يعمل دائماً
 
 ### عند الضغط على "Apply Now":
+
 - ✅ يتم إنشاء/تحديث ملف Candidate
 - ✅ يتم إضافة Application للوظيفة
 - ✅ رسالة نجاح تظهر
@@ -76,6 +86,7 @@ http://localhost:5174/employee/jobs
 ## 🐛 إذا استمرت المشكلة:
 
 ### تحقق من Console في Backend:
+
 ```powershell
 # في terminal الـ Backend، ستشاهد:
 🎯 Analyzing job 693c2a5a7ad215584fc056c9 for user: user@email.com
@@ -87,6 +98,7 @@ http://localhost:5174/employee/jobs
 ```
 
 ### الرسائل المهمة:
+
 - ✅ `Analysis complete` = يعمل بنجاح
 - ⚠️ `Python analysis failed` = يعمل لكن بدون ML (عادي)
 - ❌ `Error in analyzeJobForUser` = مشكلة يجب حلها
@@ -96,24 +108,28 @@ http://localhost:5174/employee/jobs
 ## 🎯 لتفعيل Python ML Model (اختياري):
 
 ### 1. تأكد من Python:
+
 ```powershell
 python --version
 # يجب أن يظهر: Python 3.x
 ```
 
 ### 2. ثبت المكتبات:
+
 ```powershell
 cd e:\cv_resume\CV-project-2-\last-one
 pip install tensorflow numpy scikit-learn
 ```
 
 ### 3. تأكد من الملفات:
+
 - ✅ `cv_job_matcher_model.h5`
 - ✅ `tokenizer.pkl`
 - ✅ `skills_list.json`
 - ✅ `easy_predict_api.py`
 
 ### 4. اختبر Python script:
+
 ```powershell
 cd e:\cv_resume\CV-project-2-\last-one
 python easy_predict_api.py --api-mode
@@ -125,6 +141,7 @@ python easy_predict_api.py --api-mode
 ## 📝 ملاحظات:
 
 ### التحليل الأساسي (Basic) يعطي:
+
 - ✅ Match score بناءً على المهارات المطلوبة
 - ✅ Matched skills (موجودة في الـ CV)
 - ✅ Missing skills (ناقصة من الـ CV)
@@ -132,6 +149,7 @@ python easy_predict_api.py --api-mode
 - ⚡ سريع جداً (فوري)
 
 ### التحليل المتقدم (ML) يعطي:
+
 - ✨ تحليل أعمق باستخدام BERT embeddings
 - ✨ مهارات إضافية قد تكون مفيدة
 - ✨ confidence scores أدق
@@ -142,6 +160,7 @@ python easy_predict_api.py --api-mode
 ## ✅ الخلاصة:
 
 الميزة **تعمل الآن** في الوضعين:
+
 - مع Python = Advanced ✨
 - بدون Python = Basic ⚡
 

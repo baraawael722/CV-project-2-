@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
 import TopNavbar from "./components/TopNavbar.jsx";
 import Home from "./pages/Home.jsx";
@@ -16,8 +21,8 @@ import Profile from "./pages/Profile.jsx";
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const user = JSON.parse(localStorage.getItem('user') || 'null');
-  const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const token = localStorage.getItem("token");
 
   if (!token || !user) {
     return <Navigate to="/login" replace />;
@@ -25,7 +30,8 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     // Redirect to appropriate dashboard based on role
-    const redirectPath = user.role === 'hr' ? '/hr/dashboard' : '/employee/dashboard';
+    const redirectPath =
+      user.role === "hr" ? "/hr/dashboard" : "/employee/dashboard";
     return <Navigate to={redirectPath} replace />;
   }
 
@@ -55,7 +61,7 @@ export default function App() {
         <Route
           path="/employee/dashboard"
           element={
-            <ProtectedRoute allowedRoles={['employee', 'user']}>
+            <ProtectedRoute allowedRoles={["employee", "user"]}>
               <TopNavbar />
               <Dashboard />
             </ProtectedRoute>
@@ -64,7 +70,7 @@ export default function App() {
         <Route
           path="/employee/profile"
           element={
-            <ProtectedRoute allowedRoles={['employee', 'user']}>
+            <ProtectedRoute allowedRoles={["employee", "user"]}>
               <TopNavbar />
               <Profile />
             </ProtectedRoute>
@@ -73,7 +79,7 @@ export default function App() {
         <Route
           path="/employee/jobs"
           element={
-            <ProtectedRoute allowedRoles={['employee', 'user']}>
+            <ProtectedRoute allowedRoles={["employee", "user"]}>
               <TopNavbar />
               <Jobs />
             </ProtectedRoute>
@@ -82,7 +88,7 @@ export default function App() {
         <Route
           path="/employee/jobs/:jobId"
           element={
-            <ProtectedRoute allowedRoles={['employee', 'user']}>
+            <ProtectedRoute allowedRoles={["employee", "user"]}>
               <TopNavbar />
               <JobDetails />
             </ProtectedRoute>
@@ -91,7 +97,7 @@ export default function App() {
         <Route
           path="/employee/skills"
           element={
-            <ProtectedRoute allowedRoles={['employee', 'user']}>
+            <ProtectedRoute allowedRoles={["employee", "user"]}>
               <TopNavbar />
               <Skills />
             </ProtectedRoute>
@@ -100,7 +106,7 @@ export default function App() {
         <Route
           path="/employee/learning"
           element={
-            <ProtectedRoute allowedRoles={['employee', 'user']}>
+            <ProtectedRoute allowedRoles={["employee", "user"]}>
               <TopNavbar />
               <Learning />
             </ProtectedRoute>
@@ -109,7 +115,7 @@ export default function App() {
         <Route
           path="/employee/interview"
           element={
-            <ProtectedRoute allowedRoles={['employee', 'user']}>
+            <ProtectedRoute allowedRoles={["employee", "user"]}>
               <TopNavbar />
               <Interview />
             </ProtectedRoute>
@@ -120,7 +126,7 @@ export default function App() {
         <Route
           path="/hr/dashboard"
           element={
-            <ProtectedRoute allowedRoles={['hr']}>
+            <ProtectedRoute allowedRoles={["hr"]}>
               <TopNavbar />
               <HRDashboard />
             </ProtectedRoute>
@@ -129,7 +135,7 @@ export default function App() {
         <Route
           path="/hr/matched-candidates"
           element={
-            <ProtectedRoute allowedRoles={['hr']}>
+            <ProtectedRoute allowedRoles={["hr"]}>
               <TopNavbar />
               <MatchedCandidates />
             </ProtectedRoute>
@@ -138,7 +144,7 @@ export default function App() {
         <Route
           path="/hr/profile"
           element={
-            <ProtectedRoute allowedRoles={['hr']}>
+            <ProtectedRoute allowedRoles={["hr"]}>
               <TopNavbar />
               <Profile />
             </ProtectedRoute>
@@ -147,7 +153,7 @@ export default function App() {
         <Route
           path="/hr/jobs"
           element={
-            <ProtectedRoute allowedRoles={['hr']}>
+            <ProtectedRoute allowedRoles={["hr"]}>
               <TopNavbar />
               <Jobs />
             </ProtectedRoute>
@@ -156,7 +162,7 @@ export default function App() {
         <Route
           path="/hr/skills"
           element={
-            <ProtectedRoute allowedRoles={['hr']}>
+            <ProtectedRoute allowedRoles={["hr"]}>
               <TopNavbar />
               <Skills />
             </ProtectedRoute>
@@ -164,13 +170,34 @@ export default function App() {
         />
 
         {/* Redirect old routes to new structure */}
-        <Route path="/dashboard" element={<Navigate to="/employee/dashboard" replace />} />
-        <Route path="/hr-dashboard" element={<Navigate to="/hr/dashboard" replace />} />
-        <Route path="/profile" element={<Navigate to="/employee/profile" replace />} />
-        <Route path="/jobs" element={<Navigate to="/employee/jobs" replace />} />
-        <Route path="/skills" element={<Navigate to="/employee/skills" replace />} />
-        <Route path="/learning" element={<Navigate to="/employee/learning" replace />} />
-        <Route path="/interview" element={<Navigate to="/employee/interview" replace />} />
+        <Route
+          path="/dashboard"
+          element={<Navigate to="/employee/dashboard" replace />}
+        />
+        <Route
+          path="/hr-dashboard"
+          element={<Navigate to="/hr/dashboard" replace />}
+        />
+        <Route
+          path="/profile"
+          element={<Navigate to="/employee/profile" replace />}
+        />
+        <Route
+          path="/jobs"
+          element={<Navigate to="/employee/jobs" replace />}
+        />
+        <Route
+          path="/skills"
+          element={<Navigate to="/employee/skills" replace />}
+        />
+        <Route
+          path="/learning"
+          element={<Navigate to="/employee/learning" replace />}
+        />
+        <Route
+          path="/interview"
+          element={<Navigate to="/employee/interview" replace />}
+        />
       </Routes>
     </Router>
   );
