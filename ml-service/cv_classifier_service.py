@@ -40,25 +40,7 @@ app.add_middleware(
 MODEL_PATH = "cv_classifier_merged.keras"
 model = None
 groq_client = None
-
-# Job titles/categories للتصنيف
-JOB_CATEGORIES = [
-    "Frontend Developer",
-    "Backend Developer",
-    "Full Stack Developer",
-    "Mobile Developer",
-    "DevOps Engineer",
-    "Data Scientist",
-    "Machine Learning Engineer",
-    "UI/UX Designer",
-    "Software Engineer",
-    "Quality Assurance Engineer",
-    "Database Administrator",
-    "Security Engineer",
-    "Cloud Engineer",
-    "Product Manager",
-    "Business Analyst"
-]
+JOB_CATEGORIES = []  # سيتم تحميلها من ملف JSON
 
 
 class CVClassificationRequest(BaseModel):
@@ -77,18 +59,34 @@ class CVClassificationResponse(BaseModel):
 
 
 def load_model():
-    """تحميل موديل Keras"""
-    global model
+    """تحميل موديل Keras والفئات"""
+    global model, JOB_CATEGORIES
     try:
+        # تحميل الفئات من ملف JSON
+        classes_path = "job_classes.json"
+        if os.path.exists(classes_path):
+            with open(classes_path, 'r', encoding='utf-8') as f:
+                JOB_CATEGORIES = json.load(f)
+            print(f"✅ Loaded {len(JOB_CATEGORIES)} job categories")
+        else:
+            print(f"⚠️ Classes file not found at {classes_path}")
+            # استخدام قائمة افتراضية
+            JOB_CATEGORIES = ["Software Engineer", "Data Scientist", "Web Developer"]
+        
+        # تحميل الموديل
         if os.path.exists(MODEL_PATH):
             model = tf.keras.models.load_model(MODEL_PATH)
             print(f"✅ Keras model loaded successfully from {MODEL_PATH}")
+            print(f"   Input shape: {model.input_shape}")
+            print(f"   Output shape: {model.output_shape}")
         else:
             # البحث عن الموديل في المجلد الرئيسي
             parent_model_path = os.path.join("..", MODEL_PATH)
             if os.path.exists(parent_model_path):
                 model = tf.keras.models.load_model(parent_model_path)
                 print(f"✅ Keras model loaded from parent directory: {parent_model_path}")
+                print(f"   Input shape: {model.input_shape}")
+                print(f"   Output shape: {model.output_shape}")
             else:
                 print(f"⚠️ Model file not found at {MODEL_PATH}")
                 print(f"⚠️ Also checked: {parent_model_path}")
@@ -128,24 +126,93 @@ async def startup_event():
 def extract_text_features(text: str) -> np.ndarray:
     """
     استخراج features من النص - عمل text padding ل 8000 characters
-    الموديل يتوقع CV text بطول محدد
+    الموديل يتوقع CV text بطول محدد (8000)
+    
+    استخدام TF-IDF أو character-level encoding
     """
-    text = text.lower()[:8000]  # خذ أول 8000 حرف
+    # نظف النص وحوله لأحرف صغيرة
+    text = text.lower().strip()
     
-    # Pad أو truncate إلى 8000 characters
-    if len(text) < 8000:
-        text = text + ' ' * (8000 - len(text))
+    # Pad أو truncate إلى 8000 characters بالضبط
+    if len(text) > 8000:
+        text = text[:8000]
+    elif len(text) < 8000:
+        # بدلاً من مجرد spaces، استخدم padding ذكي
+        text = text + '\n' * (8000 - len(text))
     
-    # تحويل النص إلى ASCII values ثم تطبيعها
-    # هذه طريقة بسيطة للحصول على 8000 features من النص
+    # تحويل النص إلى character-level features
     features = []
     for char in text:
-        # تحويل كل حرف إلى قيمة ASCII وتطبيعها
-        ascii_val = ord(char) / 256.0  # normalize بين 0 و 1
-        features.append(ascii_val)
+        # تحويل كل حرف إلى قيمة وتطبيعها
+        # استخدم ord() بشكل أفضل
+        if char == '\n':
+            features.append(0.0)  # newline
+        elif char == ' ':
+            features.append(0.1)  # space
+        else:
+            # normalize ASCII value between 0.1 and 1.0
+            ascii_val = ord(char)
+            if ascii_val < 32:  # control characters
+                features.append(0.05)
+            else:
+                # Map printable characters (32-126) to 0.2-1.0
+                features.append(min(max((ascii_val - 32) / (126 - 32) * 0.8 + 0.2, 0.2), 1.0))
     
-    features_array = np.array(features, dtype=np.float32).reshape(1, -1)
+    # تأكد من أن الحجم بالضبط 8000
+    features_array = np.array(features, dtype=np.float32).reshape(1, 8000)
+    
     return features_array
+
+
+def classify_with_keras_model(cv_text: str) -> dict:
+    """تصنيف باستخدام موديل Keras"""
+    if model is None:
+        return {"error": "Model not loaded"}
+    
+    try:
+        # استخراج features
+        features = extract_text_features(cv_text)
+        print(f"📊 Features shape: {features.shape}")
+        
+        # التنبؤ
+        predictions = model.predict(features, verbose=0)
+        print(f"📊 Predictions shape: {predictions.shape}")
+        
+        # الحصول على أعلى 3 تنبؤات
+        top_3_indices = np.argsort(predictions[0])[-3:][::-1]
+        top_3_scores = predictions[0][top_3_indices]
+        
+        # الحصول على أفضل تنبؤ
+        predicted_index = int(top_3_indices[0])
+        confidence = float(top_3_scores[0])
+        
+        if predicted_index < len(JOB_CATEGORIES):
+            predicted_job = JOB_CATEGORIES[predicted_index]
+        else:
+            predicted_job = f"Class_{predicted_index}"
+        
+        # تجهيز top 3
+        top_predictions = []
+        for idx, score in zip(top_3_indices, top_3_scores):
+            job_name = JOB_CATEGORIES[int(idx)] if int(idx) < len(JOB_CATEGORIES) else f"Class_{idx}"
+            top_predictions.append({
+                "job_title": job_name,
+                "confidence": float(score)
+            })
+        
+        return {
+            "predicted_job": predicted_job,
+            "confidence": confidence,
+            "method": "keras_model",
+            "top_3_predictions": top_predictions,
+            "total_classes": len(JOB_CATEGORIES)
+        }
+        
+    except Exception as e:
+        print(f"❌ Error in Keras prediction: {e}")
+        import traceback
+        traceback.print_exc()
+        return {"error": str(e)}
 
 
 def detect_domain_role(text_lower: str) -> Optional[str]:
@@ -314,7 +381,7 @@ def classify_with_keywords(cv_text: str) -> dict:
 @app.post("/classify", response_model=CVClassificationResponse)
 async def classify_cv(request: CVClassificationRequest):
     """
-    تصنيف CV باستخدام الموديل + AI analysis
+    تصنيف CV باستخدام Hybrid Approach: Keras Model + Keyword Matching + AI Analysis
     """
     try:
         cv_text = request.cv_text.strip()
@@ -323,61 +390,120 @@ async def classify_cv(request: CVClassificationRequest):
             print("❌ CV text is empty")
             raise HTTPException(status_code=400, detail="CV text is required")
         
+        print(f"\n{'='*60}")
         print(f"📄 CV Text Length: {len(cv_text)} characters")
         print(f"📚 First 200 chars: {cv_text[:200]}")
+        print(f"{'='*60}\n")
         
-        # 1. استخدام Keyword matching للتصنيف السريع
-        print(f"🎯 Using Keyword-based Classification")
+        # 1. استخدام Keyword Matching أولاً (baseline)
+        print("🔎 Step 1: Keyword Matching...")
         keyword_result = classify_with_keywords(cv_text)
-        print(f"📊 Keyword Result: {keyword_result}")
+        keyword_job = keyword_result.get("predicted_job", "Unknown")
+        keyword_confidence = keyword_result.get("confidence", 0.0)
         keyword_scores = keyword_result.get("scores", {})
         max_keyword_score = max(keyword_scores.values()) if keyword_scores else 0
+        print(f"   📊 Keyword: {keyword_job} ({keyword_confidence*100:.1f}%) | score={max_keyword_score}")
         
-        # 2. استخدام التحليل دائماً (Groq أو Text Extraction)
-        ai_analysis = None
-        final_job_title = keyword_result.get("predicted_job", "Unknown")
-        final_confidence = keyword_result.get("confidence", 0.0)
-        decision_method = "keyword_matching"
+        # 2. استخدام Keras Model (إذا متاح)
+        keras_result = None
+        keras_job = None
+        keras_confidence = 0.0
         
-        print(f"💼 Initial Job (Keyword): {final_job_title} ({final_confidence*100:.1f}%) | max_score={max_keyword_score}")
-        
-        # استخدم التحليل دائماً
-        print("🤖 Analyzing CV...")
-        if groq_client:
-            print("   Using Groq AI for analysis...")
-            ai_analysis = analyze_cv_with_groq(cv_text)
-        else:
-            print("   Using text extraction for analysis...")
-            ai_analysis = extract_analysis_from_text(cv_text)
-        
-        print(f"🤖 Analysis Result: {ai_analysis}")
-        
-        if ai_analysis and "primary_role" in ai_analysis:
-            ai_role = ai_analysis["primary_role"]
-            print(f"🤖 AI Role: {ai_role}")
+        if model is not None:
+            print("🧠 Step 2: Keras Model Classification...")
+            keras_result = classify_with_keras_model(cv_text)
             
-            # إذا كانت الثقة منخفضة أو لم نجد كلمات تقنية، استخدم AI/domain role
-            if final_confidence < 0.65 or max_keyword_score == 0:
-                final_job_title = ai_role
-                final_confidence = 0.85 if ai_role else 0.6
-                decision_method = "ai_override_low_confidence"
-                print(f"✅ Override with AI/domain role: {final_job_title}")
+            if "error" not in keras_result:
+                keras_job = keras_result.get("predicted_job", "Unknown")
+                keras_confidence = keras_result.get("confidence", 0.0)
+                print(f"   📊 Keras: {keras_job} ({keras_confidence*100:.1f}%)")
             else:
-                # الثقة عالية من Keywords، احتفظ بها
-                decision_method = "keyword_matching_validated"
-                print(f"✅ Using Keywords (validated by AI): {final_job_title}")
+                print(f"   ❌ Keras error: {keras_result['error']}")
+        
+        # 3. دمج النتائج بذكاء (Ensemble)
+        print("\n🔄 Step 3: Ensemble Decision...")
+        final_job_title = "Unknown"
+        final_confidence = 0.0
+        decision_method = "keyword_primary"
+        
+        # استخدم Keywords كأساس (لأن الموديل غير موثوق)
+        final_job_title = keyword_job
+        final_confidence = keyword_confidence
+        
+        # حالة 1: Keyword matching قوي (>= 3 matches) - استخدمه مباشرة
+        if max_keyword_score >= 3:
+            decision_method = "keyword_strong"
+            # زيادة الثقة قليلاً إذا كانت Keywords قوية
+            final_confidence = min(keyword_confidence * 1.1, 0.95)
+            print(f"   ✅ Strong keyword match ({max_keyword_score} matches)")
+        
+        # حالة 2: Keyword matching متوسط (1-2 matches)
+        elif max_keyword_score >= 1:
+            decision_method = "keyword_moderate"
+            print(f"   ✓ Moderate keyword match ({max_keyword_score} matches)")
+            
+            # إذا كان Keras يتفق مع Keywords، زد الثقة
+            if keras_job and keras_job == keyword_job:
+                final_confidence = min((keyword_confidence + keras_confidence) / 2.0 * 1.15, 0.90)
+                decision_method = "keyword_keras_agreement"
+                print(f"   ✅ Keras agrees with keywords!")
+        
+        # حالة 3: لا توجد keywords واضحة (0 matches)
         else:
-            print("⚠️  Analysis failed")
+            print(f"   ⚠️ No keyword matches found")
+            decision_method = "text_analysis"
+            
+            # استخدم Text Analysis
+            ai_analysis_temp = extract_analysis_from_text(cv_text)
+            if ai_analysis_temp and "primary_role" in ai_analysis_temp:
+                final_job_title = ai_analysis_temp["primary_role"]
+                final_confidence = 0.65
+                decision_method = "text_analysis_fallback"
+                print(f"   → Using text analysis: {final_job_title}")
+            else:
+                # آخر محاولة: استخدم Keras
+                if keras_job:
+                    final_job_title = keras_job
+                    final_confidence = min(keras_confidence * 0.7, 0.70)  # خفض الثقة
+                    decision_method = "keras_last_resort"
+                    print(f"   → Using Keras as last resort")
+                else:
+                    final_job_title = "Software Engineer"  # default
+                    final_confidence = 0.50
+                    decision_method = "default"
+                    print(f"   → Using default")
         
-        print(f"✅ Final Result: {final_job_title} ({final_confidence*100:.1f}%)")
+        # 4. اختياري: AI Analysis للتحسين
+        ai_analysis = None
+        if request.use_groq_analysis or final_confidence < 0.50:
+            print("\n🤖 Step 4: AI Analysis...")
+            if groq_client:
+                ai_analysis = analyze_cv_with_groq(cv_text)
+            else:
+                ai_analysis = extract_analysis_from_text(cv_text)
+            
+            if ai_analysis and "primary_role" in ai_analysis:
+                ai_role = ai_analysis.get("primary_role")
+                print(f"   📊 AI: {ai_role}")
+                
+                # استخدم AI فقط إذا كانت الثقة منخفضة جداً
+                if final_confidence < 0.50:
+                    final_job_title = ai_role
+                    final_confidence = 0.70
+                    decision_method = "ai_low_confidence"
+                    print(f"   ✅ Using AI (low confidence)")
         
-        # إضافة معلومات إضافية للاستجابة
+        print(f"\n{'='*60}")
+        print(f"✅ FINAL: {final_job_title} ({final_confidence*100:.1f}%) [{decision_method}]")
+        print(f"{'='*60}\n")
+        
+        # إعداد الاستجابة
         response_data = {
             "job_title": final_job_title,
             "confidence": final_confidence,
             "decision_method": decision_method,
             "ai_analysis": ai_analysis,
-            "keras_prediction": keyword_result
+            "keras_prediction": keras_result if keras_result else keyword_result
         }
         
         return CVClassificationResponse(
