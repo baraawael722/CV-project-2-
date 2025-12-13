@@ -201,32 +201,97 @@ function hybridMatch(cvText, jobs, topK = 10) {
 
     // Process each job
     const scoredJobs = jobs.map((job, idx) => {
-        // IMPORTANT: Use ONLY description field, NOT title or other fields
-        // This matches the behavior in test_my_cv.py where only job description is used
+        // Use description + requiredSkills to avoid overrating single-skill postings
         const jobText = (job.description || '').toLowerCase();
+        const requiredSkills = Array.isArray(job.requiredSkills) ? job.requiredSkills : [];
 
-        if (!jobText || jobText.trim() === '') {
-            console.warn(`⚠️ Job ${idx + 1} "${job.title}" has empty description, skipping...`);
+        const jobTokensRaw = tokenize(jobText);
+        const jobTokens = filterTokens(jobTokensRaw).map(stem);
+
+        // Calculate semantic similarity (like BERT embeddings) from description
+        const semanticScore = jobTokens.length > 0
+            ? calculateSemanticSimilarity(cvTokens, jobTokens)
+            : 0;
+
+        // Calculate keyword matching score from description
+        const keywordScore = jobTokens.length > 0
+            ? calculateKeywordScore(cvTextNorm, cvTokenSet, jobText, jobTokens)
+            : 0;
+
+        // STRICT MATCHING: Focus on requiredSkills overlap with strong domain filtering
+        const normalizedReqSkills = requiredSkills
+            .map(normalize)
+            .map(stem)
+            .filter(Boolean);
+
+        const matchedRequired = normalizedReqSkills.filter((skill) =>
+            cvTokenSet.has(skill) || hasAnySynonym(cvTokenSet, cvTextNorm, skill)
+        );
+
+        const matchedCount = matchedRequired.length;
+        const totalCount = normalizedReqSkills.length;
+        
+        // Get title for domain detection
+        const title = (job.title || '').toLowerCase();
+        
+        // BLACKLIST: Completely unrelated domains = ZERO
+        const isBlacklistedDomain = /(marketing|accountant|account|finance|sales|hr|recruiter|designer|copywriter|content writer|far to job)/.test(title);
+        
+        if (isBlacklistedDomain) {
             return {
                 job,
                 matchScore: 0
             };
         }
 
-        const jobTokensRaw = tokenize(jobText);
-        const jobTokens = filterTokens(jobTokensRaw).map(stem);
+        // Game dev must have gaming keywords in CV
+        const isGameDev = /(game|unity|unreal)/.test(title);
+        if (isGameDev && !cvTextNorm.includes('game') && !cvTextNorm.includes('unity') && !cvTextNorm.includes('unreal')) {
+            return {
+                job,
+                matchScore: 0
+            };
+        }
 
-        // Calculate semantic similarity (like BERT embeddings)
-        const semanticScore = calculateSemanticSimilarity(cvTokens, jobTokens);
+        // Backend/fullstack detection
+        const isBackendTitle = /(back[- ]?end|backend|full[- ]?stack|fullstack|node\.?js|express|react|angular|vue|api|server|developer|engineer)/.test(title);
+        
+        // For backend/fullstack: also check title keywords (e.g., "React + Node" in title)
+        const titleKeywords = tokenize(title).filter(t => t.length > 2 && !/full|time|part|contract|remote|entry|mid|senior/.test(t));
+        const titleMatches = titleKeywords.filter(tk => cvTokenSet.has(stem(normalize(tk)))).length;
+        
+        // Required skills scoring
+        let requiredSkillScore = 0;
+        if (totalCount === 0 || matchedCount === 0) {
+            // No skills listed or no match
+            requiredSkillScore = titleMatches > 0 ? titleMatches * 20 : 0; // Use title keywords if no requiredSkills
+        } else {
+            const matchPercentage = (matchedCount / totalCount) * 100;
+            const absoluteBonus = Math.min(matchedCount * 8, 30);
+            requiredSkillScore = Math.min((matchPercentage * 0.7) + absoluteBonus, 100);
+        }
 
-        // Calculate keyword matching score
-        const keywordScore = calculateKeywordScore(cvTextNorm, cvTokenSet, jobText, jobTokens);
+        // Hybrid scoring: Semantic 35%, Keywords 15%, Skills 50%
+        let hybridScore = (semanticScore * 0.35) + (keywordScore * 0.15) + (requiredSkillScore * 0.5);
 
-        // Hybrid score: 70% semantic + 30% keyword (matching test_my_cv.py)
-        const hybridScore = semanticScore * 0.7 + keywordScore * 0.3;
+        // Backend/fullstack boost if title keywords match
+        if (isBackendTitle && (titleMatches >= 2 || matchedCount >= 2 || semanticScore > 50)) {
+            hybridScore = Math.min(hybridScore + 20, 100);
+        }
+
+        // Penalty for low semantic + low skills
+        if (semanticScore < 30 && matchedCount < 2 && titleMatches < 1) {
+            hybridScore *= 0.3;
+        }
 
         if (idx < 5) {
-            console.log(`📊 Job ${idx + 1} "${job.title}": Semantic=${semanticScore.toFixed(2)}%, Keyword=${keywordScore.toFixed(2)}%, Hybrid=${hybridScore.toFixed(2)}%`);
+            console.log(
+                `📊 Job ${idx + 1} "${job.title}": ` +
+                `Semantic=${semanticScore.toFixed(2)}%, ` +
+                `Keyword=${keywordScore.toFixed(2)}%, ` +
+                `ReqSkills=${requiredSkillScore.toFixed(2)}%, ` +
+                `Hybrid=${hybridScore.toFixed(2)}%`
+            );
         }
 
         return {
