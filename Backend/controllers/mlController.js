@@ -644,22 +644,31 @@ export const analyzeJobForUser = async (req, res) => {
     // Call TensorFlow Skill Analyzer Service
     try {
       console.log("🤖 Calling TensorFlow Skill Analyzer Service...");
-      const SKILL_ANALYZER_URL = process.env.SKILL_ANALYZER_URL || "http://127.0.0.1:5003";
-      
-      const analyzerResponse = await axios.post(`${SKILL_ANALYZER_URL}/analyze`, {
-        cv_text: cvText,
-        job_desc: jobDescription
-      }, {
-        timeout: 30000 // 30 seconds timeout
-      });
+      const SKILL_ANALYZER_URL =
+        process.env.SKILL_ANALYZER_URL || "http://127.0.0.1:5003";
+
+      const analyzerResponse = await axios.post(
+        `${SKILL_ANALYZER_URL}/analyze`,
+        {
+          cv_text: cvText,
+          job_desc: jobDescription,
+        },
+        {
+          timeout: 30000, // 30 seconds timeout
+        }
+      );
 
       if (analyzerResponse.data.success) {
         const analysisData = analyzerResponse.data.data;
-        
+
         console.log("✅ TensorFlow Analysis Complete:");
         console.log(`   - Match: ${analysisData.match_percentage}%`);
-        console.log(`   - Matched Skills: ${analysisData.matched_skills.length}`);
-        console.log(`   - Missing Skills: ${analysisData.missing_skills.length}`);
+        console.log(
+          `   - Matched Skills: ${analysisData.matched_skills.length}`
+        );
+        console.log(
+          `   - Missing Skills: ${analysisData.missing_skills.length}`
+        );
 
         return res.status(200).json({
           success: true,
@@ -670,45 +679,74 @@ export const analyzeJobForUser = async (req, res) => {
             matchedSkills: analysisData.matched_skills,
             missingSkills: analysisData.missing_skills,
             totalJobSkills: analysisData.job_skills.length,
-            totalCvSkills: analysisData.cv_skills.length
-          }
+            totalCvSkills: analysisData.cv_skills.length,
+          },
         });
       } else {
         throw new Error("Skill Analyzer returned unsuccessful response");
       }
     } catch (mlError) {
       console.error("❌ TensorFlow Service Error:", mlError.message);
-      
+
       // Fallback to simple keyword matching if ML service fails
       console.log("⚠️  Falling back to simple keyword matching...");
-      
+
       // Extract skills from text
       const extractSkillsFromText = (text) => {
         const commonSkills = [
-          "python", "javascript", "java", "react", "vue", "angular", "node.js",
-          "django", "flask", "fastapi", "express", "mongodb", "postgresql", 
-          "mysql", "redis", "docker", "kubernetes", "aws", "azure", "git",
-          "typescript", "html", "css", "sql", "graphql", "rest api"
+          "python",
+          "javascript",
+          "java",
+          "react",
+          "vue",
+          "angular",
+          "node.js",
+          "django",
+          "flask",
+          "fastapi",
+          "express",
+          "mongodb",
+          "postgresql",
+          "mysql",
+          "redis",
+          "docker",
+          "kubernetes",
+          "aws",
+          "azure",
+          "git",
+          "typescript",
+          "html",
+          "css",
+          "sql",
+          "graphql",
+          "rest api",
         ];
-        
+
         const textLower = text.toLowerCase();
-        return commonSkills.filter(skill => textLower.includes(skill));
+        return commonSkills.filter((skill) => textLower.includes(skill));
       };
-      
+
       const cvSkills = extractSkillsFromText(cvText);
       const jobSkills = extractSkillsFromText(jobDescription);
-      const matchedSkills = jobSkills.filter(skill => cvSkills.includes(skill));
-      const missingSkillsList = jobSkills.filter(skill => !cvSkills.includes(skill));
-      
-      const matchPercentage = jobSkills.length > 0 
-        ? (matchedSkills.length / jobSkills.length) * 100 
-        : 0;
-      
-      const missingSkills = missingSkillsList.map(skill => ({
+      const matchedSkills = jobSkills.filter((skill) =>
+        cvSkills.includes(skill)
+      );
+      const missingSkillsList = jobSkills.filter(
+        (skill) => !cvSkills.includes(skill)
+      );
+
+      const matchPercentage =
+        jobSkills.length > 0
+          ? (matchedSkills.length / jobSkills.length) * 100
+          : 0;
+
+      const missingSkills = missingSkillsList.map((skill) => ({
         skill,
         confidence: 0.5,
         priority: "MEDIUM",
-        youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(skill + " tutorial")}`
+        youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(
+          skill + " tutorial"
+        )}`,
       }));
 
       return res.status(200).json({
@@ -721,8 +759,8 @@ export const analyzeJobForUser = async (req, res) => {
           missingSkills,
           totalJobSkills: jobSkills.length,
           totalCvSkills: cvSkills.length,
-          fallback: true
-        }
+          fallback: true,
+        },
       });
     }
   } catch (error) {

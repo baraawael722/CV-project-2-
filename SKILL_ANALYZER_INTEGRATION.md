@@ -28,16 +28,19 @@
 ## 📁 Files Created
 
 1. **`ml-service/skill_analyzer_service.py`**
+
    - Flask API server للتحليل
    - يستخدم TensorFlow LSTM model
    - يستخدم نفس المودل من `test_model.py`
 
 2. **`start_skill_analyzer.ps1`**
+
    - سكريبت لتشغيل الخدمة
    - يفحص الملفات المطلوبة
    - ينصب المكتبات اللازمة
 
 3. **Updated `Backend/controllers/mlController.js`**
+
    - تم تعديل `analyzeJobForUser` function
    - يتصل بـ TensorFlow service
    - يعطي fallback للطريقة القديمة
@@ -54,6 +57,7 @@
 ```
 
 هيبدأ كل الخدمات:
+
 - ✅ Frontend (React)
 - ✅ Backend (Node.js)
 - ✅ CV Classifier
@@ -76,11 +80,13 @@
 ## 🔗 API Endpoints
 
 ### 1. Health Check
+
 ```bash
 GET http://localhost:5003/health
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -91,6 +97,7 @@ Response:
 ```
 
 ### 2. Analyze CV vs Job
+
 ```bash
 POST http://localhost:5003/analyze
 Content-Type: application/json
@@ -102,6 +109,7 @@ Content-Type: application/json
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -138,10 +146,10 @@ const handleAnalyzeSkills = async () => {
   const analysisRes = await fetch(
     `http://localhost:5000/api/ml/analyze-job/${jobId}`,
     {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${token}` },
     }
   );
-  
+
   const data = await analysisRes.json();
   setSkillAnalysis(data.data);
 };

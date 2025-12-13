@@ -7,6 +7,7 @@
 ## 🎯 ما تم إنجازه
 
 ### 1. إنشاء خدمة TensorFlow
+
 - ✅ **ملف**: `ml-service/skill_analyzer_service.py`
 - ✅ **Port**: 5003
 - ✅ **API Endpoints**:
@@ -14,31 +15,37 @@
   - `/analyze` - لتحليل CV vs Job
 
 ### 2. تعديل Backend
+
 - ✅ **ملف**: `Backend/controllers/mlController.js`
 - ✅ **Function**: `analyzeJobForUser`
 - ✅ الآن يستخدم TensorFlow model بدلاً من keyword matching
 
 ### 3. سكريبتات التشغيل
+
 - ✅ `start_skill_analyzer.ps1` - لتشغيل الخدمة منفصلة
 - ✅ `start_all_services.ps1` - تحديث ليشمل الخدمة الجديدة
 
 ### 4. Documentation
+
 - ✅ `SKILL_ANALYZER_INTEGRATION.md` - شرح كامل
 
 ## 🚀 كيف تستخدم النظام
 
 ### الطريقة 1: تشغيل كل الخدمات
+
 ```powershell
 .\start_all_services.ps1
 ```
 
 هيشغل:
+
 - Frontend (React) - Port 5174
 - Backend (Node.js) - Port 5000
 - CV Classifier - Port 5002
 - **Skill Analyzer (TensorFlow) - Port 5003** ✨ NEW!
 
 ### الطريقة 2: تشغيل Skill Analyzer فقط
+
 ```powershell
 cd ml-service
 python skill_analyzer_service.py
@@ -55,6 +62,7 @@ python skill_analyzer_service.py
 4. **اذهب لصفحة Jobs**: `http://localhost:5174/employee/jobs`
 
 5. **اضغط على أي وظيفة** لعرض التفاصيل
+
    - مثال: `http://localhost:5174/employee/jobs/693c0e99e5053ddf4c2d25aa`
 
 6. **اضغط "Analyze Skills"** 🎯
@@ -120,22 +128,25 @@ Frontend يعرض النتائج
 ## ✅ الملفات المطلوبة
 
 يجب وجود هذه الملفات في `last-one/`:
+
 - ✅ `tokenizer.pkl` - موجود
-- ✅ `skills_list.json` - موجود  
+- ✅ `skills_list.json` - موجود
 - ✅ `cv_job_matcher_model.h5` - موجود
 
 ## 🎓 المعلومات التقنية
 
 ### Model Architecture
+
 - **Type**: Bidirectional LSTM
 - **Input**: CV text + Job description
 - **Output**: Skills predictions (100 skills)
 - **Accuracy**: Based on training data
 
 ### API Details
+
 - **Framework**: Flask
 - **ML Library**: TensorFlow/Keras
-- **Processing**: 
+- **Processing**:
   - Tokenization
   - Sequence padding
   - LSTM prediction
@@ -144,11 +155,13 @@ Frontend يعرض النتائج
 ## 🔍 Testing
 
 ### Test Health Endpoint
+
 ```bash
 curl http://localhost:5003/health
 ```
 
 ### Test Analysis Endpoint
+
 ```bash
 curl -X POST http://localhost:5003/analyze \
   -H "Content-Type: application/json" \
@@ -161,6 +174,7 @@ curl -X POST http://localhost:5003/analyze \
 ## 📚 الملفات المتأثرة
 
 1. **Created**:
+
    - `ml-service/skill_analyzer_service.py`
    - `start_skill_analyzer.ps1`
    - `SKILL_ANALYZER_INTEGRATION.md`
@@ -173,6 +187,7 @@ curl -X POST http://localhost:5003/analyze \
 ## 🎉 النتيجة النهائية
 
 الآن عندك نظام كامل يستخدم:
+
 - ✅ TensorFlow LSTM للتحليل الذكي
 - ✅ Confidence scores للمهارات
 - ✅ Priority levels (HIGH/MEDIUM/LOW)
