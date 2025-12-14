@@ -7,16 +7,13 @@
     "my-react-app"
   ],
   "scripts": {
-    "dev": "concurrently --kill-others-on-fail --names \"BACKEND,FRONTEND,ML\" --prefix-colors \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"npm:backend:dev\" \"npm:frontend:dev\" \"npm:ml:dev\"",
-    "start": "npm run dev",
+    "dev": "concurrently \"npm:backend:dev\" \"npm:frontend:dev\" \"npm:ml:dev\"",
+    "start": "npm run start --workspace Backend",
     "build": "npm run build --workspace my-react-app",
-    "install:all": "npm install && npm install --workspace Backend && npm install --workspace my-react-app",
+    "install:all": "npm install",
     "backend:dev": "npm run dev --workspace Backend",
     "frontend:dev": "npm run dev --workspace my-react-app",
-    "ml:dev": "cd ml-service && python cv_classifier_service.py",
-    "backend": "npm run dev --workspace Backend",
-    "frontend": "npm run dev --workspace my-react-app",
-    "ml": "cd ml-service && python cv_classifier_service.py"
+    "ml:dev": "cd ml-service && python cv_classifier_service.py"
   },
   "devDependencies": {
     "concurrently": "^9.0.1"

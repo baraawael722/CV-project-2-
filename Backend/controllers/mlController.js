@@ -755,6 +755,7 @@ export const analyzeJobForUser = async (req, res) => {
         data: {
           jobTitle: job.title,
           company: job.company,
+          matchScore: Math.round(matchPercentage * 100) / 100, // For Frontend
           matchPercentage: Math.round(matchPercentage * 100) / 100,
           matchedSkills,
           missingSkills,

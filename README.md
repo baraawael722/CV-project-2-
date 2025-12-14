@@ -1,19 +1,6 @@
-# 🎯 CV Project - Job Matching & CV Classification Platform
+# CV Project - Job Matching & CV Classification Platform
 
 مشروع متكامل لمطابقة السير الذاتية مع الوظائف + تصنيف ذكي للسيرة الذاتية باستخدام AI
-
-## 🚀 تشغيل كل شيء بأمر واحد!
-
-```bash
-npm run dev
-```
-
-سيشغل:
-- ✅ Backend (Port 5000)
-- ✅ Frontend (Port 5174)  
-- ✅ ML Service (Port 5002)
-
----
 
 This repository combines Backend (Express + MongoDB), Frontend (React + Vite), and ML Services (Python) in a single workspace.
 

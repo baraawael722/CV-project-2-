@@ -47,13 +47,6 @@ cv/cv/*.csv
 cv/cv/*.zip
 cv/
 
-# MYYYYY large data files
-MYYYYY/MYYYYY/*.csv
-MYYYYY/MYYYYY/*.txt
-MYYYYY/MYYYYY/dataa.csv
-MYYYYY/MYYYYY/dataaaaaaaaaaa.txt
-MYYYYY/MYYYYY/dataaaaaaaaaa.csv
-
 # Misc local folders
 run project/
 
