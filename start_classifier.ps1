@@ -1,7 +1,17 @@
 # CV Classifier Service Startup Script
 # Run this script to start the CV classification service
+# NOW USING MYYYYY MODEL WITH TF-IDF VECTORIZER!
 
-Write-Host "🚀 Starting CV Classifier Service..." -ForegroundColor Cyan
+Write-Host ""
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host " Starting CV Classification Service" -ForegroundColor Cyan  
+Write-Host "========================================" -ForegroundColor Cyan
+
+Write-Host ""
+Write-Host " Using model from MYYYYY folder" -ForegroundColor Green
+Write-Host " Model: mlp_cv_model_improved.keras" -ForegroundColor Green
+Write-Host " Vectorizer: TF-IDF (10000 features)" -ForegroundColor Green
+Write-Host " Classes: 26 job categories" -ForegroundColor Green
 Write-Host ""
 
 # Check if .env file exists
