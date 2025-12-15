@@ -145,11 +145,18 @@ export default function HRProfile() {
 
       // Update localStorage user object with new values including avatar
       const stored = JSON.parse(localStorage.getItem("user") || "null") || {};
-      const updatedUser = { ...stored, name: data.user.name, email: data.user.email, avatar: data.user.avatar || avatarBase64 };
+      const updatedUser = {
+        ...stored,
+        name: data.user.name,
+        email: data.user.email,
+        avatar: data.user.avatar || avatarBase64,
+      };
       localStorage.setItem("user", JSON.stringify(updatedUser));
 
       // Dispatch custom event to notify TopNavbar and other components
-      window.dispatchEvent(new CustomEvent("avatarUpdated", { detail: updatedUser }));
+      window.dispatchEvent(
+        new CustomEvent("avatarUpdated", { detail: updatedUser })
+      );
 
       setUser(updatedUser);
       if (updatedUser.avatar) setAvatarPreview(updatedUser.avatar);
@@ -184,7 +191,11 @@ export default function HRProfile() {
         <div className="absolute -bottom-20 left-1/2 transform -translate-x-1/2">
           <div className="w-40 h-40 rounded-full bg-white shadow-2xl flex items-center justify-center border-4 border-white overflow-hidden">
             {avatarPreview ? (
-              <img src={avatarPreview} alt="profile" className="w-full h-full object-cover" />
+              <img
+                src={avatarPreview}
+                alt="profile"
+                className="w-full h-full object-cover"
+              />
             ) : (
               <div className="w-40 h-40 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-6xl font-bold">
                 {user.name?.charAt(0).toUpperCase() || "H"}
@@ -273,7 +284,9 @@ export default function HRProfile() {
             {/* Avatar upload - spans full width */}
             {editing && (
               <div className="md:col-span-2">
-                <label className="block text-sm font-bold text-gray-700 mb-4">Profile Photo</label>
+                <label className="block text-sm font-bold text-gray-700 mb-4">
+                  Profile Photo
+                </label>
                 <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 transition">
                   <div className="flex flex-col items-center gap-4">
                     {/* Upload Preview */}
@@ -297,8 +310,18 @@ export default function HRProfile() {
                         </button>
                       </div>
                     ) : (
-                      <svg className="w-16 h-16 text-gray-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m0 0h-6m-6-6h6m0 0H6m0 0v6m0-6V6" />
+                      <svg
+                        className="w-16 h-16 text-gray-400 mx-auto"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d="M12 6v6m0 0v6m0-6h6m0 0h-6m-6-6h6m0 0H6m0 0v6m0-6V6"
+                        />
                       </svg>
                     )}
 

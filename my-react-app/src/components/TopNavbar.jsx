@@ -20,7 +20,7 @@ export default function TopNavbar() {
     };
 
     window.addEventListener("storage", handleStorageChange);
-    
+
     // Also listen for custom event from HRProfile when avatar is updated
     const handleAvatarUpdate = (e) => {
       const updatedUser = localStorage.getItem("user");
@@ -28,7 +28,7 @@ export default function TopNavbar() {
         setUser(JSON.parse(updatedUser));
       }
     };
-    
+
     window.addEventListener("avatarUpdated", handleAvatarUpdate);
 
     return () => {
@@ -105,7 +105,11 @@ export default function TopNavbar() {
               </div>
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold overflow-hidden">
                 {user.avatar ? (
-                  <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                  <img
+                    src={user.avatar}
+                    alt={user.name}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   user.name.charAt(0).toUpperCase()
                 )}

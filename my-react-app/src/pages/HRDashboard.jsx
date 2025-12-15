@@ -212,20 +212,32 @@ export default function HRDashboard() {
       )}
       {/* Top Header */}
       <header className="bg-white px-8 py-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">Welcome, {user.name}</h1>
-        
+        <h1 className="text-3xl font-bold text-gray-900">
+          Welcome, {user.name}
+        </h1>
+
         {/* User Menu */}
         <div className="relative">
           <button className="flex items-center gap-3 px-4 py-3 bg-white border-2 border-gray-200 rounded-xl hover:border-gray-300 transition">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-white font-bold">
-              {user.name?.charAt(0) || 'S'}
+              {user.name?.charAt(0) || "S"}
             </div>
             <div className="text-left">
               <p className="text-sm font-semibold text-gray-900">{user.name}</p>
               <p className="text-xs text-gray-500">Edit Profile</p>
             </div>
-            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            <svg
+              className="w-4 h-4 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
             </svg>
           </button>
         </div>
@@ -239,17 +251,39 @@ export default function HRDashboard() {
           <div className="bg-gradient-to-br from-green-100 to-green-200 rounded-3xl p-6 shadow-lg border-4 border-black">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center">
-                <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                <svg
+                  className="w-6 h-6 text-gray-900"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  />
                 </svg>
               </div>
             </div>
             <p className="text-4xl font-bold text-gray-900 mb-2">2,345</p>
-            <p className="text-sm font-semibold text-gray-700 mb-3">Jobs views</p>
+            <p className="text-sm font-semibold text-gray-700 mb-3">
+              Jobs views
+            </p>
             <div className="flex items-center gap-2 text-sm font-bold text-emerald-600">
               <span>+15%</span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                />
               </svg>
             </div>
           </div>
@@ -258,17 +292,39 @@ export default function HRDashboard() {
           <div className="bg-gradient-to-br from-purple-100 to-purple-200 rounded-3xl p-6 shadow-lg border-4 border-black">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center">
-                <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                <svg
+                  className="w-6 h-6 text-gray-900"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
                 </svg>
               </div>
             </div>
             <p className="text-4xl font-bold text-gray-900 mb-2">4,345</p>
-            <p className="text-sm font-semibold text-gray-700 mb-3">Jobs Applications</p>
+            <p className="text-sm font-semibold text-gray-700 mb-3">
+              Jobs Applications
+            </p>
             <div className="flex items-center gap-2 text-sm font-bold text-purple-600">
               <span>+4%</span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                />
               </svg>
             </div>
           </div>
@@ -277,17 +333,39 @@ export default function HRDashboard() {
           <div className="bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-3xl p-6 shadow-lg border-4 border-black">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center">
-                <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <svg
+                  className="w-6 h-6 text-gray-900"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
                 </svg>
               </div>
             </div>
             <p className="text-4xl font-bold text-gray-900 mb-2">2,345</p>
-            <p className="text-sm font-semibold text-gray-700 mb-3">Posted Jobs</p>
+            <p className="text-sm font-semibold text-gray-700 mb-3">
+              Posted Jobs
+            </p>
             <div className="flex items-center gap-2 text-sm font-bold text-orange-600">
               <span>+10%</span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                />
               </svg>
             </div>
           </div>
@@ -296,17 +374,39 @@ export default function HRDashboard() {
           <div className="bg-gradient-to-br from-pink-100 to-pink-200 rounded-3xl p-6 shadow-lg border-4 border-black">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center">
-                <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                <svg
+                  className="w-6 h-6 text-gray-900"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  />
                 </svg>
               </div>
             </div>
             <p className="text-4xl font-bold text-gray-900 mb-2">2,345</p>
-            <p className="text-sm font-semibold text-gray-700 mb-3">Unread Message</p>
+            <p className="text-sm font-semibold text-gray-700 mb-3">
+              Unread Message
+            </p>
             <div className="flex items-center gap-2 text-sm font-bold text-rose-600">
               <span>+10%</span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                />
               </svg>
             </div>
           </div>
@@ -316,8 +416,10 @@ export default function HRDashboard() {
         <div className="grid lg:grid-cols-1 gap-6">
           {/* Listing Performance Chart - Full Width */}
           <div className="bg-white rounded-3xl p-6 shadow-lg border-2 border-gray-200">
-            <h3 className="text-xl font-bold text-gray-900 mb-6">Listing Performance</h3>
-            
+            <h3 className="text-xl font-bold text-gray-900 mb-6">
+              Listing Performance
+            </h3>
+
             {/* Legend */}
             <div className="flex items-center gap-6 mb-6">
               <div className="flex items-center gap-2">
@@ -326,32 +428,46 @@ export default function HRDashboard() {
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-emerald-400"></span>
-                <span className="text-sm text-gray-600 font-medium">Applications</span>
+                <span className="text-sm text-gray-600 font-medium">
+                  Applications
+                </span>
               </div>
             </div>
 
             {/* Bar Chart */}
             <div className="flex items-end justify-around h-64 gap-3 px-4">
               {chartData.map((item, index) => (
-                <div key={item.label} className="flex flex-col items-center gap-2 flex-1">
+                <div
+                  key={item.label}
+                  className="flex flex-col items-center gap-2 flex-1"
+                >
                   <div className="w-full flex flex-col-reverse items-center gap-3 h-48">
                     {/* Views Bar - Yellow (bottom) */}
                     <div className="w-full relative flex flex-col items-center">
-                      <div 
+                      <div
                         className="w-full bg-yellow-400 rounded-t-2xl transition-all hover:bg-yellow-500 shadow-md"
-                        style={{ height: `${Math.max((item.view / 300) * 180, 20)}px` }}
+                        style={{
+                          height: `${Math.max((item.view / 300) * 180, 20)}px`,
+                        }}
                       ></div>
                     </div>
                     {/* Applications Bar - Green (top) */}
                     <div className="w-full relative flex flex-col items-center">
-                      <div 
+                      <div
                         className="w-full bg-emerald-400 rounded-t-2xl transition-all hover:bg-emerald-500 shadow-md"
-                        style={{ height: `${Math.max((item.applied / 150) * 180, 15)}px` }}
+                        style={{
+                          height: `${Math.max(
+                            (item.applied / 150) * 180,
+                            15
+                          )}px`,
+                        }}
                       ></div>
                     </div>
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-bold text-gray-900">{index + 11}</p>
+                    <p className="text-sm font-bold text-gray-900">
+                      {index + 11}
+                    </p>
                     <p className="text-xs text-gray-500">{item.label}</p>
                   </div>
                 </div>
@@ -362,9 +478,11 @@ export default function HRDashboard() {
           {/* Latest Job Posts - Full Width */}
           <div className="bg-white rounded-3xl p-6 shadow-lg border-2 border-gray-200">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-gray-900">Latest Job Posts</h3>
-              <button 
-                onClick={() => navigate('/hr/jobs')}
+              <h3 className="text-xl font-bold text-gray-900">
+                Latest Job Posts
+              </h3>
+              <button
+                onClick={() => navigate("/hr/jobs")}
                 className="text-sm text-gray-600 hover:text-gray-900 font-medium"
               >
                 See All →
@@ -373,12 +491,22 @@ export default function HRDashboard() {
 
             {recentJobs.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
-                <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                <svg
+                  className="w-16 h-16 mx-auto mb-4 text-gray-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  />
                 </svg>
                 <p className="font-semibold">No job posts yet</p>
                 <button
-                  onClick={() => navigate('/hr/jobs')}
+                  onClick={() => navigate("/hr/jobs")}
                   className="mt-4 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl text-sm font-bold hover:from-purple-600 hover:to-pink-600 transition"
                 >
                   Post Your First Job
@@ -388,12 +516,12 @@ export default function HRDashboard() {
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {recentJobs.map((job, index) => {
                   const colors = [
-                    'from-blue-400 to-blue-500',
-                    'from-orange-400 to-red-500',
-                    'from-pink-400 to-rose-500',
-                    'from-green-400 to-emerald-500',
-                    'from-purple-400 to-violet-500',
-                    'from-yellow-400 to-amber-500'
+                    "from-blue-400 to-blue-500",
+                    "from-orange-400 to-red-500",
+                    "from-pink-400 to-rose-500",
+                    "from-green-400 to-emerald-500",
+                    "from-purple-400 to-violet-500",
+                    "from-yellow-400 to-amber-500",
                   ];
                   const icons = [
                     <div key="1" className="w-6 h-6 bg-white rounded"></div>,
@@ -403,15 +531,27 @@ export default function HRDashboard() {
                       <div className="w-2 h-2 bg-white"></div>
                       <div className="w-2 h-2 bg-white"></div>
                     </div>,
-                    <svg key="3" className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <svg
+                      key="3"
+                      className="w-6 h-6 text-white"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
-                    </svg>
+                    </svg>,
                   ];
 
                   return (
-                    <div key={job._id} className="border-2 border-gray-200 rounded-2xl p-4 hover:border-gray-300 transition">
+                    <div
+                      key={job._id}
+                      className="border-2 border-gray-200 rounded-2xl p-4 hover:border-gray-300 transition"
+                    >
                       <div className="flex items-start gap-3 mb-3">
-                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${colors[index % 6]} flex items-center justify-center flex-shrink-0 overflow-hidden`}>
+                        <div
+                          className={`w-12 h-12 rounded-xl bg-gradient-to-br ${
+                            colors[index % 6]
+                          } flex items-center justify-center flex-shrink-0 overflow-hidden`}
+                        >
                           {job.logo ? (
                             <img
                               src={job.logo}
@@ -423,11 +563,16 @@ export default function HRDashboard() {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-bold text-gray-900 mb-1 truncate">{job.title}</h4>
+                          <h4 className="font-bold text-gray-900 mb-1 truncate">
+                            {job.title}
+                          </h4>
                           {job.skills && job.skills.length > 0 && (
                             <div className="flex flex-wrap gap-1 mb-1">
                               {job.skills.slice(0, 3).map((skill, idx) => (
-                                <span key={idx} className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs font-medium">
+                                <span
+                                  key={idx}
+                                  className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs font-medium"
+                                >
                                   {skill}
                                 </span>
                               ))}
@@ -436,33 +581,71 @@ export default function HRDashboard() {
                         </div>
                       </div>
                       <p className="text-xs text-gray-600 mb-3 line-clamp-2">
-                        {job.description || 'No description available'}
+                        {job.description || "No description available"}
                       </p>
                       <div className="flex items-center justify-between text-xs text-gray-500 mb-3 gap-2 flex-wrap">
                         <span className="flex items-center gap-1">
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          <svg
+                            className="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
                           </svg>
-                          {job.type || 'Full Time'}
+                          {job.type || "Full Time"}
                         </span>
                         <span className="flex items-center gap-1">
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                          <svg
+                            className="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                            />
                           </svg>
                           {job.applicantsCount || 0} Applied
                         </span>
                         <span className="flex items-center gap-1 truncate">
-                          <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <svg
+                            className="w-3 h-3 flex-shrink-0"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
                           </svg>
                           {job.location}
                         </span>
                       </div>
                       <div className="flex items-center justify-between gap-2">
                         <p className="text-base font-bold text-gray-900 truncate">
-                          ${job.salary?.min || '1111'}-{job.salary?.max || '2222'}
-                          <span className="text-xs text-gray-500 font-normal">/month</span>
+                          ${job.salary?.min || "1111"}-
+                          {job.salary?.max || "2222"}
+                          <span className="text-xs text-gray-500 font-normal">
+                            /month
+                          </span>
                         </p>
                         <div className="flex gap-2 flex-shrink-0">
                           <button
@@ -470,7 +653,9 @@ export default function HRDashboard() {
                             disabled={matchingCVs}
                             className="px-3 py-1.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl text-xs font-bold hover:from-purple-600 hover:to-pink-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            {matchingCVs && selectedJob?._id === job._id ? '...' : 'Find CVs'}
+                            {matchingCVs && selectedJob?._id === job._id
+                              ? "..."
+                              : "Find CVs"}
                           </button>
                           <button
                             onClick={() => handleDeleteJob(job._id)}
