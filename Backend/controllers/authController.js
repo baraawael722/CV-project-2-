@@ -87,10 +87,10 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   try {
     // Temporary maintenance mode for login
-    if (process.env.DISABLE_LOGIN === 'true') {
+    if (process.env.DISABLE_LOGIN === "true") {
       return res.status(503).json({
         success: false,
-        message: 'Login temporarily disabled (maintenance mode).'
+        message: "Login temporarily disabled (maintenance mode).",
       });
     }
     const { email, password, role } = req.body;
@@ -135,7 +135,9 @@ export const login = async (req, res) => {
     if (role && user.role !== role) {
       return res.status(403).json({
         success: false,
-        message: `This account is registered as ${user.role === "hr" ? "HR" : "Student"}. Please select the correct account type.`,
+        message: `This account is registered as ${
+          user.role === "hr" ? "HR" : "Student"
+        }. Please select the correct account type.`,
       });
     }
 
@@ -179,6 +181,7 @@ export const getMyProfile = async (req, res) => {
         email: req.user.email,
         name: req.user.name,
         role: req.user.role,
+        avatar: req.user.avatar || null,
       },
     });
   } catch (error) {
@@ -192,7 +195,7 @@ export const getMyProfile = async (req, res) => {
 
 export const updateMyProfile = async (req, res) => {
   try {
-    const { name, email } = req.body;
+    const { name, email, avatar, phone, location } = req.body;
     const userId = req.user._id;
 
     const user = await User.findById(userId);
@@ -216,6 +219,9 @@ export const updateMyProfile = async (req, res) => {
 
     if (name) user.name = name;
     if (email) user.email = email;
+    if (typeof avatar !== "undefined") user.avatar = avatar;
+    if (typeof phone !== "undefined") user.phone = phone;
+    if (typeof location !== "undefined") user.location = location;
 
     await user.save();
 
@@ -227,6 +233,7 @@ export const updateMyProfile = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        avatar: user.avatar || null,
       },
     });
   } catch (error) {

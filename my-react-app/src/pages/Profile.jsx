@@ -1,127 +1,144 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import Toast from "../components/Toast";
 
 export default function Profile() {
-  const navigate = useNavigate()
-  const [editing, setEditing] = useState(false)
-  const [uploading, setUploading] = useState(false)
-  const [cvFile, setCvFile] = useState(null)
-  const [hasUploadedCV, setHasUploadedCV] = useState(false)
-  const [cvFileName, setCvFileName] = useState('')
-  const [classifying, setClassifying] = useState(false)
-  const [classificationResult, setClassificationResult] = useState(null)
-  const [user, setUser] = useState(null)
+  const navigate = useNavigate();
+  const [editing, setEditing] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [cvFile, setCvFile] = useState(null);
+  const [hasUploadedCV, setHasUploadedCV] = useState(false);
+  const [cvFileName, setCvFileName] = useState("");
+  const [classifying, setClassifying] = useState(false);
+  const [classificationResult, setClassificationResult] = useState(null);
+  const [user, setUser] = useState(null);
+  const [toast, setToast] = useState(null);
   const [profile, setProfile] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    location: '',
-    linkedin: '',
-    github: '',
-    portfolio: '',
-    university: '',
-    degree: '',
+    name: "",
+    email: "",
+    phone: "",
+    location: "",
+    linkedin: "",
+    github: "",
+    portfolio: "",
+    university: "",
+    degree: "",
     skills: [],
     experience: 0,
-    experienceLevel: 'Entry Level'
-  })
-  const fetchedOnceRef = useRef(false)
+    experienceLevel: "Entry Level",
+    jobTitle: "",
+  });
+  const fetchedOnceRef = useRef(false);
+
+  const showToast = (message, type = "success") => {
+    setToast({ message, type });
+  };
+
+  const closeToast = () => {
+    setToast(null);
+  };
 
   useEffect(() => {
     // Get user from localStorage
-    const storedUser = localStorage.getItem('user')
-    const token = localStorage.getItem('token')
+    const storedUser = localStorage.getItem("user");
+    const token = localStorage.getItem("token");
 
     if (!storedUser || !token) {
-      navigate('/login')
-      return
+      navigate("/login");
+      return;
     }
 
-    const userData = JSON.parse(storedUser)
-    setUser(userData)
+    const userData = JSON.parse(storedUser);
+    setUser(userData);
 
     // Load profile data from user
     setProfile({
-      name: userData.name || '',
-      email: userData.email || '',
-      phone: '',
-      location: '',
-      linkedin: '',
-      github: '',
-      portfolio: '',
-      university: '',
-      degree: '',
+      name: userData.name || "",
+      email: userData.email || "",
+      phone: "",
+      location: "",
+      linkedin: "",
+      github: "",
+      portfolio: "",
+      university: "",
+      degree: "",
       skills: [],
       experience: 0,
-      experienceLevel: 'Entry Level'
-    })
+      experienceLevel: "Entry Level",
+    });
 
     // Fetch candidate profile if exists (avoid duplicate call in StrictMode dev)
     if (!fetchedOnceRef.current) {
-      fetchedOnceRef.current = true
-      fetchCandidateProfile(token, userData.email)
+      fetchedOnceRef.current = true;
+      fetchCandidateProfile(token, userData.email);
     }
-  }, [navigate])
+  }, [navigate]);
 
   const fetchCandidateProfile = async (token, email) => {
     try {
-      console.log('🔍 Fetching candidate profile...');
+      console.log("🔍 Fetching candidate profile...");
 
       // Use /me endpoint for employees to get their own profile
       const response = await fetch(`http://localhost:5000/api/candidates/me`, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      console.log('📥 Profile response status:', response.status);
+      console.log("📥 Profile response status:", response.status);
 
       if (response.ok) {
-        const data = await response.json()
-        console.log('📦 Profile data:', data);
+        const data = await response.json();
+        console.log("📦 Profile data:", data);
 
         if (data.data) {
-          const candidateData = data.data
-          setProfile(prev => ({
+          const candidateData = data.data;
+          setProfile((prev) => ({
             ...prev,
-            phone: candidateData.phone || '',
-            location: candidateData.location || '',
-            linkedin: candidateData.linkedinUrl || '',
-            portfolio: candidateData.portfolioUrl || '',
-            university: candidateData.university || '',
-            degree: candidateData.degree || '',
+            phone: candidateData.phone || "",
+            location: candidateData.location || "",
+            linkedin: candidateData.linkedinUrl || "",
+            portfolio: candidateData.portfolioUrl || "",
+            university: candidateData.university || "",
+            degree: candidateData.degree || "",
             skills: candidateData.skills || [],
             experience: candidateData.experience || 0,
-            experienceLevel: candidateData.experienceLevel || 'Entry Level'
-          }))
+            experienceLevel: candidateData.experienceLevel || "Entry Level",
+          }));
 
           // Check if CV has been uploaded
-          if (candidateData.resumeUrl && candidateData.resumeUrl.trim() !== '') {
-            setHasUploadedCV(true)
-            setCvFileName('CV uploaded successfully')
-            console.log('✅ CV already uploaded, resumeUrl:', candidateData.resumeUrl);
+          if (
+            candidateData.resumeUrl &&
+            candidateData.resumeUrl.trim() !== ""
+          ) {
+            setHasUploadedCV(true);
+            setCvFileName("CV uploaded successfully");
+            console.log(
+              "✅ CV already uploaded, resumeUrl:",
+              candidateData.resumeUrl
+            );
           } else {
-            setHasUploadedCV(false)
-            console.log('ℹ️ No CV uploaded yet');
+            setHasUploadedCV(false);
+            console.log("ℹ️ No CV uploaded yet");
           }
 
-          console.log('✅ Profile loaded successfully');
+          console.log("✅ Profile loaded successfully");
         } else {
-          console.log('ℹ️ No profile found yet');
+          console.log("ℹ️ No profile found yet");
         }
       } else {
-        console.error('❌ Failed to fetch profile:', response.status);
+        console.error("❌ Failed to fetch profile:", response.status);
       }
     } catch (error) {
-      console.error('❌ Error fetching profile:', error)
+      console.error("❌ Error fetching profile:", error);
     }
-  }
+  };
 
   const handleSave = async () => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem("token");
 
     try {
-      setUploading(true)
+      setUploading(true);
 
       const candidateData = {
         name: profile.name,
@@ -135,228 +152,269 @@ export default function Profile() {
         linkedinUrl: profile.linkedin,
         portfolioUrl: profile.portfolio,
         location: profile.location,
-        availability: 'Immediate'
-      }
+        availability: "Immediate",
+      };
 
-      const response = await fetch('http://localhost:5000/api/candidates', {
-        method: 'POST',
+      const response = await fetch("http://localhost:5000/api/candidates", {
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(candidateData)
-      })
+        body: JSON.stringify(candidateData),
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (response.ok) {
-        alert('✅ Profile saved successfully!')
-        setEditing(false)
+        showToast("Profile saved successfully!", "success");
+        setEditing(false);
       } else {
-        alert(`❌ Error: ${data.message}`)
+        showToast(`Error: ${data.message}`, "error");
       }
     } catch (error) {
-      console.error('Save error:', error)
-      alert('❌ Network error. Please try again.')
+      console.error("Save error:", error);
+      showToast("Network error. Please try again.", "error");
     } finally {
-      setUploading(false)
+      setUploading(false);
     }
-  }
+  };
 
   const handleCVUpload = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files[0];
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
-        alert('File size must be less than 10MB')
-        return
+        showToast("File size must be less than 10MB", "error");
+        return;
       }
 
       // Server currently accepts PDF only (we extract text from PDF)
-      const allowedTypes = ['application/pdf']
+      const allowedTypes = ["application/pdf"];
       if (!allowedTypes.includes(file.type)) {
-        alert('Only PDF files are allowed for extracting text')
-        return
+        showToast("Only PDF files are allowed", "error");
+        return;
       }
 
-      setCvFile(file)
-      alert(`✅ CV file "${file.name}" selected! Click "Upload CV" to save.`)
+      setCvFile(file);
+      showToast(
+        `CV file "${file.name}" selected! Click "Upload CV" to save.`,
+        "info"
+      );
     }
-  }
+  };
 
   const handleCVSubmit = async () => {
-    console.log('🎯 handleCVSubmit called!');
+    console.log("🎯 handleCVSubmit called!");
 
     if (!cvFile) {
-      console.log('❌ No file selected');
-      alert('Please select a CV file first')
-      return
+      console.log("❌ No file selected");
+      showToast("Please select a CV file first", "error");
+      return;
     }
 
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem("token");
 
-    console.log('🚀 Starting CV upload...')
-    console.log('📄 File:', cvFile.name, cvFile.type, cvFile.size, 'bytes')
-    console.log('🔑 Token:', token ? 'EXISTS' : 'MISSING')
+    console.log("🚀 Starting CV upload...");
+    console.log("📄 File:", cvFile.name, cvFile.type, cvFile.size, "bytes");
+    console.log("🔑 Token:", token ? "EXISTS" : "MISSING");
 
     if (!token) {
-      console.error('❌ No token found! User not logged in.');
-      alert('❌ You must be logged in to upload CV. Please login again.');
+      console.error("❌ No token found! User not logged in.");
+      showToast(
+        "You must be logged in to upload CV. Please login again.",
+        "error"
+      );
       return;
     }
 
     try {
-      setUploading(true)
+      setUploading(true);
 
-      const formData = new FormData()
-      formData.append('cv', cvFile)
+      const formData = new FormData();
+      formData.append("cv", cvFile);
 
-      console.log('📤 Sending request to backend...', 'URL:', 'http://localhost:5000/api/candidates/upload')
+      console.log(
+        "📤 Sending request to backend...",
+        "URL:",
+        "http://localhost:5000/api/candidates/upload"
+      );
 
-      const response = await fetch('http://localhost:5000/api/candidates/upload', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      })
+      const response = await fetch(
+        "http://localhost:5000/api/candidates/upload",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
 
-      console.log('📥 Response received!');
-      console.log('📥 Response status:', response.status, response.statusText)
+      console.log("📥 Response received!");
+      console.log("📥 Response status:", response.status, response.statusText);
 
-      const data = await response.json()
-      console.log('📦 Response data:', JSON.stringify(data, null, 2))
+      const data = await response.json();
+      console.log("📦 Response data:", JSON.stringify(data, null, 2));
 
       if (response.ok) {
-        alert('✅ CV uploaded successfully! Fields auto-extracted.')
-
-        // Update profile with extracted fields
+        // Update profile with extracted fields and classification
         if (data.data && data.data.candidate) {
-          const extracted = data.data.candidate
-          setProfile(prev => ({
+          const extracted = data.data.candidate;
+          setProfile((prev) => ({
             ...prev,
             skills: extracted.skills || prev.skills,
             experience: extracted.experience || prev.experience,
             university: extracted.university || prev.university,
             degree: extracted.degree || prev.degree,
             phone: extracted.phone || prev.phone,
-            resumeExtract: data.data.resumeText || ''
-          }))
+            jobTitle: extracted.jobTitle || prev.jobTitle,
+            resumeExtract: data.data.resumeText || "",
+          }));
+        }
+
+        // Check if auto-classification happened
+        if (data.data.classification) {
+          const cls = data.data.classification;
+          setClassificationResult({
+            jobTitle: cls.jobTitle,
+            confidence: cls.confidence,
+            decision_method: cls.method,
+          });
+          showToast(
+            `CV uploaded & classified as ${cls.jobTitle} (${(
+              cls.confidence * 100
+            ).toFixed(1)}%)`,
+            "success"
+          );
+        } else {
+          showToast(
+            "CV uploaded successfully! Fields auto-extracted.",
+            "success"
+          );
         }
 
         // Clear file selection
-        setCvFile(null)
+        setCvFile(null);
 
         // Set CV uploaded state
-        setHasUploadedCV(true)
-        setCvFileName(cvFile.name)
+        setHasUploadedCV(true);
+        setCvFileName(cvFile.name);
 
         // Refresh candidate profile from server
-        fetchCandidateProfile(token, user.email)
+        fetchCandidateProfile(token, user.email);
       } else {
-        console.error('❌ Upload failed:', data.message)
-        alert(`❌ Upload error: ${data.message || 'Server error'}`)
+        console.error("❌ Upload failed:", data.message);
+        showToast(`Upload error: ${data.message || "Server error"}`, "error");
       }
-      setUploading(false)
-
+      setUploading(false);
     } catch (error) {
-      console.error('❌ Upload error:', error)
-      alert('❌ Upload failed. Please try again.')
-      setUploading(false)
+      console.error("❌ Upload error:", error);
+      showToast("Upload failed. Please try again.", "error");
+      setUploading(false);
     }
-  }
+  };
 
   const handleAddSkill = () => {
-    const skill = prompt('Enter a new skill:')
+    const skill = prompt("Enter a new skill:");
     if (skill && skill.trim()) {
-      setProfile(prev => ({
+      setProfile((prev) => ({
         ...prev,
-        skills: [...prev.skills, skill.trim()]
-      }))
+        skills: [...prev.skills, skill.trim()],
+      }));
     }
-  }
+  };
 
   const handleRemoveSkill = (index) => {
-    setProfile(prev => ({
+    setProfile((prev) => ({
       ...prev,
-      skills: prev.skills.filter((_, i) => i !== index)
-    }))
-  }
+      skills: prev.skills.filter((_, i) => i !== index),
+    }));
+  };
 
   const handleClassifyCV = async () => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem("token");
 
     if (!token) {
-      alert('❌ Please login first')
-      return
+      showToast("Please login first", "error");
+      return;
     }
 
     if (!hasUploadedCV) {
-      alert('❌ Please upload your CV first before classification')
-      return
+      showToast("Please upload your CV first before classification", "error");
+      return;
     }
 
     try {
-      setClassifying(true)
-      console.log('🔬 Starting CV classification...')
+      setClassifying(true);
+      console.log("🔬 Starting CV classification...");
 
-      const response = await fetch('http://localhost:5000/api/ml/classify-cv', {
-        method: 'POST',
+      const response = await fetch("http://localhost:5000/api/ml/classify-cv", {
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-      const data = await response.json()
-      console.log('📦 Classification result:', data)
+      const data = await response.json();
+      console.log("📦 Classification result:", data);
 
       if (response.ok && data.success) {
-        setClassificationResult(data.data)
-        alert(`✅ Classification Complete!\n\nJob Title: ${data.data.jobTitle}\nConfidence: ${(data.data.confidence * 100).toFixed(1)}%`)
+        setClassificationResult(data.data);
+        showToast(
+          `Classification Complete! Job Title: ${data.data.jobTitle} (${(
+            data.data.confidence * 100
+          ).toFixed(1)}%)`,
+          "success"
+        );
 
         // Update profile with job title
-        setProfile(prev => ({
+        setProfile((prev) => ({
           ...prev,
-          jobTitle: data.data.jobTitle
-        }))
+          jobTitle: data.data.jobTitle,
+        }));
       } else {
-        throw new Error(data.message || 'Classification failed')
+        throw new Error(data.message || "Classification failed");
       }
-
     } catch (error) {
-      console.error('❌ Classification error:', error)
-      alert(`❌ Classification failed: ${error.message}`)
+      console.error("❌ Classification error:", error);
+      showToast(`Classification failed: ${error.message}`, "error");
     } finally {
-      setClassifying(false)
+      setClassifying(false);
     }
-  }
+  };
 
   const savedJobs = [
-    { id: 1, title: 'Senior React Developer', company: 'TechCorp', match: 95 },
-    { id: 2, title: 'Frontend Engineer', company: 'StartupXYZ', match: 88 },
-    { id: 3, title: 'Full Stack Developer', company: 'MegaTech Inc', match: 82 }
-  ]
+    { id: 1, title: "Senior React Developer", company: "TechCorp", match: 95 },
+    { id: 2, title: "Frontend Engineer", company: "StartupXYZ", match: 88 },
+    {
+      id: 3,
+      title: "Full Stack Developer",
+      company: "MegaTech Inc",
+      match: 82,
+    },
+  ];
 
   const savedCourses = [
-    { id: 1, title: 'Advanced Docker & Kubernetes', progress: 0 },
-    { id: 2, title: 'AWS Cloud Practitioner', progress: 0 },
-    { id: 3, title: 'Advanced TypeScript', progress: 45 }
-  ]
+    { id: 1, title: "Advanced Docker & Kubernetes", progress: 0 },
+    { id: 2, title: "AWS Cloud Practitioner", progress: 0 },
+    { id: 3, title: "Advanced TypeScript", progress: 45 },
+  ];
 
   const handleLogout = () => {
-    if (window.confirm('Are you sure you want to logout?')) {
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      navigate('/login')
+    if (window.confirm("Are you sure you want to logout?")) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      navigate("/login");
     }
-  }
+  };
 
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
       </div>
-    )
+    );
   }
 
   return (
@@ -365,7 +423,9 @@ export default function Profile() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Profile</h1>
-          <p className="text-lg text-gray-600">Manage your account and preferences</p>
+          <p className="text-lg text-gray-600">
+            Manage your account and preferences
+          </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
@@ -374,7 +434,9 @@ export default function Profile() {
             {/* Basic Info Card */}
             <div className="bg-white rounded-xl shadow-md p-8">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Personal Information</h2>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Personal Information
+                </h2>
                 {!editing ? (
                   <button
                     onClick={() => setEditing(true)}
@@ -402,12 +464,16 @@ export default function Profile() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Full Name</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Full Name
+                  </label>
                   {editing ? (
                     <input
                       type="text"
                       value={profile.name}
-                      onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                      onChange={(e) =>
+                        setProfile({ ...profile, name: e.target.value })
+                      }
                       className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                     />
                   ) : (
@@ -416,12 +482,16 @@ export default function Profile() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Email</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Email
+                  </label>
                   {editing ? (
                     <input
                       type="email"
                       value={profile.email}
-                      onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                      onChange={(e) =>
+                        setProfile({ ...profile, email: e.target.value })
+                      }
                       className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                     />
                   ) : (
@@ -430,12 +500,16 @@ export default function Profile() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Phone</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Phone
+                  </label>
                   {editing ? (
                     <input
                       type="tel"
                       value={profile.phone}
-                      onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                      onChange={(e) =>
+                        setProfile({ ...profile, phone: e.target.value })
+                      }
                       className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                     />
                   ) : (
@@ -444,12 +518,16 @@ export default function Profile() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Location</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Location
+                  </label>
                   {editing ? (
                     <input
                       type="text"
                       value={profile.location}
-                      onChange={(e) => setProfile({ ...profile, location: e.target.value })}
+                      onChange={(e) =>
+                        setProfile({ ...profile, location: e.target.value })
+                      }
                       className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                     />
                   ) : (
@@ -462,7 +540,9 @@ export default function Profile() {
             {/* Resume extracted text preview */}
             {profile.resumeExtract && (
               <div className="bg-white rounded-xl shadow-md p-6">
-                <h3 className="text-lg font-bold mb-2">Extracted CV Text (preview)</h3>
+                <h3 className="text-lg font-bold mb-2">
+                  Extracted CV Text (preview)
+                </h3>
                 <div className="max-h-48 overflow-auto text-sm text-gray-700 whitespace-pre-wrap">
                   {profile.resumeExtract}
                 </div>
@@ -471,51 +551,80 @@ export default function Profile() {
 
             {/* Links Card */}
             <div className="bg-white rounded-xl shadow-md p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Professional Links</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                Professional Links
+              </h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">LinkedIn</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    LinkedIn
+                  </label>
                   {editing ? (
                     <input
                       type="text"
                       value={profile.linkedin}
-                      onChange={(e) => setProfile({ ...profile, linkedin: e.target.value })}
+                      onChange={(e) =>
+                        setProfile({ ...profile, linkedin: e.target.value })
+                      }
                       className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                     />
                   ) : (
-                    <a href={`https://${profile.linkedin}`} target="_blank" rel="noopener noreferrer" className="text-lg text-blue-600 hover:underline">
+                    <a
+                      href={`https://${profile.linkedin}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-lg text-blue-600 hover:underline"
+                    >
                       {profile.linkedin}
                     </a>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">GitHub</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    GitHub
+                  </label>
                   {editing ? (
                     <input
                       type="text"
                       value={profile.github}
-                      onChange={(e) => setProfile({ ...profile, github: e.target.value })}
+                      onChange={(e) =>
+                        setProfile({ ...profile, github: e.target.value })
+                      }
                       className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                     />
                   ) : (
-                    <a href={`https://${profile.github}`} target="_blank" rel="noopener noreferrer" className="text-lg text-blue-600 hover:underline">
+                    <a
+                      href={`https://${profile.github}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-lg text-blue-600 hover:underline"
+                    >
                       {profile.github}
                     </a>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Portfolio</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Portfolio
+                  </label>
                   {editing ? (
                     <input
                       type="text"
                       value={profile.portfolio}
-                      onChange={(e) => setProfile({ ...profile, portfolio: e.target.value })}
+                      onChange={(e) =>
+                        setProfile({ ...profile, portfolio: e.target.value })
+                      }
                       className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                     />
                   ) : (
-                    <a href={`https://${profile.portfolio}`} target="_blank" rel="noopener noreferrer" className="text-lg text-blue-600 hover:underline">
+                    <a
+                      href={`https://${profile.portfolio}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-lg text-blue-600 hover:underline"
+                    >
                       {profile.portfolio}
                     </a>
                   )}
@@ -525,44 +634,50 @@ export default function Profile() {
 
             {/* CV Upload */}
             <div className="bg-white rounded-xl shadow-md p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">CV / Resume</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                CV / Resume
+              </h2>
 
-              {user.role !== 'employee' ? (
-                <p className="text-gray-600">CV upload is for employees only.</p>
+              {user.role !== "employee" ? (
+                <p className="text-gray-600">
+                  CV upload is for employees only.
+                </p>
               ) : hasUploadedCV && !cvFile ? (
                 // Show uploaded CV status with Edit button
                 <div className="space-y-4">
                   <div className="border-4 border-solid border-green-500 rounded-xl p-8 bg-green-50">
                     <div className="text-center">
-                      <svg className="w-20 h-20 mx-auto mb-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      <svg
+                        className="w-20 h-20 mx-auto mb-4 text-green-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
                       </svg>
-                      <h3 className="text-lg font-bold text-gray-900 mb-2">CV Uploaded Successfully</h3>
-                      <p className="text-gray-700 mb-4 font-semibold">{cvFileName}</p>
-                      <p className="text-sm text-gray-600 mb-6">Your CV has been uploaded and processed.</p>
+                      <h3 className="text-lg font-bold text-gray-900 mb-2">
+                        CV Uploaded Successfully
+                      </h3>
+                      <p className="text-gray-700 mb-4 font-semibold">
+                        {cvFileName}
+                      </p>
+                      <p className="text-sm text-gray-600 mb-6">
+                        Your CV has been uploaded and processed.
+                      </p>
                       <div className="flex gap-3 justify-center">
                         <button
                           onClick={() => {
-                            setHasUploadedCV(false)
-                            setCvFileName('')
+                            setHasUploadedCV(false);
+                            setCvFileName("");
                           }}
                           className="px-6 py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-all"
                         >
                           Edit / Change CV
-                        </button>
-                        <button
-                          onClick={handleClassifyCV}
-                          disabled={classifying}
-                          className="px-6 py-3 bg-purple-600 text-white font-bold rounded-full hover:bg-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {classifying ? (
-                            <span className="flex items-center gap-2">
-                              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                              Classifying...
-                            </span>
-                          ) : (
-                            '🔬 Classify Job Role'
-                          )}
                         </button>
                       </div>
                     </div>
@@ -572,90 +687,158 @@ export default function Profile() {
                   {classificationResult && (
                     <div className="space-y-4">
                       <div className="border-4 border-solid border-purple-500 rounded-xl p-6 bg-purple-50">
-                        <h4 className="text-lg font-bold text-purple-900 mb-4">🎯 Classification Result</h4>
+                        <h4 className="text-lg font-bold text-purple-900 mb-4">
+                          🎯 Auto-Classification Result
+                        </h4>
                         <div className="grid grid-cols-2 gap-4 mb-4">
                           <div>
-                            <p className="text-sm text-gray-600 mb-1">Job Title:</p>
-                            <p className="text-xl font-bold text-purple-900">{classificationResult.jobTitle}</p>
+                            <p className="text-sm text-gray-600 mb-1">
+                              Job Title:
+                            </p>
+                            <p className="text-xl font-bold text-purple-900">
+                              {classificationResult.jobTitle}
+                            </p>
                           </div>
                           <div>
-                            <p className="text-sm text-gray-600 mb-1">Confidence:</p>
-                            <p className="text-xl font-bold text-purple-900">{(classificationResult.confidence * 100).toFixed(1)}%</p>
+                            <p className="text-sm text-gray-600 mb-1">
+                              Confidence:
+                            </p>
+                            <p className="text-xl font-bold text-purple-900">
+                              {(classificationResult.confidence * 100).toFixed(
+                                1
+                              )}
+                              %
+                            </p>
                           </div>
                         </div>
                         <div className="text-sm text-purple-700 bg-purple-100 p-2 rounded">
-                          Method: {classificationResult.decision_method || 'unknown'}
+                          Method:{" "}
+                          {classificationResult.decision_method || "unknown"}
                         </div>
                       </div>
 
                       {/* AI Analysis Details */}
                       {classificationResult.ai_analysis && (
                         <div className="border-4 border-solid border-blue-500 rounded-xl p-6 bg-blue-50">
-                          <h4 className="text-lg font-bold text-blue-900 mb-4">🤖 AI Analysis</h4>
+                          <h4 className="text-lg font-bold text-blue-900 mb-4">
+                            🤖 AI Analysis
+                          </h4>
 
                           {classificationResult.ai_analysis.primary_role && (
                             <div className="mb-4">
-                              <p className="text-sm text-gray-700 font-semibold mb-1">Primary Role:</p>
-                              <p className="text-blue-900 text-lg">{classificationResult.ai_analysis.primary_role}</p>
+                              <p className="text-sm text-gray-700 font-semibold mb-1">
+                                Primary Role:
+                              </p>
+                              <p className="text-blue-900 text-lg">
+                                {classificationResult.ai_analysis.primary_role}
+                              </p>
                             </div>
                           )}
 
-                          {classificationResult.ai_analysis.experience_years && (
+                          {classificationResult.ai_analysis
+                            .experience_years && (
                             <div className="mb-4">
-                              <p className="text-sm text-gray-700 font-semibold mb-1">Experience:</p>
-                              <p className="text-blue-900">{classificationResult.ai_analysis.experience_years} years</p>
+                              <p className="text-sm text-gray-700 font-semibold mb-1">
+                                Experience:
+                              </p>
+                              <p className="text-blue-900">
+                                {
+                                  classificationResult.ai_analysis
+                                    .experience_years
+                                }{" "}
+                                years
+                              </p>
                             </div>
                           )}
 
-                          {classificationResult.ai_analysis.skills && classificationResult.ai_analysis.skills.length > 0 && (
-                            <div className="mb-4">
-                              <p className="text-sm text-gray-700 font-semibold mb-2">Technical Skills:</p>
-                              <div className="flex flex-wrap gap-2">
-                                {classificationResult.ai_analysis.skills.map((skill, idx) => (
-                                  <span key={idx} className="px-3 py-1 bg-blue-200 text-blue-900 rounded-full text-sm font-semibold">
-                                    {skill}
-                                  </span>
-                                ))}
+                          {classificationResult.ai_analysis.skills &&
+                            classificationResult.ai_analysis.skills.length >
+                              0 && (
+                              <div className="mb-4">
+                                <p className="text-sm text-gray-700 font-semibold mb-2">
+                                  Technical Skills:
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                  {classificationResult.ai_analysis.skills.map(
+                                    (skill, idx) => (
+                                      <span
+                                        key={idx}
+                                        className="px-3 py-1 bg-blue-200 text-blue-900 rounded-full text-sm font-semibold"
+                                      >
+                                        {skill}
+                                      </span>
+                                    )
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
 
-                          {classificationResult.ai_analysis.languages && classificationResult.ai_analysis.languages.length > 0 && (
-                            <div className="mb-4">
-                              <p className="text-sm text-gray-700 font-semibold mb-2">Languages:</p>
-                              <div className="flex flex-wrap gap-2">
-                                {classificationResult.ai_analysis.languages.map((lang, idx) => (
-                                  <span key={idx} className="px-3 py-1 bg-indigo-200 text-indigo-900 rounded-full text-sm font-semibold">
-                                    {lang}
-                                  </span>
-                                ))}
+                          {classificationResult.ai_analysis.languages &&
+                            classificationResult.ai_analysis.languages.length >
+                              0 && (
+                              <div className="mb-4">
+                                <p className="text-sm text-gray-700 font-semibold mb-2">
+                                  Languages:
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                  {classificationResult.ai_analysis.languages.map(
+                                    (lang, idx) => (
+                                      <span
+                                        key={idx}
+                                        className="px-3 py-1 bg-indigo-200 text-indigo-900 rounded-full text-sm font-semibold"
+                                      >
+                                        {lang}
+                                      </span>
+                                    )
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
 
-                          {classificationResult.ai_analysis.projects && classificationResult.ai_analysis.projects.length > 0 && (
-                            <div className="mb-4">
-                              <p className="text-sm text-gray-700 font-semibold mb-2">Projects:</p>
-                              <ul className="list-disc list-inside space-y-1">
-                                {classificationResult.ai_analysis.projects.map((project, idx) => (
-                                  <li key={idx} className="text-blue-900 text-sm">{project}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-
-                          {classificationResult.ai_analysis.recommended_categories && classificationResult.ai_analysis.recommended_categories.length > 0 && (
-                            <div>
-                              <p className="text-sm text-gray-700 font-semibold mb-2">Recommended Roles:</p>
-                              <div className="flex flex-wrap gap-2">
-                                {classificationResult.ai_analysis.recommended_categories.map((cat, idx) => (
-                                  <span key={idx} className="px-3 py-1 bg-green-200 text-green-900 rounded-full text-sm font-semibold">
-                                    {cat}
-                                  </span>
-                                ))}
+                          {classificationResult.ai_analysis.projects &&
+                            classificationResult.ai_analysis.projects.length >
+                              0 && (
+                              <div className="mb-4">
+                                <p className="text-sm text-gray-700 font-semibold mb-2">
+                                  Projects:
+                                </p>
+                                <ul className="list-disc list-inside space-y-1">
+                                  {classificationResult.ai_analysis.projects.map(
+                                    (project, idx) => (
+                                      <li
+                                        key={idx}
+                                        className="text-blue-900 text-sm"
+                                      >
+                                        {project}
+                                      </li>
+                                    )
+                                  )}
+                                </ul>
                               </div>
-                            </div>
-                          )}
+                            )}
+
+                          {classificationResult.ai_analysis
+                            .recommended_categories &&
+                            classificationResult.ai_analysis
+                              .recommended_categories.length > 0 && (
+                              <div>
+                                <p className="text-sm text-gray-700 font-semibold mb-2">
+                                  Recommended Roles:
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                  {classificationResult.ai_analysis.recommended_categories.map(
+                                    (cat, idx) => (
+                                      <span
+                                        key={idx}
+                                        className="px-3 py-1 bg-green-200 text-green-900 rounded-full text-sm font-semibold"
+                                      >
+                                        {cat}
+                                      </span>
+                                    )
+                                  )}
+                                </div>
+                              </div>
+                            )}
                         </div>
                       )}
                     </div>
@@ -665,12 +848,28 @@ export default function Profile() {
                 // Show file selected state
                 <div className="border-4 border-solid border-green-500 rounded-xl p-8 bg-green-50 mb-4">
                   <div className="text-center">
-                    <svg className="w-20 h-20 mx-auto mb-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    <svg
+                      className="w-20 h-20 mx-auto mb-4 text-green-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">File Selected</h3>
-                    <p className="text-gray-700 mb-4 font-semibold">{cvFile.name}</p>
-                    <p className="text-sm text-gray-600 mb-4">Size: {(cvFile.size / 1024).toFixed(2)} KB</p>
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">
+                      File Selected
+                    </h3>
+                    <p className="text-gray-700 mb-4 font-semibold">
+                      {cvFile.name}
+                    </p>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Size: {(cvFile.size / 1024).toFixed(2)} KB
+                    </p>
                     <div className="flex gap-3 justify-center">
                       <button
                         onClick={handleCVSubmit}
@@ -683,7 +882,7 @@ export default function Profile() {
                             Uploading...
                           </span>
                         ) : (
-                          'Upload CV'
+                          "Upload CV"
                         )}
                       </button>
                       <button
@@ -699,11 +898,25 @@ export default function Profile() {
                 // Show upload interface
                 <label htmlFor="cv-upload">
                   <div className="border-4 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer">
-                    <svg className="w-20 h-20 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    <svg
+                      className="w-20 h-20 mx-auto mb-4 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
                     </svg>
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">Upload Your CV</h3>
-                    <p className="text-gray-600 mb-4">PDF, DOC, or DOCX (Max 5MB)</p>
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">
+                      Upload Your CV
+                    </h3>
+                    <p className="text-gray-600 mb-4">
+                      PDF, DOC, or DOCX (Max 5MB)
+                    </p>
                     <div className="px-6 py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-all inline-block">
                       Choose File
                     </div>
@@ -732,7 +945,9 @@ export default function Profile() {
               </div>
 
               {profile.skills.length === 0 ? (
-                <p className="text-gray-500 text-center py-4">No skills added yet. Click "Add Skill" to get started!</p>
+                <p className="text-gray-500 text-center py-4">
+                  No skills added yet. Click "Add Skill" to get started!
+                </p>
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {profile.skills.map((skill, index) => (
@@ -755,61 +970,91 @@ export default function Profile() {
 
             {/* Education & Experience */}
             <div className="bg-white rounded-xl shadow-md p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Education & Experience 🎓</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                Education & Experience 🎓
+              </h2>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">University</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    University
+                  </label>
                   {editing ? (
                     <input
                       type="text"
                       value={profile.university}
-                      onChange={(e) => setProfile({ ...profile, university: e.target.value })}
+                      onChange={(e) =>
+                        setProfile({ ...profile, university: e.target.value })
+                      }
                       placeholder="e.g., Cairo University"
                       className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                     />
                   ) : (
-                    <p className="text-lg text-gray-900">{profile.university || 'Not specified'}</p>
+                    <p className="text-lg text-gray-900">
+                      {profile.university || "Not specified"}
+                    </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Degree</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Degree
+                  </label>
                   {editing ? (
                     <input
                       type="text"
                       value={profile.degree}
-                      onChange={(e) => setProfile({ ...profile, degree: e.target.value })}
+                      onChange={(e) =>
+                        setProfile({ ...profile, degree: e.target.value })
+                      }
                       placeholder="e.g., Computer Science"
                       className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                     />
                   ) : (
-                    <p className="text-lg text-gray-900">{profile.degree || 'Not specified'}</p>
+                    <p className="text-lg text-gray-900">
+                      {profile.degree || "Not specified"}
+                    </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Years of Experience</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Years of Experience
+                  </label>
                   {editing ? (
                     <input
                       type="number"
                       min="0"
                       max="50"
                       value={profile.experience}
-                      onChange={(e) => setProfile({ ...profile, experience: parseInt(e.target.value) || 0 })}
+                      onChange={(e) =>
+                        setProfile({
+                          ...profile,
+                          experience: parseInt(e.target.value) || 0,
+                        })
+                      }
                       className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                     />
                   ) : (
-                    <p className="text-lg text-gray-900">{profile.experience} years</p>
+                    <p className="text-lg text-gray-900">
+                      {profile.experience} years
+                    </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Experience Level</label>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Experience Level
+                  </label>
                   {editing ? (
                     <select
                       value={profile.experienceLevel}
-                      onChange={(e) => setProfile({ ...profile, experienceLevel: e.target.value })}
+                      onChange={(e) =>
+                        setProfile({
+                          ...profile,
+                          experienceLevel: e.target.value,
+                        })
+                      }
                       className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                     >
                       <option value="Entry Level">Entry Level</option>
@@ -818,7 +1063,9 @@ export default function Profile() {
                       <option value="Executive">Executive</option>
                     </select>
                   ) : (
-                    <p className="text-lg text-gray-900">{profile.experienceLevel}</p>
+                    <p className="text-lg text-gray-900">
+                      {profile.experienceLevel}
+                    </p>
                   )}
                 </div>
               </div>
@@ -843,13 +1090,22 @@ export default function Profile() {
 
             {/* Saved Jobs */}
             <div className="bg-white rounded-xl shadow-md p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">⭐ Saved Jobs</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">
+                ⭐ Saved Jobs
+              </h2>
               <div className="space-y-3">
                 {savedJobs.map((job) => (
-                  <div key={job.id} className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all">
-                    <h3 className="font-bold text-gray-900 text-sm mb-1">{job.title}</h3>
+                  <div
+                    key={job.id}
+                    className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all"
+                  >
+                    <h3 className="font-bold text-gray-900 text-sm mb-1">
+                      {job.title}
+                    </h3>
                     <p className="text-xs text-gray-600">{job.company}</p>
-                    <span className="inline-block mt-2 text-xs font-semibold text-green-600">{job.match}% Match</span>
+                    <span className="inline-block mt-2 text-xs font-semibold text-green-600">
+                      {job.match}% Match
+                    </span>
                   </div>
                 ))}
               </div>
@@ -860,18 +1116,27 @@ export default function Profile() {
 
             {/* Saved Courses */}
             <div className="bg-white rounded-xl shadow-md p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">📚 My Courses</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">
+                📚 My Courses
+              </h2>
               <div className="space-y-3">
                 {savedCourses.map((course) => (
-                  <div key={course.id} className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all">
-                    <h3 className="font-bold text-gray-900 text-sm mb-2">{course.title}</h3>
+                  <div
+                    key={course.id}
+                    className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all"
+                  >
+                    <h3 className="font-bold text-gray-900 text-sm mb-2">
+                      {course.title}
+                    </h3>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
                         className="bg-blue-600 h-2 rounded-full"
                         style={{ width: `${course.progress}%` }}
                       ></div>
                     </div>
-                    <span className="text-xs text-gray-600 mt-1 inline-block">{course.progress}% Complete</span>
+                    <span className="text-xs text-gray-600 mt-1 inline-block">
+                      {course.progress}% Complete
+                    </span>
                   </div>
                 ))}
               </div>
@@ -892,6 +1157,11 @@ export default function Profile() {
           </div>
         </div>
       </div>
+
+      {/* Toast Notification */}
+      {toast && (
+        <Toast message={toast.message} type={toast.type} onClose={closeToast} />
+      )}
     </div>
-  )
+  );
 }

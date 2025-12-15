@@ -25,27 +25,38 @@ export const getAllJobs = async (req, res) => {
         // Import pythonMatcher here to avoid circular dependency
         const { getPythonMatcher } = await import("../utils/pythonMatcher.js");
         const pythonMatcher = getPythonMatcher();
-        
+
         const candidate = await Candidate.findOne({ email: req.user.email });
         if (candidate && candidate.resumeText && candidate.resumeText.trim()) {
           const cvText = candidate.resumeText;
           const jobDescriptions = jobs.map((job) => job.description || "");
-          
+
           // Use Python BERT matcher for accurate semantic similarity
-          const matches = await pythonMatcher.match(cvText, jobDescriptions, jobs.length);
-          
+          const matches = await pythonMatcher.match(
+            cvText,
+            jobDescriptions,
+            jobs.length
+          );
+
           enrichedJobs = jobs.map((job, idx) => {
             const matchData = matches.find((m) => m.job_index === idx);
             const jobObj = job.toObject();
-            jobObj.matchScore = matchData ? Math.round(matchData.similarity_score * 100) / 100 : 0;
+            jobObj.matchScore = matchData
+              ? Math.round(matchData.similarity_score * 100) / 100
+              : 0;
             return jobObj;
           });
-          
+
           // Sort by match score descending
-          enrichedJobs.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+          enrichedJobs.sort(
+            (a, b) => (b.matchScore || 0) - (a.matchScore || 0)
+          );
         }
       } catch (matchError) {
-        console.error("❌ Failed to calculate match scores:", matchError.message);
+        console.error(
+          "❌ Failed to calculate match scores:",
+          matchError.message
+        );
         // Continue without match scores
       }
     }
@@ -104,6 +115,8 @@ export const createJob = async (req, res) => {
       salary,
       location,
       jobType,
+      company,
+      logo,
     } = req.body;
 
     const job = await Job.create({
@@ -115,6 +128,8 @@ export const createJob = async (req, res) => {
       salary,
       location,
       jobType,
+      company,
+      logo,
       postedBy: req.user.id,
     });
 

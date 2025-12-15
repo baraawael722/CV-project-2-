@@ -61,6 +61,14 @@ const jobSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company",
     },
+    company: {
+      type: String,
+      trim: true,
+    },
+    logo: {
+      type: String, // Store logo URL or base64
+      default: null,
+    },
   },
   {
     timestamps: true,
