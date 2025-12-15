@@ -13,7 +13,7 @@
     "install:all": "npm install",
     "backend:dev": "npm run dev --workspace Backend",
     "frontend:dev": "npm run dev --workspace my-react-app",
-    "ml:dev": "cd ml-service && python cv_classifier_service.py"
+    "ml:dev": "cd ml-service && python cv_classifier_hybrid.py"
   },
   "devDependencies": {
     "concurrently": "^9.0.1"

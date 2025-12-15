@@ -18,6 +18,7 @@ import JobDetails from "./pages/JobDetails.jsx";
 import Learning from "./pages/Learning.jsx";
 import Interview from "./pages/Interview.jsx";
 import Profile from "./pages/Profile.jsx";
+import HRProfile from "./pages/HRProfile.jsx";
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -146,7 +147,7 @@ export default function App() {
           element={
             <ProtectedRoute allowedRoles={["hr"]}>
               <TopNavbar />
-              <Profile />
+              <HRProfile />
             </ProtectedRoute>
           }
         />
@@ -156,15 +157,6 @@ export default function App() {
             <ProtectedRoute allowedRoles={["hr"]}>
               <TopNavbar />
               <Jobs />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/hr/skills"
-          element={
-            <ProtectedRoute allowedRoles={["hr"]}>
-              <TopNavbar />
-              <Skills />
             </ProtectedRoute>
           }
         />

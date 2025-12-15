@@ -23,6 +23,7 @@ export default function Jobs() {
     description: "",
     skills: "", // comma-separated → requiredSkills
     experienceLevel: "Entry Level",
+    logo: null,
   });
   const user = JSON.parse(localStorage.getItem("user") || "null");
 
@@ -111,14 +112,43 @@ export default function Jobs() {
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Not authenticated");
+
+      // Basic client-side required checks to avoid 400
+      if (
+        !newJob.title ||
+        !newJob.description ||
+        !newJob.department ||
+        !newJob.location
+      ) {
+        throw new Error(
+          "Please fill title, description, department, and location"
+        );
+      }
+      const skillsList = newJob.skills
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      if (!skillsList.length) {
+        throw new Error("Please provide at least one required skill");
+      }
+
+      // Convert logo to base64 if provided
+      let logoBase64 = null;
+      if (newJob.logo) {
+        logoBase64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(newJob.logo);
+        });
+      }
+
       const payload = {
         title: newJob.title,
+        company: newJob.company,
         description: newJob.description,
         department: newJob.department,
-        requiredSkills: newJob.skills
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
+        requiredSkills: skillsList,
         experienceLevel: newJob.experienceLevel,
         salary: {
           min: newJob.salaryMin ? Number(newJob.salaryMin) : undefined,
@@ -127,21 +157,9 @@ export default function Jobs() {
         },
         location: newJob.location,
         jobType: newJob.jobType,
+        logo: logoBase64,
       };
-      // Basic client-side required checks to avoid 400
-      if (
-        !payload.title ||
-        !payload.description ||
-        !payload.department ||
-        !payload.location
-      ) {
-        throw new Error(
-          "Please fill title, description, department, and location"
-        );
-      }
-      if (!payload.requiredSkills.length) {
-        throw new Error("Please provide at least one required skill");
-      }
+
       const res = await fetch("http://localhost:5000/api/jobs", {
         method: "POST",
         headers: {
@@ -165,6 +183,7 @@ export default function Jobs() {
         description: "",
         skills: "",
         experienceLevel: "Entry Level",
+        logo: null,
       });
       // refresh list
       setJobs((prev) => [data.data || data.job, ...prev]);
@@ -309,20 +328,28 @@ export default function Jobs() {
             >
               <div className="flex items-start gap-6">
                 {/* Logo */}
-                <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
-                  <svg
-                    className="w-8 h-8 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center overflow-hidden">
+                  {job.logo ? (
+                    <img
+                      src={job.logo}
+                      alt={job.company || "Company"}
+                      className="w-full h-full object-cover"
                     />
-                  </svg>
+                  ) : (
+                    <svg
+                      className="w-8 h-8 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                      />
+                    </svg>
+                  )}
                 </div>
 
                 {/* Job Info */}
@@ -444,22 +471,16 @@ export default function Jobs() {
 
                   <div className="flex gap-3">
                     <button
-                      onClick={() =>
-                        navigate(`/employee/jobs/${job._id || job.id}`)
-                      }
-                      className="flex-1 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all shadow-md"
-                    >
-                      Apply Now
-                    </button>
-                    <button
                       onClick={() => toggleSave(job._id || job.id)}
-                      className={`px-6 py-3 font-semibold rounded-lg transition-all shadow-sm ${
+                      className={`flex-1 px-6 py-3 font-semibold rounded-lg transition-all shadow-md ${
                         savedJobs.includes(job._id || job.id)
                           ? "bg-amber-500 text-white hover:bg-amber-600"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300"
+                          : "bg-indigo-600 text-white hover:bg-indigo-700"
                       }`}
                     >
-                      {savedJobs.includes(job._id || job.id) ? "Saved" : "Save"}
+                      {savedJobs.includes(job._id || job.id)
+                        ? "Saved ⭐"
+                        : "Save Job"}
                     </button>
                     <button
                       onClick={() =>
@@ -623,6 +644,36 @@ export default function Jobs() {
                       <option>EGP</option>
                     </select>
                   </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Company Logo
+                  </label>
+                  <div className="flex items-center gap-4">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setNewJob({ ...newJob, logo: file });
+                        }
+                      }}
+                      className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                    />
+                    {newJob.logo && (
+                      <div className="flex-shrink-0">
+                        <img
+                          src={URL.createObjectURL(newJob.logo)}
+                          alt="Logo preview"
+                          className="w-16 h-16 object-cover rounded-lg border-2 border-gray-200"
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Upload company logo (PNG, JPG - up to 10MB)
+                  </p>
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">

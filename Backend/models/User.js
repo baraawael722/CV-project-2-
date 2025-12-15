@@ -36,6 +36,10 @@ const userSchema = new mongoose.Schema(
       required: [true, "Role is required"],
       default: "user",
     },
+    avatar: {
+      type: String,
+      default: null,
+    },
   },
   {
     timestamps: true,

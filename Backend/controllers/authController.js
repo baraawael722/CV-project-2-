@@ -179,6 +179,7 @@ export const getMyProfile = async (req, res) => {
         email: req.user.email,
         name: req.user.name,
         role: req.user.role,
+        avatar: req.user.avatar || null,
       },
     });
   } catch (error) {
@@ -192,7 +193,7 @@ export const getMyProfile = async (req, res) => {
 
 export const updateMyProfile = async (req, res) => {
   try {
-    const { name, email } = req.body;
+    const { name, email, avatar, phone, location } = req.body;
     const userId = req.user._id;
 
     const user = await User.findById(userId);
@@ -216,6 +217,9 @@ export const updateMyProfile = async (req, res) => {
 
     if (name) user.name = name;
     if (email) user.email = email;
+    if (typeof avatar !== 'undefined') user.avatar = avatar;
+    if (typeof phone !== 'undefined') user.phone = phone;
+    if (typeof location !== 'undefined') user.location = location;
 
     await user.save();
 
@@ -227,6 +231,7 @@ export const updateMyProfile = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        avatar: user.avatar || null,
       },
     });
   } catch (error) {

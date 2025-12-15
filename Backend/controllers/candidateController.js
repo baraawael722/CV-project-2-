@@ -4,6 +4,11 @@ import pdf from "pdf-parse";
 import { getGridFSBucket } from "../config/gridfs.js";
 import { Readable } from "stream";
 import mongoose from "mongoose";
+import axios from "axios";
+
+// CV Classifier Service URL
+const CV_CLASSIFIER_URL =
+  process.env.CV_CLASSIFIER_URL || "http://127.0.0.1:5002";
 
 // Helper: Extract fields from CV text using simple regex patterns
 function extractFieldsFromText(text) {
@@ -21,14 +26,16 @@ function extractFieldsFromText(text) {
 
   // Extract skills (common tech skills)
   const skillPatterns = [
-    /\b(javascript|js|typescript|ts|react|angular|vue|node\.?js|express|mongodb|mysql|postgresql|python|java|c\+\+|c#|php|ruby|go|rust|swift|kotlin|html|css|sass|tailwind|bootstrap|git|docker|kubernetes|aws|azure|gcp|machine learning|ai|data science|pandas|numpy|tensorflow|pytorch)\b/gi
+    /\b(javascript|js|typescript|ts|react|angular|vue|node\.?js|express|mongodb|mysql|postgresql|python|java|c\+\+|c#|php|ruby|go|rust|swift|kotlin|html|css|sass|tailwind|bootstrap|git|docker|kubernetes|aws|azure|gcp|machine learning|ai|data science|pandas|numpy|tensorflow|pytorch)\b/gi,
   ];
 
   const foundSkills = new Set();
-  skillPatterns.forEach(pattern => {
+  skillPatterns.forEach((pattern) => {
     const matches = text.match(pattern);
     if (matches) {
-      matches.forEach(m => foundSkills.add(m.charAt(0).toUpperCase() + m.slice(1).toLowerCase()));
+      matches.forEach((m) =>
+        foundSkills.add(m.charAt(0).toUpperCase() + m.slice(1).toLowerCase())
+      );
     }
   });
   extracted.skills = Array.from(foundSkills).slice(0, 15); // limit to 15 skills
@@ -37,7 +44,7 @@ function extractFieldsFromText(text) {
   const expPatterns = [
     /(\d+)\+?\s*years?\s+(?:of\s+)?experience/i,
     /experience[:\s]+(\d+)\+?\s*years?/i,
-    /(\d+)\s*years?\s+(?:in|as|with)/i
+    /(\d+)\s*years?\s+(?:in|as|with)/i,
   ];
 
   for (const pattern of expPatterns) {
@@ -52,7 +59,7 @@ function extractFieldsFromText(text) {
   const uniPatterns = [
     /university[:\s]+([^\n]{5,60})/i,
     /(cairo university|ain shams university|alexandria university|harvard|mit|stanford|oxford|cambridge)/i,
-    /\b([A-Z][a-z]+\s+University)\b/
+    /\b([A-Z][a-z]+\s+University)\b/,
   ];
 
   for (const pattern of uniPatterns) {
@@ -66,7 +73,7 @@ function extractFieldsFromText(text) {
   // Extract degree
   const degreePatterns = [
     /\b(bachelor|master|phd|doctorate|b\.?sc|m\.?sc|mba|b\.?a|m\.?a|b\.?eng|m\.?eng)\s+(?:of|in|degree)?\s*([^\n]{5,60})?/i,
-    /(computer science|engineering|business administration|data science|information technology|software engineering)/i
+    /(computer science|engineering|business administration|data science|information technology|software engineering)/i,
   ];
 
   for (const pattern of degreePatterns) {
@@ -80,7 +87,7 @@ function extractFieldsFromText(text) {
   // Extract phone
   const phonePatterns = [
     /(\+?\d{1,4}[\s-]?)?\(?\d{2,4}\)?[\s-]?\d{3,4}[\s-]?\d{3,4}/,
-    /\b\d{10,15}\b/
+    /\b\d{10,15}\b/,
   ];
 
   for (const pattern of phonePatterns) {
@@ -351,27 +358,27 @@ export const updateApplicationStatus = async (req, res) => {
 // Get my profile (for authenticated employee)
 export const getMyProfile = async (req, res) => {
   try {
-    console.log('👤 Getting profile for:', req.user.email);
+    console.log("👤 Getting profile for:", req.user.email);
 
     const candidate = await Candidate.findOne({ email: req.user.email });
 
     if (!candidate) {
-      console.log('⚠️ No candidate profile found, returning empty');
+      console.log("⚠️ No candidate profile found, returning empty");
       return res.json({
         success: true,
         data: null,
-        message: "No profile found. Please create one."
+        message: "No profile found. Please create one.",
       });
     }
 
-    console.log('✅ Profile found:', candidate._id);
+    console.log("✅ Profile found:", candidate._id);
 
     res.json({
       success: true,
       data: candidate,
     });
   } catch (error) {
-    console.error('❌ Error fetching profile:', error);
+    console.error("❌ Error fetching profile:", error);
     res.status(500).json({
       success: false,
       message: "Server Error",
@@ -430,12 +437,17 @@ export const calculateMatch = async (req, res) => {
 export const uploadResume = async (req, res) => {
   try {
     console.log("📤 Upload request received from user:", req.user?.email);
-    console.log("📄 File received:", req.file ? `${req.file.originalname} (${req.file.size} bytes)` : "NO FILE");
+    console.log(
+      "📄 File received:",
+      req.file ? `${req.file.originalname} (${req.file.size} bytes)` : "NO FILE"
+    );
 
     // multer memoryStorage places file in req.file.buffer
     if (!req.file || !req.file.buffer) {
       console.log("❌ No file uploaded");
-      return res.status(400).json({ success: false, message: "No file uploaded" });
+      return res
+        .status(400)
+        .json({ success: false, message: "No file uploaded" });
     }
 
     const bucket = getGridFSBucket();
@@ -458,7 +470,8 @@ export const uploadResume = async (req, res) => {
     const readableStream = Readable.from(buffer);
 
     await new Promise((resolve, reject) => {
-      readableStream.pipe(uploadStream)
+      readableStream
+        .pipe(uploadStream)
         .on("error", reject)
         .on("finish", resolve);
     });
@@ -485,7 +498,7 @@ export const uploadResume = async (req, res) => {
       skills: extractedFields.skills.length,
       university: extractedFields.university,
       degree: extractedFields.degree,
-      phone: extractedFields.phone
+      phone: extractedFields.phone,
     });
 
     // Find candidate by authenticated user's email or create/update
@@ -515,8 +528,10 @@ export const uploadResume = async (req, res) => {
 
       // Merge skills (avoid duplicates)
       if (extractedFields.skills.length > 0) {
-        const existingSkills = new Set(candidate.skills.map(s => s.toLowerCase()));
-        extractedFields.skills.forEach(skill => {
+        const existingSkills = new Set(
+          candidate.skills.map((s) => s.toLowerCase())
+        );
+        extractedFields.skills.forEach((skill) => {
           if (!existingSkills.has(skill.toLowerCase())) {
             candidate.skills.push(skill);
           }
@@ -545,8 +560,53 @@ export const uploadResume = async (req, res) => {
       skills: candidate.skills.length,
       experience: candidate.experience,
       university: candidate.university,
-      resumeUrl: candidate.resumeUrl
+      resumeUrl: candidate.resumeUrl,
     });
+
+    // Auto-classify CV job title
+    let classificationResult = null;
+    if (extractedText && extractedText.length > 100) {
+      try {
+        console.log("🔬 Auto-classifying CV...");
+        const classifyResponse = await axios.post(
+          `${CV_CLASSIFIER_URL}/classify`,
+          {
+            cv_text: extractedText,
+            use_groq_analysis: true,
+          },
+          {
+            timeout: 15000, // 15 seconds timeout
+          }
+        );
+
+        if (classifyResponse.data.success) {
+          const jobTitle = classifyResponse.data.job_title;
+          const confidence = classifyResponse.data.confidence;
+
+          console.log(
+            `✅ Auto-classified as: ${jobTitle} (${(confidence * 100).toFixed(
+              1
+            )}%)`
+          );
+
+          // Update candidate with classified job title
+          candidate.jobTitle = jobTitle;
+          await candidate.save();
+
+          classificationResult = {
+            jobTitle: jobTitle,
+            confidence: confidence,
+            method: classifyResponse.data.decision_method,
+          };
+        }
+      } catch (classifyError) {
+        console.warn(
+          "⚠️ Auto-classification failed (non-critical):",
+          classifyError.message
+        );
+        // Don't fail the upload if classification fails
+      }
+    }
 
     return res.json({
       success: true,
@@ -562,11 +622,15 @@ export const uploadResume = async (req, res) => {
           university: candidate.university,
           degree: candidate.degree,
           phone: candidate.phone,
-        }
+          jobTitle: candidate.jobTitle || null,
+        },
+        classification: classificationResult,
       },
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ success: false, message: "Upload failed", error: error.message });
+    return res
+      .status(500)
+      .json({ success: false, message: "Upload failed", error: error.message });
   }
 };

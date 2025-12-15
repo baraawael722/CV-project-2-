@@ -1,43 +1,68 @@
-import React, { useState, useEffect } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 export default function TopNavbar() {
-  const location = useLocation()
-  const [user, setUser] = useState(null)
+  const location = useLocation();
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user')
+    const storedUser = localStorage.getItem("user");
     if (storedUser) {
-      setUser(JSON.parse(storedUser))
+      setUser(JSON.parse(storedUser));
     }
-  }, [])
+
+    // Listen for localStorage changes (from other tabs/windows or same app)
+    const handleStorageChange = () => {
+      const updatedUser = localStorage.getItem("user");
+      if (updatedUser) {
+        setUser(JSON.parse(updatedUser));
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    
+    // Also listen for custom event from HRProfile when avatar is updated
+    const handleAvatarUpdate = (e) => {
+      const updatedUser = localStorage.getItem("user");
+      if (updatedUser) {
+        setUser(JSON.parse(updatedUser));
+      }
+    };
+    
+    window.addEventListener("avatarUpdated", handleAvatarUpdate);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("avatarUpdated", handleAvatarUpdate);
+    };
+  }, []);
 
   // Navigation items based on role
   const getNavItems = () => {
-    if (!user) return []
+    if (!user) return [];
 
-    if (user.role === 'hr') {
+    if (user.role === "hr") {
       return [
-        { name: 'Dashboard', path: '/hr/dashboard', icon: 'home' },
-        { name: 'Jobs', path: '/hr/jobs', icon: 'briefcase' },
-        { name: 'Skills', path: '/hr/skills', icon: 'lightbulb' },
-        { name: 'Profile', path: '/hr/profile', icon: 'user' }
-      ]
+        { name: "Dashboard", path: "/hr/dashboard", icon: "home" },
+        { name: "Jobs", path: "/hr/jobs", icon: "briefcase" },
+        { name: "Profile", path: "/hr/profile", icon: "user" },
+      ];
     }
 
     // Employee/User navigation
     return [
-      { name: 'Home', path: '/employee/dashboard', icon: 'home' },
-      { name: 'Skills', path: '/employee/skills', icon: 'lightbulb' },
-      { name: 'Jobs', path: '/employee/jobs', icon: 'briefcase' },
-      { name: 'Learning', path: '/employee/learning', icon: 'book' },
-      { name: 'Interview', path: '/employee/interview', icon: 'target' },
-      { name: 'Profile', path: '/employee/profile', icon: 'user' }
-    ]
-  }
+      { name: "Home", path: "/employee/dashboard", icon: "home" },
+      { name: "Skills", path: "/employee/skills", icon: "lightbulb" },
+      { name: "Jobs", path: "/employee/jobs", icon: "briefcase" },
+      { name: "Learning", path: "/employee/learning", icon: "book" },
+      { name: "Interview", path: "/employee/interview", icon: "target" },
+      { name: "Profile", path: "/employee/profile", icon: "user" },
+    ];
+  };
 
-  const navItems = getNavItems()
-  const dashboardPath = user?.role === 'hr' ? '/hr/dashboard' : '/employee/dashboard'
+  const navItems = getNavItems();
+  const dashboardPath =
+    user?.role === "hr" ? "/hr/dashboard" : "/employee/dashboard";
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
@@ -53,20 +78,21 @@ export default function TopNavbar() {
           {/* Navigation Tabs */}
           <nav className="hidden md:flex space-x-1">
             {navItems.map((item) => {
-              const isActive = location.pathname === item.path
+              const isActive = location.pathname === item.path;
 
               return (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`px-4 py-2 rounded-lg font-bold text-base transition-all duration-300 ${isActive
-                    ? 'bg-blue-600 text-white shadow-lg'
-                    : 'text-gray-900 hover:bg-blue-50 hover:text-blue-600'
-                    }`}
+                  className={`px-4 py-2 rounded-lg font-bold text-base transition-all duration-300 ${
+                    isActive
+                      ? "bg-blue-600 text-white shadow-lg"
+                      : "text-gray-900 hover:bg-blue-50 hover:text-blue-600"
+                  }`}
                 >
                   {item.name}
                 </Link>
-              )
+              );
             })}
           </nav>
 
@@ -77,20 +103,34 @@ export default function TopNavbar() {
                 <p className="text-sm font-bold text-gray-900">{user.name}</p>
                 <p className="text-xs text-gray-500 uppercase">{user.role}</p>
               </div>
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
-                {user.name.charAt(0).toUpperCase()}
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold overflow-hidden">
+                {user.avatar ? (
+                  <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                ) : (
+                  user.name.charAt(0).toUpperCase()
+                )}
               </div>
             </div>
           )}
 
           {/* Mobile Menu Button */}
           <button className="md:hidden p-2 rounded-lg hover:bg-gray-100">
-            <svg className="w-6 h-6 text-gray-900 font-bold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            <svg
+              className="w-6 h-6 text-gray-900 font-bold"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
             </svg>
           </button>
         </div>
       </div>
     </header>
-  )
+  );
 }
