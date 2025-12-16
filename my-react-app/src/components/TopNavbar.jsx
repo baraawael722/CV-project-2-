@@ -11,7 +11,7 @@ export default function TopNavbar() {
       setUser(JSON.parse(storedUser));
     }
 
-    // Listen for localStorage changes (from other tabs/windows or same app)
+    // Listen for storage changes to update profile image
     const handleStorageChange = () => {
       const updatedUser = localStorage.getItem("user");
       if (updatedUser) {
@@ -21,19 +21,12 @@ export default function TopNavbar() {
 
     window.addEventListener("storage", handleStorageChange);
 
-    // Also listen for custom event from HRProfile when avatar is updated
-    const handleAvatarUpdate = (e) => {
-      const updatedUser = localStorage.getItem("user");
-      if (updatedUser) {
-        setUser(JSON.parse(updatedUser));
-      }
-    };
-
-    window.addEventListener("avatarUpdated", handleAvatarUpdate);
+    // Also check periodically for same-window updates
+    const interval = setInterval(handleStorageChange, 1000);
 
     return () => {
       window.removeEventListener("storage", handleStorageChange);
-      window.removeEventListener("avatarUpdated", handleAvatarUpdate);
+      clearInterval(interval);
     };
   }, []);
 
@@ -103,17 +96,17 @@ export default function TopNavbar() {
                 <p className="text-sm font-bold text-gray-900">{user.name}</p>
                 <p className="text-xs text-gray-500 uppercase">{user.role}</p>
               </div>
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold overflow-hidden">
-                {user.avatar ? (
-                  <img
-                    src={user.avatar}
-                    alt={user.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  user.name.charAt(0).toUpperCase()
-                )}
-              </div>
+              {user.profileImage ? (
+                <img
+                  src={user.profileImage}
+                  alt="Profile"
+                  className="w-10 h-10 rounded-full object-cover border-2 border-blue-500"
+                />
+              ) : (
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+              )}
             </div>
           )}
 

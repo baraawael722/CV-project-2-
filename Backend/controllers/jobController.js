@@ -106,6 +106,18 @@ export const getJob = async (req, res) => {
 // Create new job
 export const createJob = async (req, res) => {
   try {
+    console.log(
+      "📥 createJob called by user:",
+      req.user ? req.user._id : "unknown"
+    );
+    console.log("📋 req.body keys:", Object.keys(req.body));
+    if (req.file)
+      console.log(
+        "📎 Uploaded file:",
+        req.file.originalname,
+        "size:",
+        req.file.size
+      );
     const {
       title,
       description,
@@ -116,20 +128,46 @@ export const createJob = async (req, res) => {
       location,
       jobType,
       company,
-      logo,
     } = req.body;
+
+    // Parse requiredSkills if it's a string
+    let skillsArray = requiredSkills;
+    if (typeof requiredSkills === "string") {
+      skillsArray = requiredSkills
+        .split(",")
+        .map((skill) => skill.trim())
+        .filter((skill) => skill);
+    }
+
+    // Parse salary if it's sent as separate fields
+    let salaryObj = salary;
+    if (req.body.salaryMin || req.body.salaryMax) {
+      salaryObj = {
+        min: req.body.salaryMin ? Number(req.body.salaryMin) : undefined,
+        max: req.body.salaryMax ? Number(req.body.salaryMax) : undefined,
+        currency: req.body.currency || "USD",
+      };
+    }
+
+    // Handle company logo if uploaded
+    let companyLogo = null;
+    if (req.file) {
+      companyLogo = `data:${
+        req.file.mimetype
+      };base64,${req.file.buffer.toString("base64")}`;
+    }
 
     const job = await Job.create({
       title,
       description,
       department,
-      requiredSkills,
+      requiredSkills: skillsArray,
       experienceLevel,
-      salary,
+      salary: salaryObj,
       location,
       jobType,
-      company,
-      logo,
+      company: company || "Company Name",
+      companyLogo,
       postedBy: req.user.id,
     });
 
@@ -139,6 +177,7 @@ export const createJob = async (req, res) => {
       data: job,
     });
   } catch (error) {
+    console.error("Create Job Error:", error);
     res.status(400).json({
       success: false,
       message: "Failed to create job",

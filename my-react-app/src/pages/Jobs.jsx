@@ -11,6 +11,8 @@ export default function Jobs() {
   const [matchLoading, setMatchLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [companyLogo, setCompanyLogo] = useState(null);
+  const [logoFile, setLogoFile] = useState(null);
   const [newJob, setNewJob] = useState({
     title: "",
     company: "",
@@ -23,7 +25,6 @@ export default function Jobs() {
     description: "",
     skills: "", // comma-separated → requiredSkills
     experienceLevel: "Entry Level",
-    logo: null,
   });
   const user = JSON.parse(localStorage.getItem("user") || "null");
 
@@ -113,6 +114,29 @@ export default function Jobs() {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Not authenticated");
 
+      // Use FormData for file upload
+      const formData = new FormData();
+      formData.append("title", newJob.title);
+      formData.append("company", newJob.company);
+      formData.append("description", newJob.description);
+      formData.append("department", newJob.department);
+      formData.append("location", newJob.location);
+      formData.append("jobType", newJob.jobType);
+      formData.append("experienceLevel", newJob.experienceLevel);
+      formData.append("currency", newJob.currency || "USD");
+
+      // Add skills as comma-separated string
+      formData.append("requiredSkills", newJob.skills);
+
+      // Add salary if provided
+      if (newJob.salaryMin) formData.append("salaryMin", newJob.salaryMin);
+      if (newJob.salaryMax) formData.append("salaryMax", newJob.salaryMax);
+
+      // Add company logo if selected
+      if (logoFile) {
+        formData.append("companyLogo", logoFile);
+      }
+
       // Basic client-side required checks to avoid 400
       if (
         !newJob.title ||
@@ -124,53 +148,37 @@ export default function Jobs() {
           "Please fill title, description, department, and location"
         );
       }
-      const skillsList = newJob.skills
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
-      if (!skillsList.length) {
+      if (!newJob.skills.trim()) {
         throw new Error("Please provide at least one required skill");
       }
-
-      // Convert logo to base64 if provided
-      let logoBase64 = null;
-      if (newJob.logo) {
-        logoBase64 = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(newJob.logo);
-        });
-      }
-
-      const payload = {
-        title: newJob.title,
-        company: newJob.company,
-        description: newJob.description,
-        department: newJob.department,
-        requiredSkills: skillsList,
-        experienceLevel: newJob.experienceLevel,
-        salary: {
-          min: newJob.salaryMin ? Number(newJob.salaryMin) : undefined,
-          max: newJob.salaryMax ? Number(newJob.salaryMax) : undefined,
-          currency: newJob.currency || "USD",
-        },
-        location: newJob.location,
-        jobType: newJob.jobType,
-        logo: logoBase64,
-      };
 
       const res = await fetch("http://localhost:5000/api/jobs", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(payload),
+        body: formData,
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.message || "Failed to create job");
+
+      // Parse response safely (JSON if present, otherwise text)
+      let data;
+      const ct = res.headers.get("content-type") || "";
+      if (ct.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        data = { message: text };
+      }
+
+      if (!res.ok) {
+        console.error("Create job failed:", res.status, data);
+        throw new Error(
+          data?.message || `Failed to create job (status ${res.status})`
+        );
+      }
       setShowModal(false);
+      setCompanyLogo(null);
+      setLogoFile(null);
       setNewJob({
         title: "",
         company: "",
@@ -183,7 +191,6 @@ export default function Jobs() {
         description: "",
         skills: "",
         experienceLevel: "Entry Level",
-        logo: null,
       });
       // refresh list
       setJobs((prev) => [data.data || data.job, ...prev]);
@@ -328,27 +335,29 @@ export default function Jobs() {
             >
               <div className="flex items-start gap-6">
                 {/* Logo */}
-                <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center overflow-hidden">
-                  {job.logo ? (
+                <div className="flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center overflow-hidden">
+                  {job.companyLogo ? (
                     <img
-                      src={job.logo}
-                      alt={job.company || "Company"}
+                      src={job.companyLogo}
+                      alt={`${job.company || "Company"} Logo`}
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <svg
-                      className="w-8 h-8 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                      />
-                    </svg>
+                    <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                      <svg
+                        className="w-8 h-8 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                        />
+                      </svg>
+                    </div>
                   )}
                 </div>
 
@@ -470,17 +479,25 @@ export default function Jobs() {
                   </div>
 
                   <div className="flex gap-3">
+                    {user?.role === "employee" && (
+                      <button
+                        onClick={() =>
+                          navigate(`/employee/jobs/${job._id || job.id}`)
+                        }
+                        className="flex-1 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all shadow-md"
+                      >
+                        Apply Now
+                      </button>
+                    )}
                     <button
                       onClick={() => toggleSave(job._id || job.id)}
-                      className={`flex-1 px-6 py-3 font-semibold rounded-lg transition-all shadow-md ${
+                      className={`px-6 py-3 font-semibold rounded-lg transition-all shadow-sm ${
                         savedJobs.includes(job._id || job.id)
                           ? "bg-amber-500 text-white hover:bg-amber-600"
-                          : "bg-indigo-600 text-white hover:bg-indigo-700"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300"
                       }`}
                     >
-                      {savedJobs.includes(job._id || job.id)
-                        ? "Saved ⭐"
-                        : "Save Job"}
+                      {savedJobs.includes(job._id || job.id) ? "Saved" : "Save"}
                     </button>
                     <button
                       onClick={() =>
@@ -561,6 +578,84 @@ export default function Jobs() {
                     required
                   />
                 </div>
+
+                {/* Company Logo Upload */}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Company Logo
+                  </label>
+                  <div className="flex items-center gap-4">
+                    {companyLogo && (
+                      <img
+                        src={companyLogo}
+                        alt="Company Logo Preview"
+                        className="w-24 h-24 rounded-lg object-cover border-2 border-gray-300"
+                      />
+                    )}
+                    <label className="flex-1 cursor-pointer">
+                      <div className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-indigo-500 transition-all">
+                        <svg
+                          className="w-8 h-8 mx-auto mb-2 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          />
+                        </svg>
+                        <p className="text-sm text-gray-600">
+                          {logoFile
+                            ? logoFile.name
+                            : "Click to upload company logo"}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          PNG, JPG up to 5MB
+                        </p>
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            if (file.size > 5 * 1024 * 1024) {
+                              setError("Image size should be less than 5MB");
+                              return;
+                            }
+                            if (!file.type.startsWith("image/")) {
+                              setError("Please select an image file");
+                              return;
+                            }
+                            setLogoFile(file);
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setCompanyLogo(reader.result);
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                    </label>
+                    {companyLogo && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCompanyLogo(null);
+                          setLogoFile(null);
+                        }}
+                        className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all text-sm font-semibold"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -644,36 +739,6 @@ export default function Jobs() {
                       <option>EGP</option>
                     </select>
                   </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Company Logo
-                  </label>
-                  <div className="flex items-center gap-4">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files[0];
-                        if (file) {
-                          setNewJob({ ...newJob, logo: file });
-                        }
-                      }}
-                      className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                    />
-                    {newJob.logo && (
-                      <div className="flex-shrink-0">
-                        <img
-                          src={URL.createObjectURL(newJob.logo)}
-                          alt="Logo preview"
-                          className="w-16 h-16 object-cover rounded-lg border-2 border-gray-200"
-                        />
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Upload company logo (PNG, JPG - up to 10MB)
-                  </p>
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">

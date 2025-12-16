@@ -6,9 +6,10 @@ export default function HRProfile() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [editing, setEditing] = useState(false);
-  const [avatarFile, setAvatarFile] = useState(null);
-  const [avatarPreview, setAvatarPreview] = useState(null);
   const [toast, setToast] = useState(null);
+  const [profileImage, setProfileImage] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const fileInputRef = React.useRef(null);
   const [stats, setStats] = useState({
     totalJobs: 0,
     totalCandidates: 0,
@@ -44,46 +45,59 @@ export default function HRProfile() {
     }
 
     setUser(userData);
-    // Populate from server to ensure we have avatar and latest fields
-    const fetchProfile = async () => {
-      try {
-        const res = await fetch("http://localhost:5000/api/auth/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error("Failed to fetch profile");
-        const data = await res.json();
-        const serverUser = data.user || {};
-        setProfile({
-          name: serverUser.name || userData.name || "",
-          email: serverUser.email || userData.email || "",
-          phone: serverUser.phone || "",
-          department: "Human Resources",
-          position: "HR Manager",
-          location: serverUser.location || "Cairo, Egypt",
-          avatar: serverUser.avatar || null,
-        });
-        if (serverUser.avatar) {
-          setAvatarPreview(serverUser.avatar);
-        }
-      } catch (err) {
-        // fallback to local data
-        setProfile({
-          name: userData.name || "",
-          email: userData.email || "",
-          phone: userData.phone || "",
-          department: "Human Resources",
-          position: "HR Manager",
-          location: "Cairo, Egypt",
-        });
-      }
-    };
+    setProfile({
+      name: userData.name || "",
+      email: userData.email || "",
+      phone: userData.phone || "",
+      department: "Human Resources",
+      position: "HR Manager",
+      location: "Cairo, Egypt",
+    });
 
-    fetchProfile();
+    // Load profile image from localStorage
+    if (userData.profileImage) {
+      setProfileImage(userData.profileImage);
+    }
+
     fetchStats(token);
   }, [navigate]);
 
   const fetchStats = async (token) => {
     try {
+      // Fetch user profile from API
+      const profileRes = await fetch("http://localhost:5000/api/auth/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (profileRes.ok) {
+        const profileData = await profileRes.json();
+        if (profileData.success && profileData.user) {
+          // Update user in localStorage with latest data from backend
+          const updatedUser = {
+            ...user,
+            ...profileData.user,
+            role: user.role, // Keep the role from original user
+          };
+          localStorage.setItem("user", JSON.stringify(updatedUser));
+          setUser(updatedUser);
+
+          // Set profile image if available
+          if (profileData.user.profileImage) {
+            setProfileImage(profileData.user.profileImage);
+          }
+
+          // Update profile form data
+          setProfile({
+            name: profileData.user.name || "",
+            email: profileData.user.email || "",
+            phone: profileData.user.phone || "",
+            department: "Human Resources",
+            position: "HR Manager",
+            location: "Cairo, Egypt",
+          });
+        }
+      }
+
       const jobsRes = await fetch("http://localhost:5000/api/jobs", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -109,64 +123,80 @@ export default function HRProfile() {
     }
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        showToast("Image size should be less than 5MB", "error");
+        return;
+      }
+      if (!file.type.startsWith("image/")) {
+        showToast("Please select an image file", "error");
+        return;
+      }
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSave = async () => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) throw new Error("Not authenticated");
 
-      let avatarBase64 = profile.avatar || null;
-      if (avatarFile) {
-        avatarBase64 = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(avatarFile);
-        });
+      // Upload profile image if changed
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("profileImage", imageFile);
+
+        const uploadRes = await fetch(
+          "http://localhost:5000/api/auth/me/upload-image",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          }
+        );
+
+        const uploadData = await uploadRes.json();
+
+        if (uploadRes.ok) {
+          // Update user in localStorage with new profile image
+          const updatedUser = {
+            ...user,
+            name: profile.name,
+            phone: profile.phone,
+            profileImage: uploadData.profileImage,
+          };
+          localStorage.setItem("user", JSON.stringify(updatedUser));
+          setUser(updatedUser);
+          setProfileImage(uploadData.profileImage);
+          setImageFile(null);
+        } else {
+          showToast(uploadData.message || "Failed to upload image", "error");
+          return;
+        }
+      } else {
+        // Just update local storage
+        const updatedUser = {
+          ...user,
+          name: profile.name,
+          phone: profile.phone,
+        };
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        setUser(updatedUser);
       }
-
-      const payload = {
-        name: profile.name,
-        phone: profile.phone,
-        location: profile.location,
-        avatar: avatarBase64,
-      };
-
-      const res = await fetch("http://localhost:5000/api/auth/me", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.message || "Failed to update profile");
-
-      // Update localStorage user object with new values including avatar
-      const stored = JSON.parse(localStorage.getItem("user") || "null") || {};
-      const updatedUser = {
-        ...stored,
-        name: data.user.name,
-        email: data.user.email,
-        avatar: data.user.avatar || avatarBase64,
-      };
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-
-      // Dispatch custom event to notify TopNavbar and other components
-      window.dispatchEvent(
-        new CustomEvent("avatarUpdated", { detail: updatedUser })
-      );
-
-      setUser(updatedUser);
-      if (updatedUser.avatar) setAvatarPreview(updatedUser.avatar);
 
       showToast("Profile updated successfully!", "success");
       setEditing(false);
-      setAvatarFile(null);
-    } catch (e) {
-      console.error(e);
-      showToast(e.message || "Failed to save profile", "error");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      showToast("Failed to update profile", "error");
     }
   };
 
@@ -188,26 +218,60 @@ export default function HRProfile() {
     <div className="min-h-screen bg-gray-50 pb-12">
       {/* Header with Gradient Background */}
       <div className="relative bg-gradient-to-r from-blue-500 via-blue-600 to-purple-600 h-48 rounded-b-3xl shadow-lg">
-        <div className="absolute -bottom-20 left-1/2 transform -translate-x-1/2">
-          <div className="w-40 h-40 rounded-full bg-white shadow-2xl flex items-center justify-center border-4 border-white overflow-hidden">
-            {avatarPreview ? (
+        <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2">
+          <div className="relative w-32 h-32 rounded-full bg-white shadow-2xl flex items-center justify-center border-4 border-white">
+            {profileImage ? (
               <img
-                src={avatarPreview}
-                alt="profile"
-                className="w-full h-full object-cover"
+                src={profileImage}
+                alt="Profile"
+                className="w-28 h-28 rounded-full object-cover"
               />
             ) : (
-              <div className="w-40 h-40 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-6xl font-bold">
+              <div className="w-28 h-28 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-4xl font-bold">
                 {user.name?.charAt(0).toUpperCase() || "H"}
               </div>
             )}
+            {editing && (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="absolute bottom-0 right-0 w-10 h-10 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition flex items-center justify-center border-2 border-white"
+                title="Change profile picture"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+              </button>
+            )}
           </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="hidden"
+          />
         </div>
       </div>
 
       {/* User Info */}
-      <div className="text-center mt-24 mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">
+      <div className="text-center mt-20 mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
           {profile.name}
         </h1>
         <p className="text-gray-600 mb-1">
@@ -281,81 +345,6 @@ export default function HRProfile() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            {/* Avatar upload - spans full width */}
-            {editing && (
-              <div className="md:col-span-2">
-                <label className="block text-sm font-bold text-gray-700 mb-4">
-                  Profile Photo
-                </label>
-                <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 transition">
-                  <div className="flex flex-col items-center gap-4">
-                    {/* Upload Preview */}
-                    {avatarPreview ? (
-                      <div className="relative">
-                        <img
-                          src={avatarPreview}
-                          alt="profile preview"
-                          className="w-32 h-32 object-cover rounded-lg border-2 border-blue-400 shadow-md"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setAvatarFile(null);
-                            setAvatarPreview(null);
-                            setProfile((p) => ({ ...p, avatar: null }));
-                          }}
-                          className="absolute -top-3 -right-3 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-red-600 transition text-lg font-bold"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ) : (
-                      <svg
-                        className="w-16 h-16 text-gray-400 mx-auto"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={1.5}
-                          d="M12 6v6m0 0v6m0-6h6m0 0h-6m-6-6h6m0 0H6m0 0v6m0-6V6"
-                        />
-                      </svg>
-                    )}
-
-                    <div>
-                      <label className="relative cursor-pointer">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const f = e.target.files[0];
-                            if (f) {
-                              setAvatarFile(f);
-                              setAvatarPreview(URL.createObjectURL(f));
-                              setProfile((p) => ({ ...p, avatar: null }));
-                            }
-                          }}
-                          className="hidden"
-                        />
-                        <span className="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">
-                          📸 Choose Photo
-                        </span>
-                      </label>
-                      <p className="text-sm text-gray-600 mt-2">
-                        or drag and drop
-                      </p>
-                    </div>
-
-                    <p className="text-xs text-gray-500">
-                      PNG, JPG, GIF • Max 10MB
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
             {/* Name */}
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">

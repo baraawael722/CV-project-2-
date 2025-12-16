@@ -46,6 +46,18 @@ export default function HRDashboard() {
 
     setUser(userData);
     fetchDashboardData(token);
+
+    // Update user data when it changes in localStorage
+    const handleStorageChange = () => {
+      const updatedUser = localStorage.getItem("user");
+      if (updatedUser) {
+        setUser(JSON.parse(updatedUser));
+      }
+    };
+
+    const interval = setInterval(handleStorageChange, 1000);
+
+    return () => clearInterval(interval);
   }, [navigate]);
 
   const fetchDashboardData = async (token) => {
@@ -219,9 +231,17 @@ export default function HRDashboard() {
         {/* User Menu */}
         <div className="relative">
           <button className="flex items-center gap-3 px-4 py-3 bg-white border-2 border-gray-200 rounded-xl hover:border-gray-300 transition">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-white font-bold">
-              {user.name?.charAt(0) || "S"}
-            </div>
+            {user.profileImage ? (
+              <img
+                src={user.profileImage}
+                alt="Profile"
+                className="w-10 h-10 rounded-full object-cover border-2 border-purple-400"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-white font-bold">
+                {user.name?.charAt(0) || "S"}
+              </div>
+            )}
             <div className="text-left">
               <p className="text-sm font-semibold text-gray-900">{user.name}</p>
               <p className="text-xs text-gray-500">Edit Profile</p>
@@ -550,17 +570,9 @@ export default function HRDashboard() {
                         <div
                           className={`w-12 h-12 rounded-xl bg-gradient-to-br ${
                             colors[index % 6]
-                          } flex items-center justify-center flex-shrink-0 overflow-hidden`}
+                          } flex items-center justify-center flex-shrink-0`}
                         >
-                          {job.logo ? (
-                            <img
-                              src={job.logo}
-                              alt={job.title}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            icons[index % 3]
-                          )}
+                          {icons[index % 3]}
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="font-bold text-gray-900 mb-1 truncate">
