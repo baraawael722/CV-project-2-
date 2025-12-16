@@ -57,17 +57,17 @@ const jobSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    company: {
+      type: String,
+      default: "Company Name",
+    },
+    companyLogo: {
+      type: String,
+      default: null,
+    },
     companyId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company",
-    },
-    company: {
-      type: String,
-      trim: true,
-    },
-    logo: {
-      type: String, // Store logo URL or base64
-      default: null,
     },
   },
   {

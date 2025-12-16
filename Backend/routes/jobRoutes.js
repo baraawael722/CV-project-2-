@@ -1,4 +1,5 @@
 import express from "express";
+import multer from "multer";
 import {
   getAllJobs,
   getJob,
@@ -13,6 +14,18 @@ import { protect } from "../middleware/authMiddleware.js";
 import { authorizeRoles } from "../middleware/roleMiddleware.js";
 import { jobValidation, validate } from "../middleware/validationMiddleware.js";
 
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only image files are allowed"));
+    }
+  },
+});
+
 const router = express.Router();
 
 // All routes require authentication
@@ -22,7 +35,7 @@ router.use(protect);
 router
   .route("/")
   .get(getAllJobs) // Allow all authenticated users to view jobs
-  .post(authorizeRoles("hr"), jobValidation, validate, createJob); // Only HR can create
+  .post(authorizeRoles("hr"), upload.single("companyLogo"), createJob); // Only HR can create
 
 router.get("/search", authorizeRoles("hr"), searchJobs);
 

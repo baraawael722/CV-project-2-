@@ -73,6 +73,8 @@ export const register = async (req, res) => {
         email: newUser.email,
         role: newUser.role,
         name: newUser.name,
+        profileImage: newUser.profileImage || null,
+        phone: newUser.phone || null,
       },
     });
   } catch (error) {
@@ -161,6 +163,8 @@ export const login = async (req, res) => {
         email: user.email,
         role: user.role,
         name: user.name,
+        profileImage: user.profileImage || null,
+        phone: user.phone || null,
       },
     });
   } catch (error) {
@@ -182,6 +186,8 @@ export const getMyProfile = async (req, res) => {
         name: req.user.name,
         role: req.user.role,
         avatar: req.user.avatar || null,
+        profileImage: req.user.profileImage || null,
+        phone: req.user.phone || null,
       },
     });
   } catch (error) {
@@ -528,6 +534,62 @@ export const deleteUser = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server error while deleting user",
+      error: error.message,
+    });
+  }
+};
+
+// ============================================
+// Upload Profile Image - رفع صورة البروفايل
+// ============================================
+export const uploadProfileImage = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "No image file provided",
+      });
+    }
+
+    // Convert image to base64
+    const imageBase64 = `data:${
+      req.file.mimetype
+    };base64,${req.file.buffer.toString("base64")}`;
+
+    // Update user with profile image
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { profileImage: imageBase64 },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Profile image uploaded successfully",
+      profileImage: imageBase64,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        profileImage: user.profileImage,
+        phone: user.phone,
+      },
+    });
+  } catch (error) {
+    console.error("❌ Upload Profile Image Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while uploading image",
       error: error.message,
     });
   }
