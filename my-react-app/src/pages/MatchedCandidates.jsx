@@ -303,12 +303,12 @@ export default function MatchedCandidates() {
                             : "bg-red-100 text-red-700"
                         }`}
                       >
-                        {candidate.matchScore.toFixed(1)}% - {
-                          candidate.matchScore >= 80
-                            ? "Excellent Match"
-                            : candidate.matchScore >= 60
-                            ? "Fair Match"
-                            : "Low Match"}
+                        {candidate.matchScore.toFixed(1)}% -{" "}
+                        {candidate.matchScore >= 80
+                          ? "Excellent Match"
+                          : candidate.matchScore >= 60
+                          ? "Fair Match"
+                          : "Low Match"}
                       </span>
                     </div>
                     <div className="relative w-full bg-gray-200 rounded-full h-8 overflow-hidden">
