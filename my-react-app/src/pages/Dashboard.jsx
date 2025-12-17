@@ -41,20 +41,38 @@ export default function Dashboard() {
       setLoading(true);
       // Fetch jobs from API
       const res = await fetch("http://localhost:5000/api/jobs", {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
       const data = await res.json();
+      console.log("Jobs data received:", data); // For debugging
+
       const jobsList = data.data || data.jobs || [];
 
       setJobs(jobsList.slice(0, 6)); // Get top 6 jobs for dashboard
       setStats({
         totalJobs: jobsList.length,
-        matchedJobs: Math.floor(jobsList.length * 0.3), // 30% matched
+        matchedJobs: jobsList.filter(job => job.matchScore && job.matchScore > 50).length,
         applications: 5,
         savedJobs: 3,
       });
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
+      // Show empty state on error
+      setJobs([]);
+      setStats({
+        totalJobs: 0,
+        matchedJobs: 0,
+        applications: 0,
+        savedJobs: 0,
+      });
     } finally {
       setLoading(false);
     }
@@ -282,11 +300,32 @@ export default function Dashboard() {
               {jobs.map((job, index) => (
                 <div
                   key={job._id || index}
-                  className="group bg-gradient-to-br from-gray-50 to-white border-2 border-gray-100 rounded-2xl p-6 hover:border-blue-400 hover:shadow-xl transition-all duration-300 cursor-pointer"
+                  className="group bg-gradient-to-br from-gray-50 to-white border-2 border-gray-100 rounded-2xl p-6 hover:border-blue-400 hover:shadow-xl transition-all duration-300 cursor-pointer relative"
                 >
-                  {/* Company Logo Placeholder */}
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-400 to-purple-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <span className="text-white font-bold text-xl">
+                  {/* Match Score Badge */}
+                  {job.matchScore !== undefined && job.matchScore > 0 && (
+                    <div className="absolute top-4 right-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
+                      {Math.round(job.matchScore * 100)}% Match
+                    </div>
+                  )}
+
+                  {/* Company Logo - Real or Placeholder */}
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-400 to-purple-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform overflow-hidden">
+                    {job.companyLogo ? (
+                      <img
+                        src={job.companyLogo}
+                        alt={job.company}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextElementSibling.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <span 
+                      className="text-white font-bold text-xl"
+                      style={{ display: job.companyLogo ? 'none' : 'flex' }}
+                    >
                       {job.company?.charAt(0) || "C"}
                     </span>
                   </div>

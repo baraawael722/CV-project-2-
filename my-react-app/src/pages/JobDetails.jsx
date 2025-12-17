@@ -164,12 +164,25 @@ export default function JobDetails() {
             {/* Job Header */}
             <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-200">
               <div className="flex items-start gap-6 mb-6">
-                <div className="flex-shrink-0 w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                {/* Company Logo - Real or Placeholder */}
+                <div className="flex-shrink-0 w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center overflow-hidden">
+                  {job.companyLogo ? (
+                    <img
+                      src={job.companyLogo}
+                      alt={job.company}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextElementSibling.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
                   <svg
                     className="w-10 h-10 text-white"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
+                    style={{ display: job.companyLogo ? 'none' : 'block' }}
                   >
                     <path
                       strokeLinecap="round"

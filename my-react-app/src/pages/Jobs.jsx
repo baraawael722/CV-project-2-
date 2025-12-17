@@ -333,8 +333,21 @@ export default function Jobs() {
           {(filter === "ai-matched" ? matchedJobs : jobs).map((job) => (
             <div
               key={job._id || job.id}
-              className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6 border-2 border-gray-100 hover:border-indigo-200"
+              className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6 border-2 border-gray-100 hover:border-indigo-200 relative"
             >
+              {/* AI Match Percentage Badge (shows only when available) */}
+              {((filter === "ai-matched") || job.matchScore !== undefined) && (
+                (() => {
+                  const raw = job.matchScore ?? job.match_percentage ?? job.matchPercent;
+                  // normalize: backend may send 0..1 or 0..100
+                  const scoreNum = typeof raw === 'number' ? (raw > 1 ? raw : raw * 100) : null;
+                  return scoreNum !== null && !isNaN(scoreNum) ? (
+                    <div className="absolute top-4 right-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
+                      {Number(scoreNum).toFixed(1)}% Match
+                    </div>
+                  ) : null;
+                })()
+              )}
               <div className="flex items-start gap-6">
                 {/* Logo */}
                 <div className="flex-shrink-0 w-24 h-24 rounded-xl flex items-center justify-center overflow-hidden shadow-md">

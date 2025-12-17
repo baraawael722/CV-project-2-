@@ -558,9 +558,19 @@ export const classifyCV = async (req, res) => {
       console.log("   Confidence:", response.data.confidence);
       console.log("   AI Analysis:", response.data.ai_analysis);
 
-      // Update candidate with classified job title
+      // Update candidate with classified job title AND save classification results
       candidate.jobTitle = response.data.job_title;
+      
+      // Save classification results for persistence
+      candidate.classificationResult = {
+        jobTitle: response.data.job_title,
+        confidence: response.data.confidence,
+        method: response.data.decision_method,
+        classifiedAt: new Date(),
+      };
+
       await candidate.save();
+      console.log("💾 Classification results saved to database");
 
       return res.status(200).json({
         success: true,

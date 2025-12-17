@@ -566,14 +566,27 @@ export default function HRDashboard() {
                       key={job._id}
                       className="bg-white border-2 border-gray-200 rounded-2xl p-5 hover:border-purple-300 hover:shadow-lg transition-all"
                     >
-                      {/* Header with Icon */}
+                      {/* Header with Logo */}
                       <div className="flex items-start gap-3 mb-4">
                         <div
                           className={`w-14 h-14 rounded-xl bg-gradient-to-br ${
                             colors[index % 6]
-                          } flex items-center justify-center flex-shrink-0 shadow-md`}
+                          } flex items-center justify-center flex-shrink-0 shadow-md overflow-hidden`}
                         >
-                          {icons[index % 3]}
+                          {job.companyLogo ? (
+                            <img
+                              src={job.companyLogo}
+                              alt={job.company}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextElementSibling.style.display = 'block';
+                              }}
+                            />
+                          ) : null}
+                          <div style={{ display: job.companyLogo ? 'none' : 'block' }}>
+                            {icons[index % 3]}
+                          </div>
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="font-bold text-gray-900 mb-1 text-lg line-clamp-2">

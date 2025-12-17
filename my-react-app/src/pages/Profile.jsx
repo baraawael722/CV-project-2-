@@ -104,7 +104,19 @@ export default function Profile() {
             skills: candidateData.skills || [],
             experience: candidateData.experience || 0,
             experienceLevel: candidateData.experienceLevel || "Entry Level",
+            jobTitle: candidateData.jobTitle || "",
           }));
+
+          // Load saved classification result if exists
+          if (candidateData.classificationResult && candidateData.classificationResult.jobTitle) {
+            setClassificationResult({
+              jobTitle: candidateData.classificationResult.jobTitle,
+              confidence: candidateData.classificationResult.confidence,
+              decision_method: candidateData.classificationResult.method,
+              classifiedAt: candidateData.classificationResult.classifiedAt,
+            });
+            console.log("✅ Loaded saved classification result:", candidateData.classificationResult);
+          }
 
           // Check if CV has been uploaded
           if (
@@ -360,7 +372,13 @@ export default function Profile() {
       console.log("📦 Classification result:", data);
 
       if (response.ok && data.success) {
-        setClassificationResult(data.data);
+        const classificationData = {
+          jobTitle: data.data.jobTitle,
+          confidence: data.data.confidence,
+          decision_method: data.data.decision_method,
+        };
+        
+        setClassificationResult(classificationData);
         showToast(
           `Classification Complete! Job Title: ${data.data.jobTitle} (${(
             data.data.confidence * 100
@@ -373,6 +391,8 @@ export default function Profile() {
           ...prev,
           jobTitle: data.data.jobTitle,
         }));
+
+        console.log("💾 Classification result saved to database and will persist on refresh");
       } else {
         throw new Error(data.message || "Classification failed");
       }
@@ -687,9 +707,16 @@ export default function Profile() {
                   {classificationResult && (
                     <div className="space-y-4">
                       <div className="border-4 border-solid border-purple-500 rounded-xl p-6 bg-purple-50">
-                        <h4 className="text-lg font-bold text-purple-900 mb-4">
-                          🎯 Auto-Classification Result
-                        </h4>
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="text-lg font-bold text-purple-900">
+                            🎯 Auto-Classification Result
+                          </h4>
+                          {classificationResult.classifiedAt && (
+                            <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">
+                              ✓ Saved
+                            </span>
+                          )}
+                        </div>
                         <div className="grid grid-cols-2 gap-4 mb-4">
                           <div>
                             <p className="text-sm text-gray-600 mb-1">
@@ -715,6 +742,11 @@ export default function Profile() {
                           Method:{" "}
                           {classificationResult.decision_method || "unknown"}
                         </div>
+                        {classificationResult.classifiedAt && (
+                          <div className="text-xs text-gray-500 mt-2">
+                            Classified: {new Date(classificationResult.classifiedAt).toLocaleString()}
+                          </div>
+                        )}
                       </div>
 
                       {/* AI Analysis Details */}
