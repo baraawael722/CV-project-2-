@@ -7,7 +7,7 @@ mongoose.connect("mongodb://localhost:27017/cv-job-matcher").then(async () => {
   try {
     // Get an HR user (or create one)
     let hrUser = await User.findOne({ role: "hr" });
-    
+
     if (!hrUser) {
       console.log("⚠️ No HR user found, creating one...");
       hrUser = await User.create({
@@ -117,7 +117,9 @@ mongoose.connect("mongodb://localhost:27017/cv-job-matcher").then(async () => {
     }
 
     console.log("✅ Seed data created successfully!");
-    console.log(`✨ Created ${jobs.length} jobs and ${candidates.length} candidates`);
+    console.log(
+      `✨ Created ${jobs.length} jobs and ${candidates.length} candidates`
+    );
 
     process.exit(0);
   } catch (error) {
