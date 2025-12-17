@@ -395,7 +395,9 @@ export default function Jobs() {
                           d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                         />
                       </svg>
-                      <span className="font-medium">{job.location || "N/A"}</span>
+                      <span className="font-medium">
+                        {job.location || "N/A"}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-700">
                       <svg
@@ -411,7 +413,9 @@ export default function Jobs() {
                           d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                       </svg>
-                      <span className="font-medium">{job.jobType || "Full-time"}</span>
+                      <span className="font-medium">
+                        {job.jobType || "Full-time"}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-700">
                       <svg
@@ -431,7 +435,11 @@ export default function Jobs() {
                         {job.salaryMin && job.salaryMax
                           ? `${job.salaryMin}-${job.salaryMax} USD`
                           : job.salary
-                          ? `${job.salary.min ?? ""}${job.salary.min ? "-" : ""}${job.salary.max ?? ""} ${job.salary.currency || ""}`.trim()
+                          ? `${job.salary.min ?? ""}${
+                              job.salary.min ? "-" : ""
+                            }${job.salary.max ?? ""} ${
+                              job.salary.currency || ""
+                            }`.trim()
                           : "Negotiable"}
                       </span>
                     </div>
@@ -449,7 +457,9 @@ export default function Jobs() {
                           d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                       </svg>
-                      <span className="font-medium">{job.posted || "Recently"}</span>
+                      <span className="font-medium">
+                        {job.posted || "Recently"}
+                      </span>
                     </div>
                   </div>
 
@@ -543,8 +553,12 @@ export default function Jobs() {
                       )}
                     </div>
                     <div>
-                      <h2 className="text-3xl font-bold mb-1">{selectedJob.title}</h2>
-                      <p className="text-lg text-white/90">{selectedJob.company}</p>
+                      <h2 className="text-3xl font-bold mb-1">
+                        {selectedJob.title}
+                      </h2>
+                      <p className="text-lg text-white/90">
+                        {selectedJob.company}
+                      </p>
                     </div>
                   </div>
                   <button
@@ -574,49 +588,112 @@ export default function Jobs() {
                 <div className="grid grid-cols-2 gap-6">
                   <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200">
                     <div className="flex items-center gap-3 mb-2">
-                      <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <svg
+                        className="w-6 h-6 text-indigo-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
                       </svg>
-                      <span className="text-sm font-semibold text-gray-600">Location</span>
+                      <span className="text-sm font-semibold text-gray-600">
+                        Location
+                      </span>
                     </div>
-                    <p className="text-lg font-bold text-gray-900">{selectedJob.location || 'N/A'}</p>
+                    <p className="text-lg font-bold text-gray-900">
+                      {selectedJob.location || "N/A"}
+                    </p>
                   </div>
 
                   <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-xl border border-purple-200">
                     <div className="flex items-center gap-3 mb-2">
-                      <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <svg
+                        className="w-6 h-6 text-purple-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
                       </svg>
-                      <span className="text-sm font-semibold text-gray-600">Job Type</span>
+                      <span className="text-sm font-semibold text-gray-600">
+                        Job Type
+                      </span>
                     </div>
-                    <p className="text-lg font-bold text-gray-900">{selectedJob.jobType || 'Full-time'}</p>
+                    <p className="text-lg font-bold text-gray-900">
+                      {selectedJob.jobType || "Full-time"}
+                    </p>
                   </div>
 
                   <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl border border-green-200">
                     <div className="flex items-center gap-3 mb-2">
-                      <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <svg
+                        className="w-6 h-6 text-green-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
                       </svg>
-                      <span className="text-sm font-semibold text-gray-600">Salary</span>
+                      <span className="text-sm font-semibold text-gray-600">
+                        Salary
+                      </span>
                     </div>
                     <p className="text-lg font-bold text-green-700">
                       {selectedJob.salaryMin && selectedJob.salaryMax
                         ? `$${selectedJob.salaryMin}-${selectedJob.salaryMax} USD`
                         : selectedJob.salary
-                        ? `${selectedJob.salary.min ?? ""}${selectedJob.salary.min ? "-" : ""}${selectedJob.salary.max ?? ""} ${selectedJob.salary.currency || ""}`.trim()
+                        ? `${selectedJob.salary.min ?? ""}${
+                            selectedJob.salary.min ? "-" : ""
+                          }${selectedJob.salary.max ?? ""} ${
+                            selectedJob.salary.currency || ""
+                          }`.trim()
                         : "Negotiable"}
                     </p>
                   </div>
 
                   <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-xl border border-orange-200">
                     <div className="flex items-center gap-3 mb-2">
-                      <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                      <svg
+                        className="w-6 h-6 text-orange-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                        />
                       </svg>
-                      <span className="text-sm font-semibold text-gray-600">Experience</span>
+                      <span className="text-sm font-semibold text-gray-600">
+                        Experience
+                      </span>
                     </div>
-                    <p className="text-lg font-bold text-gray-900">{selectedJob.experienceLevel || 'Entry Level'}</p>
+                    <p className="text-lg font-bold text-gray-900">
+                      {selectedJob.experienceLevel || "Entry Level"}
+                    </p>
                   </div>
                 </div>
 
@@ -624,12 +701,24 @@ export default function Jobs() {
                 {selectedJob.description && (
                   <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
                     <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-                      <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      <svg
+                        className="w-6 h-6 text-indigo-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        />
                       </svg>
                       Job Description
                     </h3>
-                    <p className="text-gray-700 leading-relaxed">{selectedJob.description}</p>
+                    <p className="text-gray-700 leading-relaxed">
+                      {selectedJob.description}
+                    </p>
                   </div>
                 )}
 
@@ -637,36 +726,62 @@ export default function Jobs() {
                 {selectedJob.department && (
                   <div className="bg-blue-50 p-6 rounded-xl border border-blue-200">
                     <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-                      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      <svg
+                        className="w-6 h-6 text-blue-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                        />
                       </svg>
                       Department
                     </h3>
-                    <p className="text-lg font-semibold text-gray-900">{selectedJob.department}</p>
+                    <p className="text-lg font-semibold text-gray-900">
+                      {selectedJob.department}
+                    </p>
                   </div>
                 )}
 
                 {/* Required Skills */}
-                {(selectedJob.requiredSkills || selectedJob.skills) && (selectedJob.requiredSkills || selectedJob.skills).length > 0 && (
-                  <div className="bg-purple-50 p-6 rounded-xl border border-purple-200">
-                    <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                      <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                      </svg>
-                      Required Skills
-                    </h3>
-                    <div className="flex flex-wrap gap-3">
-                      {(selectedJob.requiredSkills || selectedJob.skills).map((skill, index) => (
-                        <span
-                          key={index}
-                          className="px-4 py-2 bg-white text-purple-700 border-2 border-purple-300 rounded-xl text-sm font-bold shadow-sm"
+                {(selectedJob.requiredSkills || selectedJob.skills) &&
+                  (selectedJob.requiredSkills || selectedJob.skills).length >
+                    0 && (
+                    <div className="bg-purple-50 p-6 rounded-xl border border-purple-200">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <svg
+                          className="w-6 h-6 text-purple-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
                         >
-                          {skill}
-                        </span>
-                      ))}
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                          />
+                        </svg>
+                        Required Skills
+                      </h3>
+                      <div className="flex flex-wrap gap-3">
+                        {(selectedJob.requiredSkills || selectedJob.skills).map(
+                          (skill, index) => (
+                            <span
+                              key={index}
+                              className="px-4 py-2 bg-white text-purple-700 border-2 border-purple-300 rounded-xl text-sm font-bold shadow-sm"
+                            >
+                              {skill}
+                            </span>
+                          )
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {/* Action Buttons */}
                 <div className="flex gap-4 pt-4">
@@ -674,7 +789,9 @@ export default function Jobs() {
                     <button
                       onClick={() => {
                         setShowDetailsModal(false);
-                        navigate(`/employee/jobs/${selectedJob._id || selectedJob.id}`);
+                        navigate(
+                          `/employee/jobs/${selectedJob._id || selectedJob.id}`
+                        );
                       }}
                       className="flex-1 px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                     >

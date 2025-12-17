@@ -579,7 +579,9 @@ export default function HRDashboard() {
                           <h4 className="font-bold text-gray-900 mb-1 text-lg line-clamp-2">
                             {job.title}
                           </h4>
-                          <p className="text-sm text-gray-500">{job.company || 'Company'}</p>
+                          <p className="text-sm text-gray-500">
+                            {job.company || "Company"}
+                          </p>
                         </div>
                       </div>
 
@@ -629,7 +631,9 @@ export default function HRDashboard() {
                               d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                             />
                           </svg>
-                          <span className="truncate">{job.location || 'Remote'}</span>
+                          <span className="truncate">
+                            {job.location || "Remote"}
+                          </span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
                           <div className="flex items-center gap-2 text-gray-600">
@@ -671,7 +675,8 @@ export default function HRDashboard() {
                       {job.salaryMin && job.salaryMax && (
                         <div className="mb-4 p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg">
                           <p className="text-lg font-bold text-gray-900">
-                            ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}
+                            ${job.salaryMin.toLocaleString()} - $
+                            {job.salaryMax.toLocaleString()}
                             <span className="text-sm text-gray-500 font-normal ml-1">
                               /month
                             </span>
