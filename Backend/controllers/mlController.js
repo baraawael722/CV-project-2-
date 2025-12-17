@@ -699,7 +699,7 @@ export const analyzeJobForUser = async (req, res) => {
       }
     } catch (mlError) {
       console.error("❌ TensorFlow Service Error:", mlError.message);
-      
+
       // Check if it's a connection error
       if (mlError.code === "ECONNREFUSED" || mlError.code === "ENOTFOUND") {
         console.log("⚠️  Skill Matcher Service not running!");
@@ -712,39 +712,110 @@ export const analyzeJobForUser = async (req, res) => {
       // Common skill keywords to look for in job description
       const skillPatterns = [
         // Programming Languages
-        "python", "javascript", "java", "c++", "c#", "php", "ruby", "go", "rust", "swift", "kotlin", "typescript",
+        "python",
+        "javascript",
+        "java",
+        "c++",
+        "c#",
+        "php",
+        "ruby",
+        "go",
+        "rust",
+        "swift",
+        "kotlin",
+        "typescript",
         // Web Technologies
-        "react", "vue", "angular", "node.js", "express", "django", "flask", "spring", "laravel",
+        "react",
+        "vue",
+        "angular",
+        "node.js",
+        "express",
+        "django",
+        "flask",
+        "spring",
+        "laravel",
         // Databases
-        "sql", "mysql", "postgresql", "mongodb", "redis", "elasticsearch", "oracle",
+        "sql",
+        "mysql",
+        "postgresql",
+        "mongodb",
+        "redis",
+        "elasticsearch",
+        "oracle",
         // Cloud & DevOps
-        "aws", "azure", "gcp", "docker", "kubernetes", "jenkins", "ci/cd", "terraform",
+        "aws",
+        "azure",
+        "gcp",
+        "docker",
+        "kubernetes",
+        "jenkins",
+        "ci/cd",
+        "terraform",
         // Data & ML
-        "machine learning", "deep learning", "tensorflow", "pytorch", "pandas", "numpy", "data analysis",
+        "machine learning",
+        "deep learning",
+        "tensorflow",
+        "pytorch",
+        "pandas",
+        "numpy",
+        "data analysis",
         // Soft Skills
-        "communication", "leadership", "teamwork", "problem solving", "critical thinking", "time management",
+        "communication",
+        "leadership",
+        "teamwork",
+        "problem solving",
+        "critical thinking",
+        "time management",
         // Business Skills
-        "project management", "agile", "scrum", "product management", "business analysis",
+        "project management",
+        "agile",
+        "scrum",
+        "product management",
+        "business analysis",
         // Marketing & PR
-        "public relations", "media relations", "social media", "content strategy", "seo", "marketing",
-        "crisis management", "brand management", "copywriting", "analytics",
+        "public relations",
+        "media relations",
+        "social media",
+        "content strategy",
+        "seo",
+        "marketing",
+        "crisis management",
+        "brand management",
+        "copywriting",
+        "analytics",
         // Design
-        "ui/ux", "photoshop", "illustrator", "figma", "design thinking",
+        "ui/ux",
+        "photoshop",
+        "illustrator",
+        "figma",
+        "design thinking",
         // Other
-        "git", "github", "api", "rest", "graphql", "microservices", "testing", "debugging"
+        "git",
+        "github",
+        "api",
+        "rest",
+        "graphql",
+        "microservices",
+        "testing",
+        "debugging",
       ];
 
       // Extract skills from job description
       const jobDescLower = jobDescription.toLowerCase();
       const cvTextLower = cvText.toLowerCase();
-      
-      const foundJobSkills = skillPatterns.filter(skill => 
+
+      const foundJobSkills = skillPatterns.filter((skill) =>
         jobDescLower.includes(skill.toLowerCase())
       );
 
       // Also include requiredSkills if available
       const requiredSkillsArray = job.requiredSkills || [];
-      const allJobSkills = [...new Set([...foundJobSkills, ...requiredSkillsArray.map(s => s.toLowerCase())])];
+      const allJobSkills = [
+        ...new Set([
+          ...foundJobSkills,
+          ...requiredSkillsArray.map((s) => s.toLowerCase()),
+        ]),
+      ];
 
       if (allJobSkills.length === 0) {
         console.warn("⚠️ No skills found in job description");
@@ -760,7 +831,8 @@ export const analyzeJobForUser = async (req, res) => {
             totalJobSkills: 0,
             totalCvSkills: 0,
             fallback: true,
-            message: "No skills detected in job description. Please add more details.",
+            message:
+              "No skills detected in job description. Please add more details.",
           },
         });
       }
@@ -792,7 +864,9 @@ export const analyzeJobForUser = async (req, res) => {
       }));
 
       console.log(`✅ Fallback Analysis Complete:`);
-      console.log(`   - Skills extracted from job description: ${foundJobSkills.length}`);
+      console.log(
+        `   - Skills extracted from job description: ${foundJobSkills.length}`
+      );
       console.log(`   - Total job skills: ${allJobSkills.length}`);
       console.log(`   - Matched: ${matchedSkills.length}`);
       console.log(`   - Missing: ${missingSkillsList.length}`);

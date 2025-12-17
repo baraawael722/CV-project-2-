@@ -34,7 +34,11 @@ const fileFilter = (req, file, cb) => {
   else cb(new Error("Only PDF files are allowed"), false);
 };
 
-const upload = multer({ storage, fileFilter, limits: { fileSize: 10 * 1024 * 1024 } });
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
 
 // All routes require authentication
 router.use(protect);
@@ -64,7 +68,12 @@ router.put(
 router.post("/match", authorizeRoles("hr"), calculateMatch);
 
 // Employee resume upload (multipart/form-data) -> field name: cv
-router.post("/upload", authorizeRoles("employee"), upload.single("cv"), uploadResume);
+router.post(
+  "/upload",
+  authorizeRoles("employee"),
+  upload.single("cv"),
+  uploadResume
+);
 
 router
   .route("/:id")

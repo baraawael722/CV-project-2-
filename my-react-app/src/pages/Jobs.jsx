@@ -28,7 +28,10 @@ export default function Jobs() {
     skills: "", // comma-separated → requiredSkills
     experienceLevel: "Entry Level",
   });
-  const user = useMemo(() => JSON.parse(localStorage.getItem("user") || "null"), []);
+  const user = useMemo(
+    () => JSON.parse(localStorage.getItem("user") || "null"),
+    []
+  );
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -49,18 +52,21 @@ export default function Jobs() {
         setLoading(false);
       }
     };
-    
+
     const fetchSavedJobs = async () => {
       try {
         const token = localStorage.getItem("token");
         if (!token || !user || user.role !== "employee") return;
-        
-        const res = await fetch("http://localhost:5000/api/candidates/saved-jobs", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+
+        const res = await fetch(
+          "http://localhost:5000/api/candidates/saved-jobs",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         const data = await res.json();
         if (res.ok && data.data) {
-          const savedIds = data.data.map(job => job._id || job.id);
+          const savedIds = data.data.map((job) => job._id || job.id);
           setSavedJobs(savedIds);
           console.log("✅ Loaded saved jobs:", savedIds.length);
         }
@@ -68,7 +74,7 @@ export default function Jobs() {
         console.warn("⚠️ Failed to load saved jobs:", e.message);
       }
     };
-    
+
     fetchJobs();
     fetchSavedJobs();
   }, []);
@@ -80,17 +86,20 @@ export default function Jobs() {
         alert("Please login to save jobs");
         return;
       }
-      
-      const res = await fetch(`http://localhost:5000/api/candidates/saved-jobs/${jobId}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      
+
+      const res = await fetch(
+        `http://localhost:5000/api/candidates/saved-jobs/${jobId}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
       const data = await res.json();
-      
+
       if (res.ok) {
         // Update local state
         if (data.data.action === "saved") {

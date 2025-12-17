@@ -655,7 +655,7 @@ export const toggleSaveJob = async (req, res) => {
 
     // Find or create candidate profile
     let candidate = await Candidate.findOne({ email: userEmail });
-    
+
     if (!candidate) {
       console.log("⚠️ No candidate profile found, creating one...");
       candidate = await Candidate.create({
@@ -663,7 +663,7 @@ export const toggleSaveJob = async (req, res) => {
         email: userEmail,
         savedJobs: [jobId],
       });
-      
+
       return res.json({
         success: true,
         message: "Job saved successfully",
@@ -683,9 +683,9 @@ export const toggleSaveJob = async (req, res) => {
       // Remove from saved jobs
       candidate.savedJobs.splice(jobIndex, 1);
       await candidate.save();
-      
+
       console.log(`✅ Job ${jobId} removed from saved jobs`);
-      
+
       return res.json({
         success: true,
         message: "Job removed from saved",
@@ -698,9 +698,9 @@ export const toggleSaveJob = async (req, res) => {
       // Add to saved jobs
       candidate.savedJobs.push(jobId);
       await candidate.save();
-      
+
       console.log(`✅ Job ${jobId} added to saved jobs`);
-      
+
       return res.json({
         success: true,
         message: "Job saved successfully",
@@ -724,21 +724,22 @@ export const toggleSaveJob = async (req, res) => {
 export const getSavedJobs = async (req, res) => {
   try {
     const userEmail = req.user.email;
-    
+
     console.log(`📚 Getting saved jobs for ${userEmail}`);
-    
-    const candidate = await Candidate.findOne({ email: userEmail })
-      .populate('savedJobs');
-    
+
+    const candidate = await Candidate.findOne({ email: userEmail }).populate(
+      "savedJobs"
+    );
+
     if (!candidate || !candidate.savedJobs) {
       return res.json({
         success: true,
         data: [],
       });
     }
-    
+
     console.log(`✅ Found ${candidate.savedJobs.length} saved jobs`);
-    
+
     res.json({
       success: true,
       data: candidate.savedJobs,

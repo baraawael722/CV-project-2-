@@ -21,7 +21,7 @@ async function checkJob() {
       console.log(job.description?.substring(0, 300));
     } else {
       console.log("❌ Job not found with ID:", jobId);
-      
+
       // Get one job as example
       const sampleJob = await Job.findOne();
       if (sampleJob) {

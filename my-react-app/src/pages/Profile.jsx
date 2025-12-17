@@ -744,7 +744,6 @@ export default function Profile() {
                               {classificationResult.jobTitle}
                             </p>
                           </div>
-
                         </div>
                         <div className="text-sm text-purple-700 bg-purple-100 p-2 rounded">
                           Method:{" "}
@@ -1141,7 +1140,9 @@ export default function Profile() {
                   savedJobs.map((job) => (
                     <div
                       key={job._id || job.id}
-                      onClick={() => navigate(`/employee/jobs/${job._id || job.id}`)}
+                      onClick={() =>
+                        navigate(`/employee/jobs/${job._id || job.id}`)
+                      }
                       className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all cursor-pointer"
                     >
                       <h3 className="font-bold text-gray-900 text-sm mb-1">
@@ -1149,18 +1150,21 @@ export default function Profile() {
                       </h3>
                       <p className="text-xs text-gray-600">{job.company}</p>
                       {job.location && (
-                        <p className="text-xs text-gray-500 mt-1">📍 {job.location}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          📍 {job.location}
+                        </p>
                       )}
                     </div>
                   ))
                 ) : (
                   <p className="text-gray-500 text-sm text-center py-4">
-                    No saved jobs yet. Browse jobs and click "Save" to bookmark them!
+                    No saved jobs yet. Browse jobs and click "Save" to bookmark
+                    them!
                   </p>
                 )}
               </div>
-              <button 
-                onClick={() => navigate('/employee/jobs')}
+              <button
+                onClick={() => navigate("/employee/jobs")}
                 className="w-full mt-4 px-4 py-2 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-all text-sm"
               >
                 View All Jobs →
