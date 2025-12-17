@@ -215,9 +215,20 @@ export default function HRProfile() {
 
       showToast("Profile updated successfully!", "success");
       setEditing(false);
+      
+      // Refresh stats after updating profile
+      fetchStats(token);
     } catch (error) {
       console.error("Error updating profile:", error);
       showToast("Failed to update profile", "error");
+    }
+  };
+
+  const refreshStats = async () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      console.log("🔄 Refreshing HR stats...");
+      await fetchStats(token);
     }
   };
 
@@ -311,6 +322,18 @@ export default function HRProfile() {
 
       {/* Stats Cards */}
       <div className="max-w-6xl mx-auto px-6 mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold text-gray-900">Performance Overview</h2>
+          <button
+            onClick={refreshStats}
+            className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Refresh
+          </button>
+        </div>
         <div className="grid md:grid-cols-3 gap-6">
           <div className="bg-white rounded-2xl shadow-md p-6 text-center border-2 border-gray-100 hover:border-blue-300 transition">
             <p className="text-5xl font-bold text-blue-600 mb-2">
