@@ -404,11 +404,27 @@ export default function Jobs() {
                         ? raw
                         : raw * 100
                       : null;
-                  return scoreNum !== null && !isNaN(scoreNum) ? (
-                    <div className="absolute top-4 right-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
-                      {Number(scoreNum).toFixed(1)}% Match
+                  
+                  if (scoreNum === null || isNaN(scoreNum)) return null;
+                  
+                  // Determine match level and color
+                  const matchLevel = scoreNum >= 80 
+                    ? "Excellent Match" 
+                    : scoreNum >= 60 
+                    ? "Fair Match" 
+                    : "Low Match";
+                  
+                  const bgColor = scoreNum >= 80
+                    ? "from-green-500 to-emerald-600"
+                    : scoreNum >= 60
+                    ? "from-yellow-500 to-orange-500"
+                    : "from-red-500 to-pink-500";
+                  
+                  return (
+                    <div className={`absolute top-4 right-4 bg-gradient-to-r ${bgColor} text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg`}>
+                      {Number(scoreNum).toFixed(1)}% - {matchLevel}
                     </div>
-                  ) : null;
+                  );
                 })()}
               <div className="flex items-start gap-6">
                 {/* Logo */}
