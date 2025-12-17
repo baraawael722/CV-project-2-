@@ -172,8 +172,8 @@ export default function JobDetails() {
                       alt={job.company}
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextElementSibling.style.display = 'flex';
+                        e.target.style.display = "none";
+                        e.target.nextElementSibling.style.display = "flex";
                       }}
                     />
                   ) : null}
@@ -182,7 +182,7 @@ export default function JobDetails() {
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
-                    style={{ display: job.companyLogo ? 'none' : 'block' }}
+                    style={{ display: job.companyLogo ? "none" : "block" }}
                   >
                     <path
                       strokeLinecap="round"

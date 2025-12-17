@@ -560,7 +560,7 @@ export const classifyCV = async (req, res) => {
 
       // Update candidate with classified job title AND save classification results
       candidate.jobTitle = response.data.job_title;
-      
+
       // Save classification results for persistence
       candidate.classificationResult = {
         jobTitle: response.data.job_title,

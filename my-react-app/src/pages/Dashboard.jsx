@@ -59,7 +59,9 @@ export default function Dashboard() {
       setJobs(jobsList.slice(0, 6)); // Get top 6 jobs for dashboard
       setStats({
         totalJobs: jobsList.length,
-        matchedJobs: jobsList.filter(job => job.matchScore && job.matchScore > 50).length,
+        matchedJobs: jobsList.filter(
+          (job) => job.matchScore && job.matchScore > 50
+        ).length,
         applications: 5,
         savedJobs: 3,
       });
@@ -317,14 +319,14 @@ export default function Dashboard() {
                         alt={job.company}
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.nextElementSibling.style.display = 'flex';
+                          e.target.style.display = "none";
+                          e.target.nextElementSibling.style.display = "flex";
                         }}
                       />
                     ) : null}
-                    <span 
+                    <span
                       className="text-white font-bold text-xl"
-                      style={{ display: job.companyLogo ? 'none' : 'flex' }}
+                      style={{ display: job.companyLogo ? "none" : "flex" }}
                     >
                       {job.company?.charAt(0) || "C"}
                     </span>

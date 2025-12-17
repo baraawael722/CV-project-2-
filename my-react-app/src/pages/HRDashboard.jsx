@@ -579,12 +579,17 @@ export default function HRDashboard() {
                               alt={job.company}
                               className="w-full h-full object-cover"
                               onError={(e) => {
-                                e.target.style.display = 'none';
-                                e.target.nextElementSibling.style.display = 'block';
+                                e.target.style.display = "none";
+                                e.target.nextElementSibling.style.display =
+                                  "block";
                               }}
                             />
                           ) : null}
-                          <div style={{ display: job.companyLogo ? 'none' : 'block' }}>
+                          <div
+                            style={{
+                              display: job.companyLogo ? "none" : "block",
+                            }}
+                          >
                             {icons[index % 3]}
                           </div>
                         </div>

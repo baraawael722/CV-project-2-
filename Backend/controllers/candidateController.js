@@ -591,7 +591,7 @@ export const uploadResume = async (req, res) => {
 
           // Update candidate with classified job title AND save classification results
           candidate.jobTitle = jobTitle;
-          
+
           // Save classification results for persistence
           candidate.classificationResult = {
             jobTitle: jobTitle,
@@ -599,7 +599,7 @@ export const uploadResume = async (req, res) => {
             method: classifyResponse.data.decision_method,
             classifiedAt: new Date(),
           };
-          
+
           await candidate.save();
           console.log("💾 Auto-classification results saved to database");
 

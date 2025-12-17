@@ -108,14 +108,20 @@ export default function Profile() {
           }));
 
           // Load saved classification result if exists
-          if (candidateData.classificationResult && candidateData.classificationResult.jobTitle) {
+          if (
+            candidateData.classificationResult &&
+            candidateData.classificationResult.jobTitle
+          ) {
             setClassificationResult({
               jobTitle: candidateData.classificationResult.jobTitle,
               confidence: candidateData.classificationResult.confidence,
               decision_method: candidateData.classificationResult.method,
               classifiedAt: candidateData.classificationResult.classifiedAt,
             });
-            console.log("✅ Loaded saved classification result:", candidateData.classificationResult);
+            console.log(
+              "✅ Loaded saved classification result:",
+              candidateData.classificationResult
+            );
           }
 
           // Check if CV has been uploaded
@@ -377,7 +383,7 @@ export default function Profile() {
           confidence: data.data.confidence,
           decision_method: data.data.decision_method,
         };
-        
+
         setClassificationResult(classificationData);
         showToast(
           `Classification Complete! Job Title: ${data.data.jobTitle} (${(
@@ -392,7 +398,9 @@ export default function Profile() {
           jobTitle: data.data.jobTitle,
         }));
 
-        console.log("💾 Classification result saved to database and will persist on refresh");
+        console.log(
+          "💾 Classification result saved to database and will persist on refresh"
+        );
       } else {
         throw new Error(data.message || "Classification failed");
       }
@@ -744,7 +752,10 @@ export default function Profile() {
                         </div>
                         {classificationResult.classifiedAt && (
                           <div className="text-xs text-gray-500 mt-2">
-                            Classified: {new Date(classificationResult.classifiedAt).toLocaleString()}
+                            Classified:{" "}
+                            {new Date(
+                              classificationResult.classifiedAt
+                            ).toLocaleString()}
                           </div>
                         )}
                       </div>

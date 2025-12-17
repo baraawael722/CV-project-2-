@@ -1,7 +1,9 @@
 # ✅ حفظ نتائج تحليل الـ CV في قاعدة البيانات
 
 ## المشكلة القديمة
+
 عند رفع الـ CV وتشغيل الموديل للتصنيف، كانت النتيجة تظهر فقط في الصفحة ولكن:
+
 - ❌ عند عمل Refresh تختفي النتيجة
 - ❌ النتائج لا تُحفظ في قاعدة البيانات
 - ❌ المستخدم يحتاج لإعادة التصنيف كل مرة
@@ -49,6 +51,7 @@ extractedSkills: [
 ```
 
 **الفائدة:**
+
 - ✅ حفظ Job Title المُصنف
 - ✅ حفظ نسبة الثقة (Confidence)
 - ✅ حفظ طريقة التصنيف (BERT/Keras/AI)
@@ -77,6 +80,7 @@ console.log("💾 Classification results saved to database");
 ```
 
 **الفائدة:**
+
 - ✅ النتائج تُحفظ تلقائياً عند التصنيف اليدوي
 - ✅ يتم تحديث التاريخ عند كل تصنيف
 
@@ -103,6 +107,7 @@ console.log("💾 Auto-classification results saved to database");
 ```
 
 **الفائدة:**
+
 - ✅ النتائج تُحفظ تلقائياً عند رفع الـ CV
 - ✅ Auto-classification results تبقى موجودة
 
@@ -116,48 +121,59 @@ console.log("💾 Auto-classification results saved to database");
 
 ```javascript
 // Load saved classification result if exists
-if (candidateData.classificationResult && candidateData.classificationResult.jobTitle) {
+if (
+  candidateData.classificationResult &&
+  candidateData.classificationResult.jobTitle
+) {
   setClassificationResult({
     jobTitle: candidateData.classificationResult.jobTitle,
     confidence: candidateData.classificationResult.confidence,
     decision_method: candidateData.classificationResult.method,
     classifiedAt: candidateData.classificationResult.classifiedAt,
   });
-  console.log("✅ Loaded saved classification result:", candidateData.classificationResult);
+  console.log(
+    "✅ Loaded saved classification result:",
+    candidateData.classificationResult
+  );
 }
 ```
 
 #### ب. إضافة "Saved" indicator:
 
 ```jsx
-{classificationResult && (
-  <div className="border-4 border-solid border-purple-500 rounded-xl p-6 bg-purple-50">
-    <div className="flex items-center justify-between mb-4">
-      <h4 className="text-lg font-bold text-purple-900">
-        🎯 Auto-Classification Result
-      </h4>
-      {classificationResult.classifiedAt && (
-        <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">
-          ✓ Saved
-        </span>
-      )}
+{
+  classificationResult && (
+    <div className="border-4 border-solid border-purple-500 rounded-xl p-6 bg-purple-50">
+      <div className="flex items-center justify-between mb-4">
+        <h4 className="text-lg font-bold text-purple-900">
+          🎯 Auto-Classification Result
+        </h4>
+        {classificationResult.classifiedAt && (
+          <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">
+            ✓ Saved
+          </span>
+        )}
+      </div>
+      ...
     </div>
-    ...
-  </div>
-)}
+  );
+}
 ```
 
 #### ج. عرض تاريخ التصنيف:
 
 ```jsx
-{classificationResult.classifiedAt && (
-  <div className="text-xs text-gray-500 mt-2">
-    Classified: {new Date(classificationResult.classifiedAt).toLocaleString()}
-  </div>
-)}
+{
+  classificationResult.classifiedAt && (
+    <div className="text-xs text-gray-500 mt-2">
+      Classified: {new Date(classificationResult.classifiedAt).toLocaleString()}
+    </div>
+  );
+}
 ```
 
 **الفائدة:**
+
 - ✅ النتائج تُحمّل تلقائياً عند فتح الصفحة
 - ✅ يظهر badge "Saved" للإشارة أن النتيجة محفوظة
 - ✅ يظهر تاريخ ووقت التصنيف
@@ -167,6 +183,7 @@ if (candidateData.classificationResult && candidateData.classificationResult.job
 ## كيف يعمل النظام الآن؟
 
 ### السيناريو 1: رفع CV جديد
+
 ```
 1. المستخدم يرفع CV
    ↓
@@ -188,6 +205,7 @@ if (candidateData.classificationResult && candidateData.classificationResult.job
 ```
 
 ### السيناريو 2: تصنيف يدوي (Classify CV Button)
+
 ```
 1. المستخدم يضغط "Classify CV"
    ↓
@@ -199,6 +217,7 @@ if (candidateData.classificationResult && candidateData.classificationResult.job
 ```
 
 ### السيناريو 3: Refresh الصفحة
+
 ```
 1. المستخدم يعمل Refresh
    ↓
@@ -215,6 +234,7 @@ if (candidateData.classificationResult && candidateData.classificationResult.job
 ## الفروقات قبل وبعد
 
 ### قبل التعديل ❌
+
 ```javascript
 // البيانات في state فقط (تضيع عند refresh)
 const [classificationResult, setClassificationResult] = useState(null);
@@ -224,6 +244,7 @@ const [classificationResult, setClassificationResult] = useState(null);
 ```
 
 ### بعد التعديل ✅
+
 ```javascript
 // البيانات في MongoDB + state
 // MongoDB:
@@ -244,6 +265,7 @@ const [classificationResult, setClassificationResult] = useState(null);
 ## اختبار النظام
 
 ### 1. رفع CV جديد:
+
 ```bash
 1. افتح http://localhost:5174/employee/profile
 2. ارفع CV
@@ -254,6 +276,7 @@ const [classificationResult, setClassificationResult] = useState(null);
 ```
 
 ### 2. تصنيف يدوي:
+
 ```bash
 1. اضغط "Classify CV" button
 2. انتظر النتائج
@@ -262,6 +285,7 @@ const [classificationResult, setClassificationResult] = useState(null);
 ```
 
 ### 3. التحقق من قاعدة البيانات:
+
 ```bash
 # في MongoDB Compass أو Shell:
 db.candidates.findOne(
@@ -285,11 +309,13 @@ db.candidates.findOne(
 ## الملفات المُعدلة
 
 ### Backend:
+
 1. ✅ `Backend/models/Candidate.js` - إضافة حقول جديدة
 2. ✅ `Backend/controllers/mlController.js` - حفظ نتائج classifyCV
 3. ✅ `Backend/controllers/candidateController.js` - حفظ نتائج uploadResume
 
 ### Frontend:
+
 1. ✅ `my-react-app/src/pages/Profile.jsx` - جلب وعرض النتائج المحفوظة
 
 ---
@@ -307,12 +333,14 @@ db.candidates.findOne(
 ## ملاحظات مهمة
 
 ### 1. الـ ML Service يجب أن يكون شغال:
+
 ```bash
 cd ml-service
 python cv_classifier_hybrid.py
 ```
 
 ### 2. Backend يجب أن يكون شغال:
+
 ```bash
 cd Backend
 npm run dev
@@ -321,6 +349,7 @@ npm run dev
 ### 3. MongoDB يجب أن يكون متصل
 
 ### 4. النتائج تُحدّث تلقائياً:
+
 - عند رفع CV جديد
 - عند الضغط على "Classify CV"
 - النتائج القديمة تُستبدل بالجديدة
@@ -330,6 +359,7 @@ npm run dev
 ## حل المشاكل
 
 ### النتائج لا تظهر بعد Refresh؟
+
 1. افتح Console (F12)
 2. ابحث عن: "✅ Loaded saved classification result"
 3. إذا لم تظهر، تحقق من:
@@ -338,11 +368,13 @@ npm run dev
    - candidateData.classificationResult موجود
 
 ### Auto-classification لا يعمل عند رفع CV؟
+
 1. تأكد من تشغيل ML Service
 2. شوف Backend console logs
 3. ابحث عن: "🔬 Auto-classifying CV..."
 
 ### النتائج لا تُحفظ في DB؟
+
 1. شوف Backend logs
 2. ابحث عن: "💾 Classification results saved to database"
 3. تحقق من MongoDB connection
