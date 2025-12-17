@@ -685,12 +685,13 @@ export const analyzeJobForUser = async (req, res) => {
           data: {
             jobTitle: job.title,
             company: job.company,
-            matchScore: analysisData.match_percentage, // For Frontend compatibility
+            matchScore: analysisData.match_percentage,
             matchPercentage: analysisData.match_percentage,
             matchedSkills: analysisData.matched_skills,
             missingSkills: analysisData.missing_skills,
             totalJobSkills: analysisData.job_skills.length,
             totalCvSkills: analysisData.cv_skills.length,
+            mlService: "tensorflow",
           },
         });
       } else {
@@ -698,80 +699,118 @@ export const analyzeJobForUser = async (req, res) => {
       }
     } catch (mlError) {
       console.error("❌ TensorFlow Service Error:", mlError.message);
+      
+      // Check if it's a connection error
+      if (mlError.code === "ECONNREFUSED" || mlError.code === "ENOTFOUND") {
+        console.log("⚠️  Skill Matcher Service not running!");
+        console.log("💡 Start it with: python start_skill_matcher.py");
+      }
 
-      // Fallback to simple keyword matching if ML service fails
-      console.log("⚠️  Falling back to simple keyword matching...");
+      // Fallback: Extract skills from job description using NLP-like approach
+      console.log("⚠️  Falling back to basic text analysis...");
 
-      // Extract skills from text
-      const extractSkillsFromText = (text) => {
-        const commonSkills = [
-          "python",
-          "javascript",
-          "java",
-          "react",
-          "vue",
-          "angular",
-          "node.js",
-          "django",
-          "flask",
-          "fastapi",
-          "express",
-          "mongodb",
-          "postgresql",
-          "mysql",
-          "redis",
-          "docker",
-          "kubernetes",
-          "aws",
-          "azure",
-          "git",
-          "typescript",
-          "html",
-          "css",
-          "sql",
-          "graphql",
-          "rest api",
-        ];
+      // Common skill keywords to look for in job description
+      const skillPatterns = [
+        // Programming Languages
+        "python", "javascript", "java", "c++", "c#", "php", "ruby", "go", "rust", "swift", "kotlin", "typescript",
+        // Web Technologies
+        "react", "vue", "angular", "node.js", "express", "django", "flask", "spring", "laravel",
+        // Databases
+        "sql", "mysql", "postgresql", "mongodb", "redis", "elasticsearch", "oracle",
+        // Cloud & DevOps
+        "aws", "azure", "gcp", "docker", "kubernetes", "jenkins", "ci/cd", "terraform",
+        // Data & ML
+        "machine learning", "deep learning", "tensorflow", "pytorch", "pandas", "numpy", "data analysis",
+        // Soft Skills
+        "communication", "leadership", "teamwork", "problem solving", "critical thinking", "time management",
+        // Business Skills
+        "project management", "agile", "scrum", "product management", "business analysis",
+        // Marketing & PR
+        "public relations", "media relations", "social media", "content strategy", "seo", "marketing",
+        "crisis management", "brand management", "copywriting", "analytics",
+        // Design
+        "ui/ux", "photoshop", "illustrator", "figma", "design thinking",
+        // Other
+        "git", "github", "api", "rest", "graphql", "microservices", "testing", "debugging"
+      ];
 
-        const textLower = text.toLowerCase();
-        return commonSkills.filter((skill) => textLower.includes(skill));
-      };
-
-      const cvSkills = extractSkillsFromText(cvText);
-      const jobSkills = extractSkillsFromText(jobDescription);
-      const matchedSkills = jobSkills.filter((skill) =>
-        cvSkills.includes(skill)
+      // Extract skills from job description
+      const jobDescLower = jobDescription.toLowerCase();
+      const cvTextLower = cvText.toLowerCase();
+      
+      const foundJobSkills = skillPatterns.filter(skill => 
+        jobDescLower.includes(skill.toLowerCase())
       );
-      const missingSkillsList = jobSkills.filter(
-        (skill) => !cvSkills.includes(skill)
-      );
+
+      // Also include requiredSkills if available
+      const requiredSkillsArray = job.requiredSkills || [];
+      const allJobSkills = [...new Set([...foundJobSkills, ...requiredSkillsArray.map(s => s.toLowerCase())])];
+
+      if (allJobSkills.length === 0) {
+        console.warn("⚠️ No skills found in job description");
+        return res.status(200).json({
+          success: true,
+          data: {
+            jobTitle: job.title,
+            company: job.company,
+            matchScore: 0,
+            matchPercentage: 0,
+            matchedSkills: [],
+            missingSkills: [],
+            totalJobSkills: 0,
+            totalCvSkills: 0,
+            fallback: true,
+            message: "No skills detected in job description. Please add more details.",
+          },
+        });
+      }
+
+      // Check which skills are in CV
+      const matchedSkills = [];
+      const missingSkillsList = [];
+
+      allJobSkills.forEach((skill) => {
+        if (cvTextLower.includes(skill.toLowerCase())) {
+          matchedSkills.push(skill);
+        } else {
+          missingSkillsList.push(skill);
+        }
+      });
 
       const matchPercentage =
-        jobSkills.length > 0
-          ? (matchedSkills.length / jobSkills.length) * 100
+        allJobSkills.length > 0
+          ? (matchedSkills.length / allJobSkills.length) * 100
           : 0;
 
       const missingSkills = missingSkillsList.map((skill) => ({
         skill,
-        confidence: 0.5,
+        confidence: 0.6,
         priority: "MEDIUM",
         youtube: `https://www.youtube.com/results?search_query=${encodeURIComponent(
           skill + " tutorial"
         )}`,
       }));
 
+      console.log(`✅ Fallback Analysis Complete:`);
+      console.log(`   - Skills extracted from job description: ${foundJobSkills.length}`);
+      console.log(`   - Total job skills: ${allJobSkills.length}`);
+      console.log(`   - Matched: ${matchedSkills.length}`);
+      console.log(`   - Missing: ${missingSkillsList.length}`);
+      console.log(`   - Match %: ${matchPercentage.toFixed(1)}%`);
+
       return res.status(200).json({
         success: true,
         data: {
           jobTitle: job.title,
           company: job.company,
-          matchScore: Math.round(matchPercentage * 100) / 100, // For Frontend
+          matchScore: Math.round(matchPercentage * 100) / 100,
           matchPercentage: Math.round(matchPercentage * 100) / 100,
           matchedSkills,
           missingSkills,
-          totalJobSkills: jobSkills.length,
-          totalCvSkills: cvSkills.length,
+          totalJobSkills: allJobSkills.length,
+          totalCvSkills: matchedSkills.length,
           fallback: true,
+          extractedFrom: "job_description",
         },
       });
     }

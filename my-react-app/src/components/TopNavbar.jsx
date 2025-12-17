@@ -46,7 +46,6 @@ export default function TopNavbar() {
     return [
       { name: "Home", path: "/employee/dashboard", icon: "home" },
       { name: "Jobs", path: "/employee/jobs", icon: "briefcase" },
-      { name: "Learning", path: "/employee/learning", icon: "book" },
       { name: "Interview", path: "/employee/interview", icon: "target" },
       { name: "Profile", path: "/employee/profile", icon: "user" },
     ];

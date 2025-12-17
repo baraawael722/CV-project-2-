@@ -112,10 +112,24 @@ export default function HRProfile() {
         const jobsData = await jobsRes.json();
         const candidatesData = await candidatesRes.json();
 
+        // Count job applications (interviews) from all candidates
+        let totalInterviewsCount = 0;
+        if (candidatesData.data && Array.isArray(candidatesData.data)) {
+          totalInterviewsCount = candidatesData.data.reduce((sum, candidate) => {
+            return sum + (candidate.applications ? candidate.applications.length : 0);
+          }, 0);
+        }
+
         setStats({
-          totalJobs: jobsData.count || 0,
-          totalCandidates: candidatesData.count || 0,
-          totalInterviews: Math.floor((candidatesData.count || 0) * 0.3),
+          totalJobs: jobsData.count || jobsData.data?.length || 0,
+          totalCandidates: candidatesData.count || candidatesData.data?.length || 0,
+          totalInterviews: totalInterviewsCount,
+        });
+        
+        console.log("✅ HR Stats loaded:", {
+          jobs: jobsData.count || jobsData.data?.length,
+          candidates: candidatesData.count || candidatesData.data?.length,
+          interviews: totalInterviewsCount
         });
       }
     } catch (error) {

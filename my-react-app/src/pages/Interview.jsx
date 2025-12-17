@@ -219,10 +219,6 @@ export default function Interview() {
             </div>
             <div className="text-sm text-gray-600">CV Status</div>
           </div>
-          <div className="bg-white rounded-xl shadow-md p-6 text-center border border-gray-100">
-            <div className="text-3xl font-bold text-purple-600 mb-2">Groq</div>
-            <div className="text-sm text-gray-600">AI Model</div>
-          </div>
         </div>
 
         {/* Chat Interface */}

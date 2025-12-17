@@ -15,7 +15,6 @@ import MatchedCandidates from "./pages/MatchedCandidates.jsx";
 // Skills page removed
 import Jobs from "./pages/Jobs.jsx";
 import JobDetails from "./pages/JobDetails.jsx";
-import Learning from "./pages/Learning.jsx";
 import Interview from "./pages/Interview.jsx";
 import Profile from "./pages/Profile.jsx";
 import HRProfile from "./pages/HRProfile.jsx";
@@ -96,15 +95,7 @@ export default function App() {
           }
         />
         {/* /employee/skills removed */}
-        <Route
-          path="/employee/learning"
-          element={
-            <ProtectedRoute allowedRoles={["employee", "user"]}>
-              <TopNavbar />
-              <Learning />
-            </ProtectedRoute>
-          }
-        />
+        {/* /employee/learning removed */}
         <Route
           path="/employee/interview"
           element={
@@ -171,10 +162,7 @@ export default function App() {
           element={<Navigate to="/employee/jobs" replace />}
         />
         {/* /skills redirect removed */}
-        <Route
-          path="/learning"
-          element={<Navigate to="/employee/learning" replace />}
-        />
+        {/* /learning redirect removed */}
         <Route
           path="/interview"
           element={<Navigate to="/employee/interview" replace />}

@@ -81,6 +81,13 @@ const candidateSchema = new mongoose.Schema(
         type: String,
       },
     ],
+    // Saved Jobs (bookmarked by user)
+    savedJobs: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Job",
+      },
+    ],
     linkedinUrl: {
       type: String,
       default: "",

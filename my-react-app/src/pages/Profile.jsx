@@ -13,6 +13,7 @@ export default function Profile() {
   const [classificationResult, setClassificationResult] = useState(null);
   const [user, setUser] = useState(null);
   const [toast, setToast] = useState(null);
+  const [savedJobs, setSavedJobs] = useState([]);
   const [profile, setProfile] = useState({
     name: "",
     email: "",
@@ -71,8 +72,28 @@ export default function Profile() {
     if (!fetchedOnceRef.current) {
       fetchedOnceRef.current = true;
       fetchCandidateProfile(token, userData.email);
+      fetchSavedJobs(token);
     }
   }, [navigate]);
+
+  const fetchSavedJobs = async (token) => {
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/candidates/saved-jobs",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setSavedJobs(data.data || []);
+        console.log("✅ Loaded saved jobs:", data.data?.length || 0);
+      }
+    } catch (error) {
+      console.error("⚠️ Error fetching saved jobs:", error);
+    }
+  };
 
   const fetchCandidateProfile = async (token, email) => {
     try {
@@ -412,17 +433,6 @@ export default function Profile() {
     }
   };
 
-  const savedJobs = [
-    { id: 1, title: "Senior React Developer", company: "TechCorp", match: 95 },
-    { id: 2, title: "Frontend Engineer", company: "StartupXYZ", match: 88 },
-    {
-      id: 3,
-      title: "Full Stack Developer",
-      company: "MegaTech Inc",
-      match: 82,
-    },
-  ];
-
   const savedCourses = [
     { id: 1, title: "Advanced Docker & Kubernetes", progress: 0 },
     { id: 2, title: "AWS Cloud Practitioner", progress: 0 },
@@ -734,17 +744,7 @@ export default function Profile() {
                               {classificationResult.jobTitle}
                             </p>
                           </div>
-                          <div>
-                            <p className="text-sm text-gray-600 mb-1">
-                              Confidence:
-                            </p>
-                            <p className="text-xl font-bold text-purple-900">
-                              {(classificationResult.confidence * 100).toFixed(
-                                1
-                              )}
-                              %
-                            </p>
-                          </div>
+
                         </div>
                         <div className="text-sm text-purple-700 bg-purple-100 p-2 rounded">
                           Method:{" "}
@@ -1137,22 +1137,32 @@ export default function Profile() {
                 ⭐ Saved Jobs
               </h2>
               <div className="space-y-3">
-                {savedJobs.map((job) => (
-                  <div
-                    key={job.id}
-                    className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all"
-                  >
-                    <h3 className="font-bold text-gray-900 text-sm mb-1">
-                      {job.title}
-                    </h3>
-                    <p className="text-xs text-gray-600">{job.company}</p>
-                    <span className="inline-block mt-2 text-xs font-semibold text-green-600">
-                      {job.match}% Match
-                    </span>
-                  </div>
-                ))}
+                {savedJobs.length > 0 ? (
+                  savedJobs.map((job) => (
+                    <div
+                      key={job._id || job.id}
+                      onClick={() => navigate(`/employee/jobs/${job._id || job.id}`)}
+                      className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all cursor-pointer"
+                    >
+                      <h3 className="font-bold text-gray-900 text-sm mb-1">
+                        {job.title}
+                      </h3>
+                      <p className="text-xs text-gray-600">{job.company}</p>
+                      {job.location && (
+                        <p className="text-xs text-gray-500 mt-1">📍 {job.location}</p>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-500 text-sm text-center py-4">
+                    No saved jobs yet. Browse jobs and click "Save" to bookmark them!
+                  </p>
+                )}
               </div>
-              <button className="w-full mt-4 px-4 py-2 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-all text-sm">
+              <button 
+                onClick={() => navigate('/employee/jobs')}
+                className="w-full mt-4 px-4 py-2 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-all text-sm"
+              >
                 View All Jobs →
               </button>
             </div>

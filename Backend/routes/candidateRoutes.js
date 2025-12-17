@@ -11,6 +11,8 @@ import {
   calculateMatch,
   uploadResume,
   getMyProfile,
+  toggleSaveJob,
+  getSavedJobs,
 } from "../controllers/candidateController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { authorizeRoles } from "../middleware/roleMiddleware.js";
@@ -39,6 +41,10 @@ router.use(protect);
 
 // Get my profile (for employees to get their own profile)
 router.get("/me", getMyProfile);
+
+// Saved jobs endpoints
+router.get("/saved-jobs", authorizeRoles("employee"), getSavedJobs);
+router.post("/saved-jobs/:jobId", authorizeRoles("employee"), toggleSaveJob);
 
 router
   .route("/")

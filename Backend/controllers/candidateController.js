@@ -644,3 +644,111 @@ export const uploadResume = async (req, res) => {
       .json({ success: false, message: "Upload failed", error: error.message });
   }
 };
+
+// Toggle save job (bookmark)
+export const toggleSaveJob = async (req, res) => {
+  try {
+    const { jobId } = req.params;
+    const userEmail = req.user.email;
+
+    console.log(`🔖 Toggle save job ${jobId} for ${userEmail}`);
+
+    // Find or create candidate profile
+    let candidate = await Candidate.findOne({ email: userEmail });
+    
+    if (!candidate) {
+      console.log("⚠️ No candidate profile found, creating one...");
+      candidate = await Candidate.create({
+        name: req.user.name || "Unknown",
+        email: userEmail,
+        savedJobs: [jobId],
+      });
+      
+      return res.json({
+        success: true,
+        message: "Job saved successfully",
+        data: {
+          savedJobs: candidate.savedJobs,
+          action: "saved",
+        },
+      });
+    }
+
+    // Check if job is already saved
+    const jobIndex = candidate.savedJobs.findIndex(
+      (id) => id.toString() === jobId
+    );
+
+    if (jobIndex > -1) {
+      // Remove from saved jobs
+      candidate.savedJobs.splice(jobIndex, 1);
+      await candidate.save();
+      
+      console.log(`✅ Job ${jobId} removed from saved jobs`);
+      
+      return res.json({
+        success: true,
+        message: "Job removed from saved",
+        data: {
+          savedJobs: candidate.savedJobs,
+          action: "removed",
+        },
+      });
+    } else {
+      // Add to saved jobs
+      candidate.savedJobs.push(jobId);
+      await candidate.save();
+      
+      console.log(`✅ Job ${jobId} added to saved jobs`);
+      
+      return res.json({
+        success: true,
+        message: "Job saved successfully",
+        data: {
+          savedJobs: candidate.savedJobs,
+          action: "saved",
+        },
+      });
+    }
+  } catch (error) {
+    console.error("❌ Error toggling saved job:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to save job",
+      error: error.message,
+    });
+  }
+};
+
+// Get saved jobs
+export const getSavedJobs = async (req, res) => {
+  try {
+    const userEmail = req.user.email;
+    
+    console.log(`📚 Getting saved jobs for ${userEmail}`);
+    
+    const candidate = await Candidate.findOne({ email: userEmail })
+      .populate('savedJobs');
+    
+    if (!candidate || !candidate.savedJobs) {
+      return res.json({
+        success: true,
+        data: [],
+      });
+    }
+    
+    console.log(`✅ Found ${candidate.savedJobs.length} saved jobs`);
+    
+    res.json({
+      success: true,
+      data: candidate.savedJobs,
+    });
+  } catch (error) {
+    console.error("❌ Error getting saved jobs:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to get saved jobs",
+      error: error.message,
+    });
+  }
+};
