@@ -42,10 +42,9 @@ export default function TopNavbar() {
       ];
     }
 
-    // Employee/User navigation
+    // Employee/User navigation (Skills removed)
     return [
       { name: "Home", path: "/employee/dashboard", icon: "home" },
-      { name: "Skills", path: "/employee/skills", icon: "lightbulb" },
       { name: "Jobs", path: "/employee/jobs", icon: "briefcase" },
       { name: "Learning", path: "/employee/learning", icon: "book" },
       { name: "Interview", path: "/employee/interview", icon: "target" },

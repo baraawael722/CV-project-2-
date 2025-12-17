@@ -5,6 +5,14 @@ import JobStatsChart from "../components/JobStatsChart";
 export default function Dashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    totalJobs: 0,
+    matchedJobs: 0,
+    applications: 0,
+    savedJobs: 0,
+  });
 
   useEffect(() => {
     // Get user from localStorage
@@ -25,292 +33,235 @@ export default function Dashboard() {
     }
 
     setUser(userData);
+    fetchDashboardData(token);
   }, [navigate]);
+
+  const fetchDashboardData = async (token) => {
+    try {
+      setLoading(true);
+      // Fetch jobs from API
+      const res = await fetch("http://localhost:5000/api/jobs", {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      const data = await res.json();
+      const jobsList = data.data || data.jobs || [];
+
+      setJobs(jobsList.slice(0, 6)); // Get top 6 jobs for dashboard
+      setStats({
+        totalJobs: jobsList.length,
+        matchedJobs: Math.floor(jobsList.length * 0.3), // 30% matched
+        applications: 5,
+        savedJobs: 3,
+      });
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-gray-600 font-semibold">
+            Loading your dashboard...
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 text-gray-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white mb-8 shadow-lg">
-          <h1 className="text-4xl font-bold mb-2">
-            Welcome Back, {user.name}!
-          </h1>
-          <p className="text-xl text-white opacity-95">
-            Let's continue your career journey
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      {/* Hero Section */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 pb-32">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden opacity-20">
+          <div
+            className="absolute top-20 left-20 w-96 h-96 bg-white rounded-full filter blur-3xl animate-float"
+            style={{ animationDelay: "0s" }}
+          ></div>
+          <div
+            className="absolute bottom-20 right-20 w-96 h-96 bg-white rounded-full filter blur-3xl animate-float"
+            style={{ animationDelay: "2s" }}
+          ></div>
         </div>
 
-        {/* Employee Quick Stats */}
-        <div className="grid md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
-            <svg
-              className="w-10 h-10 text-blue-500 mb-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
-            <p className="text-sm text-gray-600 font-semibold">CV Status</p>
-            <p className="text-2xl font-bold text-gray-900">Ready</p>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          {/* Welcome Header */}
+          <div className="text-center mb-12">
+            <h1 className="text-5xl lg:text-6xl font-extrabold text-white mb-4">
+              Welcome back, <span className="text-yellow-300">{user.name}</span>
+              !
+            </h1>
+            <p className="text-xl text-white/90 max-w-2xl mx-auto">
+              Let's continue your career journey and find the perfect
+              opportunity for you
+            </p>
           </div>
-          <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
-            <svg
-              className="w-10 h-10 text-green-500 mb-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-              />
-            </svg>
-            <p className="text-sm text-gray-600 font-semibold">Job Matches</p>
-            <p className="text-2xl font-bold text-gray-900">12</p>
-          </div>
-          <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
-            <svg
-              className="w-10 h-10 text-purple-500 mb-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-              />
-            </svg>
-            <p className="text-sm text-gray-600 font-semibold">Learning</p>
-            <p className="text-2xl font-bold text-gray-900">3 Active</p>
-          </div>
-          <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-orange-500">
-            <svg
-              className="w-10 h-10 text-orange-500 mb-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <p className="text-sm text-gray-600 font-semibold">Skill Score</p>
-            <p className="text-2xl font-bold text-gray-900">85%</p>
-          </div>
-        </div>
 
-        {/* Job Stats Chart */}
-        <JobStatsChart />
-
-        {/* CV Upload CTA - Prominent Section */}
-        <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-8 mb-8 shadow-xl transform hover:scale-[1.02] transition-all duration-300">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-3">
-                <svg
-                  className="w-12 h-12"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <h2 className="text-3xl font-bold text-white">
-                  Ready to Get Matched?
-                </h2>
+          {/* Quick Stats Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {/* Total Jobs */}
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center">
+                  <svg
+                    className="w-6 h-6 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
               </div>
-              <p className="text-xl text-white/90 mb-4">
-                Upload your CV to unlock personalized job recommendations
-                powered by AI!
+              <div className="text-3xl font-bold text-gray-900 mb-1">
+                {loading ? "..." : stats.totalJobs}
+              </div>
+              <div className="text-sm text-gray-600 font-medium">
+                Available Jobs
+              </div>
+            </div>
+
+            {/* Matched Jobs */}
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center">
+                  <svg
+                    className="w-6 h-6 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">
+                {loading ? "..." : stats.matchedJobs}
+              </div>
+              <div className="text-sm text-gray-600 font-medium">
+                Matched Jobs
+              </div>
+            </div>
+
+            {/* Applications */}
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center">
+                  <svg
+                    className="w-6 h-6 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">
+                {stats.applications}
+              </div>
+              <div className="text-sm text-gray-600 font-medium">
+                Applications
+              </div>
+            </div>
+
+            {/* Saved Jobs */}
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-pink-600 rounded-xl flex items-center justify-center">
+                  <svg
+                    className="w-6 h-6 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">
+                {stats.savedJobs}
+              </div>
+              <div className="text-sm text-gray-600 font-medium">
+                Saved Jobs
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Curve */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg
+            viewBox="0 0 1440 120"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z"
+              fill="#EEF2FF"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 pb-12 relative z-10">
+        {/* Featured Jobs Section */}
+        <div className="bg-white rounded-3xl shadow-2xl p-8 mb-8">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                Recommended Jobs For You
+              </h2>
+              <p className="text-gray-600">
+                Based on your profile and preferences
               </p>
-              <div className="flex gap-4 text-sm text-white/80">
-                <span className="flex items-center gap-2">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  AI-Powered Analysis
-                </span>
-                <span className="flex items-center gap-2">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  Instant Matching
-                </span>
-                <span className="flex items-center gap-2">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  Skill Gap Insights
-                </span>
-              </div>
             </div>
             <Link
-              to="/employee/profile"
-              className="px-8 py-4 bg-white text-emerald-600 rounded-xl font-bold text-lg shadow-lg hover:shadow-2xl hover:bg-emerald-50 transition-all duration-300 flex items-center gap-3 group"
+              to="/employee/jobs"
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold hover:shadow-xl transition-all duration-300 hover:scale-105"
             >
-              <span>Upload CV Now</span>
-              <svg
-                className="w-6 h-6 group-hover:translate-x-1 transition-transform"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 7l5 5m0 0l-5 5m5-5H6"
-                />
-              </svg>
+              View All Jobs →
             </Link>
           </div>
-        </div>
 
-        {/* Career Progress Bar */}
-        <div className="bg-white rounded-xl shadow-md p-6 mb-8 border border-gray-100">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Career Progress
-            </h2>
-            <span className="text-3xl font-bold text-blue-600">65%</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-4 mb-2">
-            <div
-              className="bg-gradient-to-r from-blue-600 to-purple-600 h-4 rounded-full"
-              style={{ width: "65%" }}
-            ></div>
-          </div>
-          <p className="text-sm text-gray-600">
-            Keep going! You're making great progress.
-          </p>
-        </div>
-
-        {/* Next Tasks */}
-        <div className="bg-white rounded-xl shadow-md p-6 mb-8 border border-gray-100">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Next Tasks</h2>
-          <div className="space-y-4">
-            <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-600 hover:bg-blue-100 transition-all">
-              <div className="flex-shrink-0 w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
-                1
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-gray-900">
-                  Complete React Course
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Learning Path • 2 hours remaining
-                </p>
-              </div>
-              <Link
-                to="/employee/learning"
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all shadow-sm"
-              >
-                Continue
-              </Link>
+          {loading ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="animate-pulse bg-gray-100 rounded-2xl p-6 h-64"
+                ></div>
+              ))}
             </div>
-
-            <div className="flex items-center gap-4 p-4 bg-green-50 rounded-lg border-l-4 border-green-600 hover:bg-green-100 transition-all">
-              <div className="flex-shrink-0 w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white font-bold">
-                2
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-gray-900">
-                  Apply to Frontend Developer Jobs
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Jobs • 5 matching opportunities
-                </p>
-              </div>
-              <Link
-                to="/employee/jobs"
-                className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-all shadow-sm"
-              >
-                View Jobs
-              </Link>
-            </div>
-
-            <div className="flex items-center gap-4 p-4 bg-purple-50 rounded-lg border-l-4 border-purple-600 hover:bg-purple-100 transition-all">
-              <div className="flex-shrink-0 w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold">
-                3
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-gray-900">
-                  Practice Interview Questions
-                </h3>
-                <p className="text-sm text-gray-600">
-                  AI Interview • 10 questions ready
-                </p>
-              </div>
-              <Link
-                to="/employee/interview"
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-all shadow-sm"
-              >
-                Start Practice
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Latest Recommendations */}
-        <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Latest Recommendations
-          </h2>
-          <div className="grid md:grid-cols-3 gap-4">
-            {/* Job Recommendation */}
-            <div className="p-4 bg-white border-2 border-blue-200 rounded-lg hover:border-blue-600 hover:shadow-md transition-all">
+          ) : jobs.length === 0 ? (
+            <div className="text-center py-12">
               <svg
-                className="w-10 h-10 text-blue-600 mb-2"
+                className="w-24 h-24 mx-auto text-gray-300 mb-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -322,88 +273,411 @@ export default function Dashboard() {
                   d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                 />
               </svg>
-              <h3 className="font-bold text-gray-900 mb-1">
-                Senior React Developer
-              </h3>
-              <p className="text-sm text-gray-600 mb-2">TechCorp • Remote</p>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-green-600">
-                  95% Match
-                </span>
-                <Link
-                  to="/employee/jobs"
-                  className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline"
+              <p className="text-gray-500 text-lg">
+                No jobs available at the moment
+              </p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {jobs.map((job, index) => (
+                <div
+                  key={job._id || index}
+                  className="group bg-gradient-to-br from-gray-50 to-white border-2 border-gray-100 rounded-2xl p-6 hover:border-blue-400 hover:shadow-xl transition-all duration-300 cursor-pointer"
                 >
-                  View →
-                </Link>
+                  {/* Company Logo Placeholder */}
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-400 to-purple-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <span className="text-white font-bold text-xl">
+                      {job.company?.charAt(0) || "C"}
+                    </span>
+                  </div>
+
+                  {/* Job Title */}
+                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
+                    {job.title}
+                  </h3>
+
+                  {/* Company Name */}
+                  <p className="text-gray-600 font-semibold mb-4">
+                    {job.company}
+                  </p>
+
+                  {/* Job Details */}
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                      <span>{job.location || "Remote"}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <span>{job.jobType || "Full-time"}</span>
+                    </div>
+                    {job.salaryMin && job.salaryMax && (
+                      <div className="flex items-center gap-2 text-sm text-green-600 font-semibold">
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
+                          />
+                        </svg>
+                        <span>
+                          ${job.salaryMin.toLocaleString()} - $
+                          {job.salaryMax.toLocaleString()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Skills */}
+                  {job.requiredSkills && job.requiredSkills.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {job.requiredSkills.slice(0, 3).map((skill, i) => (
+                        <span
+                          key={i}
+                          className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                      {job.requiredSkills.length > 3 && (
+                        <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">
+                          +{job.requiredSkills.length - 3} more
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Action Button */}
+                  <Link
+                    to={`/employee/jobs/${job._id}`}
+                    className="block w-full text-center px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300 group-hover:scale-105"
+                  >
+                    View Details
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid md:grid-cols-2 gap-8 mb-8">
+          {/* Upload CV Card */}
+          <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-8 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                <svg
+                  className="w-8 h-8"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold mb-1">Upload Your CV</h3>
+                <p className="text-white/80">
+                  Get AI-powered job recommendations
+                </p>
+              </div>
+            </div>
+            <ul className="space-y-2 mb-6">
+              <li className="flex items-center gap-2 text-sm">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                AI-Powered Analysis
+              </li>
+              <li className="flex items-center gap-2 text-sm">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Instant Job Matching
+              </li>
+              <li className="flex items-center gap-2 text-sm">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Skill Gap Insights
+              </li>
+            </ul>
+            <Link
+              to="/employee/profile"
+              className="block w-full text-center px-6 py-4 bg-white text-emerald-600 rounded-xl font-bold hover:bg-emerald-50 transition-all duration-300 shadow-lg hover:shadow-xl"
+            >
+              Upload CV Now →
+            </Link>
+          </div>
+
+          {/* Learning Path Card */}
+          <div className="bg-gradient-to-br from-purple-500 to-pink-600 rounded-3xl p-8 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                <svg
+                  className="w-8 h-8"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold mb-1">Start Learning</h3>
+                <p className="text-white/80">
+                  Enhance your skills with courses
+                </p>
+              </div>
+            </div>
+            <ul className="space-y-2 mb-6">
+              <li className="flex items-center gap-2 text-sm">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Personalized Recommendations
+              </li>
+              <li className="flex items-center gap-2 text-sm">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Industry-Leading Content
+              </li>
+              <li className="flex items-center gap-2 text-sm">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Track Your Progress
+              </li>
+            </ul>
+            <Link
+              to="/employee/learning"
+              className="block w-full text-center px-6 py-4 bg-white text-purple-600 rounded-xl font-bold hover:bg-purple-50 transition-all duration-300 shadow-lg hover:shadow-xl"
+            >
+              Browse Courses →
+            </Link>
+          </div>
+        </div>
+
+        {/* Career Progress */}
+        <div className="bg-white rounded-3xl shadow-xl p-8 mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                Your Career Progress
+              </h2>
+              <p className="text-gray-600">
+                Keep building your profile to unlock more opportunities
+              </p>
+            </div>
+            <div className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              65%
+            </div>
+          </div>
+
+          <div className="relative w-full bg-gray-200 rounded-full h-6 mb-8">
+            <div
+              className="absolute top-0 left-0 h-6 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-full transition-all duration-1000 flex items-center justify-end pr-2"
+              style={{ width: "65%" }}
+            >
+              <div className="w-8 h-8 bg-white rounded-full shadow-lg"></div>
+            </div>
+          </div>
+
+          {/* Progress Steps */}
+          <div className="grid md:grid-cols-4 gap-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h4 className="font-bold text-gray-900">Profile Created</h4>
+                <p className="text-sm text-gray-600">Complete</p>
               </div>
             </div>
 
-            {/* Course Recommendation */}
-            <div className="p-4 bg-white border-2 border-purple-200 rounded-lg hover:border-purple-600 hover:shadow-md transition-all">
-              <svg
-                className="w-10 h-10 text-purple-600 mb-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                />
-              </svg>
-              <h3 className="font-bold text-gray-900 mb-1">
-                Advanced TypeScript
-              </h3>
-              <p className="text-sm text-gray-600 mb-2">Udemy • 8 hours</p>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-purple-600">
-                  Recommended
-                </span>
-                <Link
-                  to="/employee/learning"
-                  className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline"
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 animate-pulse">
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  Start →
-                </Link>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h4 className="font-bold text-gray-900">Upload CV</h4>
+                <p className="text-sm text-blue-600">In Progress</p>
               </div>
             </div>
 
-            {/* Skill Gap */}
-            <div className="p-4 bg-white border-2 border-orange-200 rounded-lg hover:border-orange-600 hover:shadow-md transition-all">
-              <svg
-                className="w-10 h-10 text-orange-600 mb-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                />
-              </svg>
-              <h3 className="font-bold text-gray-900 mb-1">
-                Docker & Kubernetes
-              </h3>
-              <p className="text-sm text-gray-600 mb-2">Skill Gap Identified</p>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-orange-600">
-                  Learn Now
-                </span>
-                <Link
-                  to="/employee/skills"
-                  className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline"
+            <div className="flex items-start gap-3 opacity-50">
+              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  Analyze →
-                </Link>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h4 className="font-bold text-gray-900">Apply to Jobs</h4>
+                <p className="text-sm text-gray-600">Pending</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 opacity-50">
+              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h4 className="font-bold text-gray-900">Get Hired</h4>
+                <p className="text-sm text-gray-600">Pending</p>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Stats Chart */}
+        <JobStatsChart />
       </div>
     </div>
   );

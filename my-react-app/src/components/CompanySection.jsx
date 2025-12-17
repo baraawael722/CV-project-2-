@@ -1,26 +1,28 @@
-import React from 'react';
+import React from "react";
 
 const companies = [
-  { name: 'Google', logo: 'https://cdn.simpleicons.org/google/4285F4' },
-  { name: 'Amazon', logo: 'https://cdn.simpleicons.org/amazon/FF9900' },
-  { name: 'Meta', logo: 'https://cdn.simpleicons.org/meta/0081FB' },
-  { name: 'Netflix', logo: 'https://cdn.simpleicons.org/netflix/E50914' },
-  { name: 'Tesla', logo: 'https://cdn.simpleicons.org/tesla/CC0000' },
-  { name: 'Samsung', logo: 'https://cdn.simpleicons.org/samsung/1428A0' },
-  { name: 'Coca Cola', logo: 'https://cdn.simpleicons.org/cocacola/E41A1C' },
-  { name: 'Starbucks', logo: 'https://cdn.simpleicons.org/starbucks/036635' },
-  { name: 'Intel', logo: 'https://cdn.simpleicons.org/intel/0071C5' }
+  { name: "Google", logo: "https://cdn.simpleicons.org/google/4285F4" },
+  { name: "Amazon", logo: "https://cdn.simpleicons.org/amazon/FF9900" },
+  { name: "Meta", logo: "https://cdn.simpleicons.org/meta/0081FB" },
+  { name: "Netflix", logo: "https://cdn.simpleicons.org/netflix/E50914" },
+  { name: "Tesla", logo: "https://cdn.simpleicons.org/tesla/CC0000" },
+  { name: "Samsung", logo: "https://cdn.simpleicons.org/samsung/1428A0" },
+  { name: "Coca Cola", logo: "https://cdn.simpleicons.org/cocacola/E41A1C" },
+  { name: "Starbucks", logo: "https://cdn.simpleicons.org/starbucks/036635" },
+  { name: "Intel", logo: "https://cdn.simpleicons.org/intel/0071C5" },
 ];
 
 const CompanySection = () => {
   return (
-    <section className="relative py-24 px-4 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <section
+      id="about"
+      className="relative py-24 px-4 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50"
+    >
       <div className="max-w-7xl mx-auto">
-
         {/* Section Header */}
         <div className="text-center mb-16 reveal" data-delay="1">
           <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            Over{' '}
+            Over{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
               10,000 top
             </span>
@@ -28,12 +30,16 @@ const CompanySection = () => {
             companies join with us
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Join a community with staff, pensions, as well as other benefits, we will always be the best choice for your career.
+            Join a community with staff, pensions, as well as other benefits, we
+            will always be the best choice for your career.
           </p>
         </div>
 
         {/* Company Logos Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 items-center justify-items-center reveal-gentle" data-delay="2">
+        <div
+          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 items-center justify-items-center reveal-gentle"
+          data-delay="2"
+        >
           {companies.map((company, index) => (
             <div
               key={index}
@@ -55,7 +61,6 @@ const CompanySection = () => {
             View All Companies →
           </button>
         </div>
-
       </div>
     </section>
   );

@@ -11,6 +11,8 @@ export default function Jobs() {
   const [matchLoading, setMatchLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedJob, setSelectedJob] = useState(null);
   const [companyLogo, setCompanyLogo] = useState(null);
   const [logoFile, setLogoFile] = useState(null);
   const [newJob, setNewJob] = useState({
@@ -331,11 +333,11 @@ export default function Jobs() {
           {(filter === "ai-matched" ? matchedJobs : jobs).map((job) => (
             <div
               key={job._id || job.id}
-              className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all p-6 border border-gray-200"
+              className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6 border-2 border-gray-100 hover:border-indigo-200"
             >
               <div className="flex items-start gap-6">
                 {/* Logo */}
-                <div className="flex-shrink-0 w-28 h-28 rounded-lg flex items-center justify-center overflow-hidden">
+                <div className="flex-shrink-0 w-24 h-24 rounded-xl flex items-center justify-center overflow-hidden shadow-md">
                   {job.companyLogo ? (
                     <img
                       src={job.companyLogo}
@@ -343,9 +345,9 @@ export default function Jobs() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
                       <svg
-                        className="w-8 h-8 text-white"
+                        className="w-10 h-10 text-white"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -362,36 +364,20 @@ export default function Jobs() {
                 </div>
 
                 {/* Job Info */}
-                <div className="flex-1">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-1">
-                        {job.title}
-                      </h3>
-                      <p className="text-base text-gray-600 font-medium">
-                        {job.company}
-                      </p>
-                    </div>
-                    <div className="flex flex-col items-end gap-2">
-                      <div
-                        className={`px-4 py-2 rounded-lg font-bold text-base shadow-sm ${
-                          (job.matchScore ?? job.match ?? 0) >= 90
-                            ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
-                            : (job.matchScore ?? job.match ?? 0) >= 80
-                            ? "bg-blue-100 text-blue-700 border border-blue-200"
-                            : "bg-amber-100 text-amber-700 border border-amber-200"
-                        }`}
-                      >
-                        {Number(job.matchScore ?? job.match ?? 0).toFixed(2)}%
-                        Match
-                      </div>
-                    </div>
+                <div className="flex-1 min-w-0">
+                  <div className="mb-4">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                      {job.title}
+                    </h3>
+                    <p className="text-base text-gray-600 font-semibold">
+                      {job.company}
+                    </p>
                   </div>
 
-                  <div className="flex flex-wrap gap-4 mb-4 text-sm text-gray-600">
-                    <span className="flex items-center gap-2">
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="flex items-center gap-2 text-sm text-gray-700">
                       <svg
-                        className="w-4 h-4"
+                        className="w-5 h-5 text-indigo-500"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -409,47 +395,11 @@ export default function Jobs() {
                           d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                         />
                       </svg>
-                      {job.location || "N/A"}
-                    </span>
-                    <span className="flex items-center gap-2">
+                      <span className="font-medium">{job.location || "N/A"}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-700">
                       <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                        />
-                      </svg>
-                      {job.jobType || "Full-time"}
-                    </span>
-                    <span className="flex items-center gap-2">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {job.salary
-                        ? `${job.salary.min ?? ""}${job.salary.min ? "-" : ""}${
-                            job.salary.max ?? ""
-                          } ${job.salary.currency || ""}`.trim()
-                        : "Negotiable"}
-                    </span>
-                    <span className="flex items-center gap-2">
-                      <svg
-                        className="w-4 h-4"
+                        className="w-5 h-5 text-indigo-500"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -461,8 +411,46 @@ export default function Jobs() {
                           d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                         />
                       </svg>
-                      {job.posted || "Recently"}
-                    </span>
+                      <span className="font-medium">{job.jobType || "Full-time"}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                      <svg
+                        className="w-5 h-5 text-green-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <span className="font-semibold text-green-700">
+                        {job.salaryMin && job.salaryMax
+                          ? `${job.salaryMin}-${job.salaryMax} USD`
+                          : job.salary
+                          ? `${job.salary.min ?? ""}${job.salary.min ? "-" : ""}${job.salary.max ?? ""} ${job.salary.currency || ""}`.trim()
+                          : "Negotiable"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                      <svg
+                        className="w-5 h-5 text-purple-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <span className="font-medium">{job.posted || "Recently"}</span>
+                    </div>
                   </div>
 
                   <div className="flex flex-wrap gap-2 mb-4">
@@ -478,39 +466,40 @@ export default function Jobs() {
                     )}
                   </div>
 
-                  <div className="flex gap-3">
+                  <div className="flex gap-3 mt-4">
                     {user?.role === "employee" && (
                       <button
                         onClick={() =>
                           navigate(`/employee/jobs/${job._id || job.id}`)
                         }
-                        className="flex-1 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all shadow-md"
+                        className="flex-1 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                       >
                         Apply Now
                       </button>
                     )}
                     <button
                       onClick={() => toggleSave(job._id || job.id)}
-                      className={`px-6 py-3 font-semibold rounded-lg transition-all shadow-sm ${
+                      className={`px-6 py-3 font-bold rounded-xl transition-all shadow-md ${
                         savedJobs.includes(job._id || job.id)
-                          ? "bg-amber-500 text-white hover:bg-amber-600"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300"
+                          ? "bg-amber-500 text-white hover:bg-amber-600 hover:shadow-lg"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-gray-300"
                       }`}
                     >
                       {savedJobs.includes(job._id || job.id) ? "Saved" : "Save"}
                     </button>
                     <button
-                      onClick={() =>
-                        navigate(`/employee/jobs/${job._id || job.id}`)
-                      }
-                      className="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-all shadow-sm border border-gray-300"
+                      onClick={() => {
+                        setSelectedJob(job);
+                        setShowDetailsModal(true);
+                      }}
+                      className="px-6 py-3 bg-white text-indigo-600 font-bold rounded-xl hover:bg-indigo-50 transition-all shadow-md border-2 border-indigo-300 hover:border-indigo-500"
                     >
                       Details
                     </button>
                     {user?.role === "hr" && (
                       <button
                         onClick={() => handleDeleteJob(job._id || job.id)}
-                        className="px-6 py-3 bg-red-100 text-red-600 font-semibold rounded-lg hover:bg-red-200 transition-all shadow-sm border border-red-300"
+                        className="px-6 py-3 bg-red-100 text-red-600 font-bold rounded-xl hover:bg-red-200 transition-all shadow-md border-2 border-red-300"
                       >
                         Delete
                       </button>
@@ -521,6 +510,188 @@ export default function Jobs() {
             </div>
           ))}
         </div>
+
+        {/* Job Details Modal */}
+        {showDetailsModal && selectedJob && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto transform transition-all animate-scaleIn">
+              {/* Modal Header */}
+              <div className="sticky top-0 bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-t-3xl z-10">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                      {selectedJob.companyLogo ? (
+                        <img
+                          src={selectedJob.companyLogo}
+                          alt="Company Logo"
+                          className="w-full h-full object-cover rounded-xl"
+                        />
+                      ) : (
+                        <svg
+                          className="w-8 h-8 text-white"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                          />
+                        </svg>
+                      )}
+                    </div>
+                    <div>
+                      <h2 className="text-3xl font-bold mb-1">{selectedJob.title}</h2>
+                      <p className="text-lg text-white/90">{selectedJob.company}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowDetailsModal(false)}
+                    className="text-white/80 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-lg"
+                  >
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-8 space-y-6">
+                {/* Key Information */}
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200">
+                    <div className="flex items-center gap-3 mb-2">
+                      <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span className="text-sm font-semibold text-gray-600">Location</span>
+                    </div>
+                    <p className="text-lg font-bold text-gray-900">{selectedJob.location || 'N/A'}</p>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 rounded-xl border border-purple-200">
+                    <div className="flex items-center gap-3 mb-2">
+                      <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="text-sm font-semibold text-gray-600">Job Type</span>
+                    </div>
+                    <p className="text-lg font-bold text-gray-900">{selectedJob.jobType || 'Full-time'}</p>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl border border-green-200">
+                    <div className="flex items-center gap-3 mb-2">
+                      <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="text-sm font-semibold text-gray-600">Salary</span>
+                    </div>
+                    <p className="text-lg font-bold text-green-700">
+                      {selectedJob.salaryMin && selectedJob.salaryMax
+                        ? `$${selectedJob.salaryMin}-${selectedJob.salaryMax} USD`
+                        : selectedJob.salary
+                        ? `${selectedJob.salary.min ?? ""}${selectedJob.salary.min ? "-" : ""}${selectedJob.salary.max ?? ""} ${selectedJob.salary.currency || ""}`.trim()
+                        : "Negotiable"}
+                    </p>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-4 rounded-xl border border-orange-200">
+                    <div className="flex items-center gap-3 mb-2">
+                      <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                      </svg>
+                      <span className="text-sm font-semibold text-gray-600">Experience</span>
+                    </div>
+                    <p className="text-lg font-bold text-gray-900">{selectedJob.experienceLevel || 'Entry Level'}</p>
+                  </div>
+                </div>
+
+                {/* Description */}
+                {selectedJob.description && (
+                  <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+                      <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      Job Description
+                    </h3>
+                    <p className="text-gray-700 leading-relaxed">{selectedJob.description}</p>
+                  </div>
+                )}
+
+                {/* Department */}
+                {selectedJob.department && (
+                  <div className="bg-blue-50 p-6 rounded-xl border border-blue-200">
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+                      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                      Department
+                    </h3>
+                    <p className="text-lg font-semibold text-gray-900">{selectedJob.department}</p>
+                  </div>
+                )}
+
+                {/* Required Skills */}
+                {(selectedJob.requiredSkills || selectedJob.skills) && (selectedJob.requiredSkills || selectedJob.skills).length > 0 && (
+                  <div className="bg-purple-50 p-6 rounded-xl border border-purple-200">
+                    <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                      <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                      </svg>
+                      Required Skills
+                    </h3>
+                    <div className="flex flex-wrap gap-3">
+                      {(selectedJob.requiredSkills || selectedJob.skills).map((skill, index) => (
+                        <span
+                          key={index}
+                          className="px-4 py-2 bg-white text-purple-700 border-2 border-purple-300 rounded-xl text-sm font-bold shadow-sm"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex gap-4 pt-4">
+                  {user?.role === "employee" && (
+                    <button
+                      onClick={() => {
+                        setShowDetailsModal(false);
+                        navigate(`/employee/jobs/${selectedJob._id || selectedJob.id}`);
+                      }}
+                      className="flex-1 px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                    >
+                      Apply Now
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setShowDetailsModal(false)}
+                    className="px-8 py-4 bg-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-300 transition-all shadow-md"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Add Job Modal (HR only) */}
         {showModal && user?.role === "hr" && (

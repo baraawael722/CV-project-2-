@@ -12,7 +12,7 @@ import Register from "./pages/Register.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import HRDashboard from "./pages/HRDashboard.jsx";
 import MatchedCandidates from "./pages/MatchedCandidates.jsx";
-import Skills from "./pages/Skills.jsx";
+// Skills page removed
 import Jobs from "./pages/Jobs.jsx";
 import JobDetails from "./pages/JobDetails.jsx";
 import Learning from "./pages/Learning.jsx";
@@ -95,15 +95,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/employee/skills"
-          element={
-            <ProtectedRoute allowedRoles={["employee", "user"]}>
-              <TopNavbar />
-              <Skills />
-            </ProtectedRoute>
-          }
-        />
+        {/* /employee/skills removed */}
         <Route
           path="/employee/learning"
           element={
@@ -178,10 +170,7 @@ export default function App() {
           path="/jobs"
           element={<Navigate to="/employee/jobs" replace />}
         />
-        <Route
-          path="/skills"
-          element={<Navigate to="/employee/skills" replace />}
-        />
+        {/* /skills redirect removed */}
         <Route
           path="/learning"
           element={<Navigate to="/employee/learning" replace />}
