@@ -69,6 +69,11 @@ const jobSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Company",
     },
+    applicationQuestions: [
+      {
+        type: String,
+      },
+    ],
   },
   {
     timestamps: true,

@@ -1,5 +1,6 @@
 import Job from "../models/Job.js";
 import Candidate from "../models/Candidate.js";
+import Notification from "../models/Notification.js";
 
 // Get all jobs
 export const getAllJobs = async (req, res) => {
@@ -128,6 +129,7 @@ export const createJob = async (req, res) => {
       location,
       jobType,
       company,
+      applicationQuestions,
     } = req.body;
 
     // Parse requiredSkills if it's a string
@@ -137,6 +139,20 @@ export const createJob = async (req, res) => {
         .split(",")
         .map((skill) => skill.trim())
         .filter((skill) => skill);
+    }
+
+    // Parse applicationQuestions if it's a string
+    let questionsArray = [];
+    if (applicationQuestions) {
+      if (typeof applicationQuestions === "string") {
+        try {
+          questionsArray = JSON.parse(applicationQuestions);
+        } catch (e) {
+          console.log("Failed to parse applicationQuestions:", e);
+        }
+      } else if (Array.isArray(applicationQuestions)) {
+        questionsArray = applicationQuestions;
+      }
     }
 
     // Parse salary if it's sent as separate fields
@@ -152,9 +168,8 @@ export const createJob = async (req, res) => {
     // Handle company logo if uploaded
     let companyLogo = null;
     if (req.file) {
-      companyLogo = `data:${
-        req.file.mimetype
-      };base64,${req.file.buffer.toString("base64")}`;
+      companyLogo = `data:${req.file.mimetype
+        };base64,${req.file.buffer.toString("base64")}`;
     }
 
     const job = await Job.create({
@@ -168,6 +183,7 @@ export const createJob = async (req, res) => {
       jobType,
       company: company || "Company Name",
       companyLogo,
+      applicationQuestions: questionsArray,
       postedBy: req.user.id,
     });
 
@@ -297,12 +313,34 @@ export const getJobApplicants = async (req, res) => {
   try {
     const candidates = await Candidate.find({
       "applications.jobId": req.params.id,
-    }).select("-applications");
+    });
+
+    // Extract application details for this specific job
+    const applicantsWithDetails = candidates.map((candidate) => {
+      const application = candidate.applications.find(
+        (app) => app.jobId && app.jobId.toString() === req.params.id
+      );
+
+      return {
+        _id: candidate._id,
+        name: candidate.name,
+        email: candidate.email,
+        phone: candidate.phone,
+        skills: candidate.skills,
+        experience: candidate.experience,
+        experienceLevel: candidate.experienceLevel,
+        jobTitle: candidate.jobTitle,
+        resumeUrl: candidate.resumeUrl,
+        appliedAt: application?.appliedAt,
+        status: application?.status,
+        answers: application?.answers,
+      };
+    });
 
     res.json({
       success: true,
-      count: candidates.length,
-      data: candidates,
+      count: applicantsWithDetails.length,
+      data: applicantsWithDetails,
     });
   } catch (error) {
     res.status(500).json({
@@ -319,6 +357,7 @@ export const applyToJob = async (req, res) => {
     const jobId = req.params.id;
     const userId = req.user.id;
     const userEmail = req.user.email;
+    const { answers } = req.body; // Get answers from request body
 
     // Find the job
     const job = await Job.findById(jobId);
@@ -358,10 +397,22 @@ export const applyToJob = async (req, res) => {
     candidate.applications.push({
       jobId: jobId,
       appliedAt: new Date(),
-      status: "Pending",
+      status: "Applied",
+      answers: answers || {}, // Save the answers
     });
 
     await candidate.save();
+
+    // Create notification for HR who posted the job
+    await Notification.create({
+      userId: job.postedBy,
+      title: "New Job Application",
+      message: `${req.user.name || candidate.name} applied for ${job.title}`,
+      type: "application",
+      jobId: jobId,
+      applicantId: req.user.id,
+      link: `/hr/jobs/${jobId}/applicants`,
+    });
 
     res.json({
       success: true,
@@ -371,6 +422,59 @@ export const applyToJob = async (req, res) => {
         jobTitle: job.title,
         appliedAt: new Date(),
       },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: error.message,
+    });
+  }
+};
+
+// Withdraw application from a job
+export const withdrawApplication = async (req, res) => {
+  try {
+    const jobId = req.params.id;
+    const userEmail = req.user.email;
+
+    // Find the job
+    const job = await Job.findById(jobId);
+    if (!job) {
+      return res.status(404).json({
+        success: false,
+        message: "Job not found",
+      });
+    }
+
+    // Find candidate profile
+    const candidate = await Candidate.findOne({ email: userEmail });
+    if (!candidate) {
+      return res.status(404).json({
+        success: false,
+        message: "Candidate profile not found",
+      });
+    }
+
+    // Check if applied
+    const applicationIndex = candidate.applications?.findIndex(
+      (app) => app.jobId && app.jobId.toString() === jobId
+    );
+
+    if (applicationIndex === -1) {
+      return res.status(400).json({
+        success: false,
+        message: "You have not applied to this job",
+      });
+    }
+
+    // Remove application
+    candidate.applications.splice(applicationIndex, 1);
+    await candidate.save();
+
+    res.json({
+      success: true,
+      message: "Application withdrawn successfully",
     });
   } catch (error) {
     res.status(500).json({

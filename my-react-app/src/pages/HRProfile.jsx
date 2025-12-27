@@ -64,6 +64,8 @@ export default function HRProfile() {
 
   const fetchStats = async (token) => {
     try {
+      const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+
       // Fetch user profile from API
       const profileRes = await fetch("http://localhost:5000/api/auth/me", {
         headers: { Authorization: `Bearer ${token}` },
@@ -74,9 +76,9 @@ export default function HRProfile() {
         if (profileData.success && profileData.user) {
           // Update user in localStorage with latest data from backend
           const updatedUser = {
-            ...user,
+            ...storedUser,
             ...profileData.user,
-            role: user.role, // Keep the role from original user
+            role: storedUser.role || profileData.user.role, // Keep the role from original user or use from API
           };
           localStorage.setItem("user", JSON.stringify(updatedUser));
           setUser(updatedUser);

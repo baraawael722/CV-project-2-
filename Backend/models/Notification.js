@@ -28,6 +28,14 @@ const notificationSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    jobId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Job",
+    },
+    applicantId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
   },
   {
     timestamps: true,

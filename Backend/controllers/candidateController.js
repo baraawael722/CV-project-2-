@@ -5,6 +5,7 @@ import { getGridFSBucket } from "../config/gridfs.js";
 import { Readable } from "stream";
 import mongoose from "mongoose";
 import axios from "axios";
+import { ObjectId } from "mongodb";
 
 // CV Classifier Service URL
 const CV_CLASSIFIER_URL =
@@ -634,3 +635,67 @@ export const uploadResume = async (req, res) => {
       .json({ success: false, message: "Upload failed", error: error.message });
   }
 };
+
+// Download Resume from GridFS
+export const downloadResume = async (req, res) => {
+  try {
+    const candidate = await Candidate.findById(req.params.id);
+
+    if (!candidate) {
+      return res.status(404).json({
+        success: false,
+        message: "Candidate not found",
+      });
+    }
+
+    if (!candidate.resumeUrl) {
+      return res.status(404).json({
+        success: false,
+        message: "No resume found for this candidate",
+      });
+    }
+
+    const bucket = getGridFSBucket();
+    const fileId = new ObjectId(candidate.resumeUrl);
+
+    // Find file in GridFS
+    const files = await bucket.find({ _id: fileId }).toArray();
+
+    if (!files || files.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Resume file not found in storage",
+      });
+    }
+
+    const file = files[0];
+
+    // Set response headers
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename="${candidate.name}_CV.pdf"`,
+      "Content-Length": file.length,
+    });
+
+    // Stream file to response
+    const downloadStream = bucket.openDownloadStream(fileId);
+    downloadStream.pipe(res);
+
+    downloadStream.on("error", (error) => {
+      console.error("Download stream error:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error streaming file",
+        error: error.message,
+      });
+    });
+  } catch (error) {
+    console.error("Download resume error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to download resume",
+      error: error.message,
+    });
+  }
+};
+

@@ -11,6 +11,10 @@ export default function JobDetails() {
   const [error, setError] = useState(null);
   const [applying, setApplying] = useState(false);
   const [applicationStatus, setApplicationStatus] = useState(null);
+  const [showQuestionsModal, setShowQuestionsModal] = useState(false);
+  const [answers, setAnswers] = useState({});
+  const [hasApplied, setHasApplied] = useState(false);
+  const [withdrawing, setWithdrawing] = useState(false);
 
   useEffect(() => {
     const fetchJobDetails = async () => {
@@ -23,10 +27,28 @@ export default function JobDetails() {
           headers: { Authorization: `Bearer ${token}` },
         });
         const jobData = await jobRes.json();
+
+        console.log("📥 Job data received:", jobData);
+        console.log("❓ Application questions in response:", jobData?.data?.applicationQuestions || jobData?.job?.applicationQuestions);
+
         if (!jobRes.ok)
           throw new Error(jobData?.message || "Failed to load job");
 
         setJob(jobData.data || jobData.job);
+
+        // Check if user has already applied
+        const candidateRes = await fetch("http://localhost:5000/api/candidates/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (candidateRes.ok) {
+          const candidateData = await candidateRes.json();
+          if (candidateData.success && candidateData.data) {
+            const applied = candidateData.data.applications?.some(
+              app => app.jobId?.toString() === jobId || app.jobId?._id?.toString() === jobId
+            );
+            setHasApplied(applied);
+          }
+        }
       } catch (e) {
         setError(e.message);
       } finally {
@@ -67,6 +89,61 @@ export default function JobDetails() {
   };
 
   const handleApply = async () => {
+    console.log("🔍 handleApply called");
+    console.log("📋 Job data:", job);
+    console.log("❓ Application questions:", job?.applicationQuestions);
+    console.log("📊 Questions length:", job?.applicationQuestions?.length);
+
+    // Check if job has application questions
+    if (job.applicationQuestions && job.applicationQuestions.length > 0) {
+      console.log("✅ Questions found, showing modal");
+      // Show questions modal
+      setShowQuestionsModal(true);
+      // Initialize empty answers
+      const initialAnswers = {};
+      job.applicationQuestions.forEach((_, idx) => {
+        initialAnswers[idx] = "";
+      });
+      setAnswers(initialAnswers);
+      return;
+    }
+
+    console.log("⚠️ No questions found, applying directly");
+    // If no questions, apply directly
+    await submitApplication({});
+  };
+
+  const handleWithdrawApplication = async () => {
+    if (!window.confirm("Are you sure you want to withdraw your application?")) {
+      return;
+    }
+
+    try {
+      setWithdrawing(true);
+      setError(null);
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(`http://localhost:5000/api/jobs/${jobId}/withdraw`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.message || "Failed to withdraw application");
+
+      setHasApplied(false);
+      setApplicationStatus("withdrawn");
+      setTimeout(() => setApplicationStatus(null), 3000);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setWithdrawing(false);
+    }
+  };
+
+  const submitApplication = async (applicationAnswers) => {
     try {
       setApplying(true);
       setError(null);
@@ -78,12 +155,15 @@ export default function JobDetails() {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({ answers: applicationAnswers }),
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data?.message || "Failed to apply");
 
       setApplicationStatus("success");
+      setHasApplied(true);
+      setShowQuestionsModal(false);
       setTimeout(() => {
         navigate("/employee/jobs");
       }, 2000);
@@ -155,6 +235,18 @@ export default function JobDetails() {
         {applicationStatus === "success" && (
           <div className="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-lg">
             Application submitted successfully! Redirecting...
+          </div>
+        )}
+
+        {applicationStatus === "withdrawn" && (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 text-blue-700 rounded-lg">
+            Application withdrawn successfully!
+          </div>
+        )}
+
+        {hasApplied && (
+          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 text-yellow-700 rounded-lg">
+            You have already applied to this job
           </div>
         )}
 
@@ -241,8 +333,7 @@ export default function JobDetails() {
                         />
                       </svg>
                       {job.salary
-                        ? `${job.salary.min || ""}${job.salary.min ? "-" : ""}${
-                            job.salary.max || ""
+                        ? `${job.salary.min || ""}${job.salary.min ? "-" : ""}${job.salary.max || ""
                           } ${job.salary.currency || ""}`.trim()
                         : "Negotiable"}
                     </span>
@@ -252,11 +343,11 @@ export default function JobDetails() {
 
               {/* Apply Button */}
               <button
-                onClick={handleApply}
-                disabled={applying}
-                className="w-full px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-lg rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed mb-4"
+                onClick={hasApplied ? handleWithdrawApplication : handleApply}
+                disabled={applying || withdrawing}
+                className={`w-full px-8 py-4 ${hasApplied ? 'bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700' : 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700'} text-white font-bold text-lg rounded-lg transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed mb-4`}
               >
-                {applying ? "Applying..." : "Apply Now"}
+                {withdrawing ? "Withdrawing..." : hasApplied ? "Withdraw Application" : applying ? "Applying..." : "Apply Now"}
               </button>
 
               {/* Analyze Match & Skills Button */}
@@ -398,29 +489,27 @@ export default function JobDetails() {
                         Match Score
                       </p>
                       <div
-                        className={`text-5xl font-bold mb-2 ${
-                          skillAnalysis.matchScore >= 80
+                        className={`text-5xl font-bold mb-2 ${skillAnalysis.matchScore >= 80
                             ? "text-green-600"
                             : skillAnalysis.matchScore >= 60
-                            ? "text-blue-600"
-                            : skillAnalysis.matchScore >= 40
-                            ? "text-yellow-600"
-                            : "text-red-600"
-                        }`}
+                              ? "text-blue-600"
+                              : skillAnalysis.matchScore >= 40
+                                ? "text-yellow-600"
+                                : "text-red-600"
+                          }`}
                       >
                         {skillAnalysis.matchScore?.toFixed(1) || "0"}%
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                         <div
-                          className={`h-full rounded-full transition-all ${
-                            skillAnalysis.matchScore >= 80
+                          className={`h-full rounded-full transition-all ${skillAnalysis.matchScore >= 80
                               ? "bg-green-600"
                               : skillAnalysis.matchScore >= 60
-                              ? "bg-blue-600"
-                              : skillAnalysis.matchScore >= 40
-                              ? "bg-yellow-600"
-                              : "bg-red-600"
-                          }`}
+                                ? "bg-blue-600"
+                                : skillAnalysis.matchScore >= 40
+                                  ? "bg-yellow-600"
+                                  : "bg-red-600"
+                            }`}
                           style={{ width: `${skillAnalysis.matchScore || 0}%` }}
                         ></div>
                       </div>
@@ -612,6 +701,109 @@ export default function JobDetails() {
           </div>
         </div>
       </div>
+
+      {/* Application Questions Modal */}
+      {showQuestionsModal && job.applicationQuestions && job.applicationQuestions.length > 0 && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-3xl font-bold text-gray-900">
+                  Application Questions
+                </h3>
+                <p className="text-sm text-gray-500 mt-1">
+                  Please answer the following questions to complete your application
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowQuestionsModal(false);
+                  setAnswers({});
+                }}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                // Validate all questions are answered
+                const unanswered = job.applicationQuestions.findIndex(
+                  (_, idx) => !answers[idx] || answers[idx].trim() === ""
+                );
+                if (unanswered !== -1) {
+                  setError(`Please answer question ${unanswered + 1}`);
+                  return;
+                }
+                setError(null);
+                submitApplication(answers);
+              }}
+              className="space-y-6"
+            >
+              {job.applicationQuestions.map((question, idx) => (
+                <div key={idx} className="space-y-2">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold mr-2">
+                      {idx + 1}
+                    </span>
+                    {question}
+                  </label>
+                  <textarea
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                    placeholder="Your answer..."
+                    rows={4}
+                    value={answers[idx] || ""}
+                    onChange={(e) =>
+                      setAnswers({ ...answers, [idx]: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+              ))}
+
+              {error && (
+                <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+                  {error}
+                </div>
+              )}
+
+              <div className="flex gap-3 justify-end pt-4 border-t">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowQuestionsModal(false);
+                    setAnswers({});
+                  }}
+                  className="px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={applying}
+                  className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {applying ? "Submitting..." : "Submit Application"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

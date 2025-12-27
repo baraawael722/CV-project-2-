@@ -11,8 +11,11 @@ export default function Jobs() {
   const [matchLoading, setMatchLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [formStep, setFormStep] = useState(1); // 1 = Job Details, 2 = Application Questions
   const [companyLogo, setCompanyLogo] = useState(null);
   const [logoFile, setLogoFile] = useState(null);
+  const [applicationQuestions, setApplicationQuestions] = useState([]);
+  const [newQuestion, setNewQuestion] = useState("");
   const [newJob, setNewJob] = useState({
     title: "",
     company: "",
@@ -137,6 +140,11 @@ export default function Jobs() {
         formData.append("companyLogo", logoFile);
       }
 
+      // Add application questions if any
+      if (applicationQuestions.length > 0) {
+        formData.append("applicationQuestions", JSON.stringify(applicationQuestions));
+      }
+
       // Basic client-side required checks to avoid 400
       if (
         !newJob.title ||
@@ -177,8 +185,11 @@ export default function Jobs() {
         );
       }
       setShowModal(false);
+      setFormStep(1);
       setCompanyLogo(null);
       setLogoFile(null);
+      setApplicationQuestions([]);
+      setNewQuestion("");
       setNewJob({
         title: "",
         company: "",
@@ -252,41 +263,37 @@ export default function Jobs() {
             <div className="flex gap-3">
               <button
                 onClick={() => setFilter("all")}
-                className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                  filter === "all"
+                className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === "all"
                     ? "bg-indigo-600 text-white shadow-md"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 All Jobs ({jobs.length})
               </button>
               <button
                 onClick={() => setFilter("remote")}
-                className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                  filter === "remote"
+                className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === "remote"
                     ? "bg-indigo-600 text-white shadow-md"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 Remote
               </button>
               <button
                 onClick={() => setFilter("fulltime")}
-                className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                  filter === "fulltime"
+                className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === "fulltime"
                     ? "bg-indigo-600 text-white shadow-md"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 Full-time
               </button>
               <button
                 onClick={() => setFilter("saved")}
-                className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                  filter === "saved"
+                className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === "saved"
                     ? "bg-indigo-600 text-white shadow-md"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 Saved ({savedJobs.length})
               </button>
@@ -294,11 +301,10 @@ export default function Jobs() {
                 <button
                   onClick={fetchMLMatches}
                   disabled={matchLoading}
-                  className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                    filter === "ai-matched"
+                  className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === "ai-matched"
                       ? "bg-purple-600 text-white shadow-md"
                       : "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-md"
-                  }`}
+                    }`}
                 >
                   {matchLoading ? "Loading AI..." : "AI Recommended"}
                 </button>
@@ -374,13 +380,12 @@ export default function Jobs() {
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <div
-                        className={`px-4 py-2 rounded-lg font-bold text-base shadow-sm ${
-                          (job.matchScore ?? job.match ?? 0) >= 90
+                        className={`px-4 py-2 rounded-lg font-bold text-base shadow-sm ${(job.matchScore ?? job.match ?? 0) >= 90
                             ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
                             : (job.matchScore ?? job.match ?? 0) >= 80
-                            ? "bg-blue-100 text-blue-700 border border-blue-200"
-                            : "bg-amber-100 text-amber-700 border border-amber-200"
-                        }`}
+                              ? "bg-blue-100 text-blue-700 border border-blue-200"
+                              : "bg-amber-100 text-amber-700 border border-amber-200"
+                          }`}
                       >
                         {Number(job.matchScore ?? job.match ?? 0).toFixed(2)}%
                         Match
@@ -442,8 +447,7 @@ export default function Jobs() {
                         />
                       </svg>
                       {job.salary
-                        ? `${job.salary.min ?? ""}${job.salary.min ? "-" : ""}${
-                            job.salary.max ?? ""
+                        ? `${job.salary.min ?? ""}${job.salary.min ? "-" : ""}${job.salary.max ?? ""
                           } ${job.salary.currency || ""}`.trim()
                         : "Negotiable"}
                     </span>
@@ -491,18 +495,23 @@ export default function Jobs() {
                     )}
                     <button
                       onClick={() => toggleSave(job._id || job.id)}
-                      className={`px-6 py-3 font-semibold rounded-lg transition-all shadow-sm ${
-                        savedJobs.includes(job._id || job.id)
+                      className={`px-6 py-3 font-semibold rounded-lg transition-all shadow-sm ${savedJobs.includes(job._id || job.id)
                           ? "bg-amber-500 text-white hover:bg-amber-600"
                           : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300"
-                      }`}
+                        }`}
                     >
                       {savedJobs.includes(job._id || job.id) ? "Saved" : "Save"}
                     </button>
                     <button
-                      onClick={() =>
-                        navigate(`/employee/jobs/${job._id || job.id}`)
-                      }
+                      onClick={() => {
+                        if (user?.role === "hr") {
+                          // HR sees applicants
+                          navigate(`/hr/jobs/${job._id || job.id}/applicants`);
+                        } else {
+                          // Employee sees job details
+                          navigate(`/employee/jobs/${job._id || job.id}`);
+                        }
+                      }}
                       className="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-all shadow-sm border border-gray-300"
                     >
                       Details
@@ -527,11 +536,19 @@ export default function Jobs() {
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-3xl font-bold text-gray-900">
-                  Post New Job
-                </h3>
+                <div>
+                  <h3 className="text-3xl font-bold text-gray-900">
+                    Post New Job
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Step {formStep} of 2: {formStep === 1 ? "Job Details" : "Application Questions"}
+                  </p>
+                </div>
                 <button
-                  onClick={() => setShowModal(false)}
+                  onClick={() => {
+                    setShowModal(false);
+                    setFormStep(1);
+                  }}
                   className="text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   <svg
@@ -550,257 +567,389 @@ export default function Jobs() {
                 </button>
               </div>
               <form onSubmit={handleCreateJob} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Job Title *
-                  </label>
-                  <input
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                    placeholder="e.g. Senior Frontend Developer"
-                    value={newJob.title}
-                    onChange={(e) =>
-                      setNewJob({ ...newJob, title: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Company *
-                  </label>
-                  <input
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                    placeholder="e.g. TechCorp"
-                    value={newJob.company}
-                    onChange={(e) =>
-                      setNewJob({ ...newJob, company: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-
-                {/* Company Logo Upload */}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Company Logo
-                  </label>
-                  <div className="flex items-center gap-4">
-                    {companyLogo && (
-                      <img
-                        src={companyLogo}
-                        alt="Company Logo Preview"
-                        className="w-24 h-24 rounded-lg object-cover border-2 border-gray-300"
-                      />
-                    )}
-                    <label className="flex-1 cursor-pointer">
-                      <div className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-indigo-500 transition-all">
-                        <svg
-                          className="w-8 h-8 mx-auto mb-2 text-gray-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                          />
-                        </svg>
-                        <p className="text-sm text-gray-600">
-                          {logoFile
-                            ? logoFile.name
-                            : "Click to upload company logo"}
-                        </p>
-                        <p className="text-xs text-gray-400 mt-1">
-                          PNG, JPG up to 5MB
-                        </p>
-                      </div>
+                {/* Step 1: Job Details */}
+                {formStep === 1 && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Job Title *
+                      </label>
                       <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files[0];
-                          if (file) {
-                            if (file.size > 5 * 1024 * 1024) {
-                              setError("Image size should be less than 5MB");
-                              return;
-                            }
-                            if (!file.type.startsWith("image/")) {
-                              setError("Please select an image file");
-                              return;
-                            }
-                            setLogoFile(file);
-                            const reader = new FileReader();
-                            reader.onloadend = () => {
-                              setCompanyLogo(reader.result);
-                            };
-                            reader.readAsDataURL(file);
-                          }
-                        }}
+                        className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                        placeholder="e.g. Senior Frontend Developer"
+                        value={newJob.title}
+                        onChange={(e) =>
+                          setNewJob({ ...newJob, title: e.target.value })
+                        }
+                        required
                       />
-                    </label>
-                    {companyLogo && (
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Company *
+                      </label>
+                      <input
+                        className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                        placeholder="e.g. TechCorp"
+                        value={newJob.company}
+                        onChange={(e) =>
+                          setNewJob({ ...newJob, company: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
+
+                    {/* Company Logo Upload */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Company Logo
+                      </label>
+                      <div className="flex items-center gap-4">
+                        {companyLogo && (
+                          <img
+                            src={companyLogo}
+                            alt="Company Logo Preview"
+                            className="w-24 h-24 rounded-lg object-cover border-2 border-gray-300"
+                          />
+                        )}
+                        <label className="flex-1 cursor-pointer">
+                          <div className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-indigo-500 transition-all">
+                            <svg
+                              className="w-8 h-8 mx-auto mb-2 text-gray-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                              />
+                            </svg>
+                            <p className="text-sm text-gray-600">
+                              {logoFile
+                                ? logoFile.name
+                                : "Click to upload company logo"}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-1">
+                              PNG, JPG up to 5MB
+                            </p>
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files[0];
+                              if (file) {
+                                if (file.size > 5 * 1024 * 1024) {
+                                  setError("Image size should be less than 5MB");
+                                  return;
+                                }
+                                if (!file.type.startsWith("image/")) {
+                                  setError("Please select an image file");
+                                  return;
+                                }
+                                setLogoFile(file);
+                                const reader = new FileReader();
+                                reader.onloadend = () => {
+                                  setCompanyLogo(reader.result);
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                          />
+                        </label>
+                        {companyLogo && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setCompanyLogo(null);
+                              setLogoFile(null);
+                            }}
+                            className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all text-sm font-semibold"
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Department *
+                        </label>
+                        <input
+                          className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                          placeholder="e.g. Engineering"
+                          value={newJob.department}
+                          onChange={(e) =>
+                            setNewJob({ ...newJob, department: e.target.value })
+                          }
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Location *
+                        </label>
+                        <input
+                          className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                          placeholder="e.g. Remote / NYC"
+                          value={newJob.location}
+                          onChange={(e) =>
+                            setNewJob({ ...newJob, location: e.target.value })
+                          }
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Job Type
+                      </label>
+                      <select
+                        className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-white"
+                        value={newJob.jobType}
+                        onChange={(e) =>
+                          setNewJob({ ...newJob, jobType: e.target.value })
+                        }
+                      >
+                        <option>Full-time</option>
+                        <option>Part-time</option>
+                        <option>Contract</option>
+                        <option>Remote</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Salary Range
+                      </label>
+                      <div className="grid grid-cols-3 gap-3">
+                        <input
+                          className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                          placeholder="Min"
+                          type="number"
+                          value={newJob.salaryMin}
+                          onChange={(e) =>
+                            setNewJob({ ...newJob, salaryMin: e.target.value })
+                          }
+                        />
+                        <input
+                          className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                          placeholder="Max"
+                          type="number"
+                          value={newJob.salaryMax}
+                          onChange={(e) =>
+                            setNewJob({ ...newJob, salaryMax: e.target.value })
+                          }
+                        />
+                        <select
+                          className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-white"
+                          value={newJob.currency}
+                          onChange={(e) =>
+                            setNewJob({ ...newJob, currency: e.target.value })
+                          }
+                        >
+                          <option>USD</option>
+                          <option>EUR</option>
+                          <option>GBP</option>
+                          <option>EGP</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Job Description *
+                      </label>
+                      <textarea
+                        className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                        placeholder="Describe the role, responsibilities, and requirements..."
+                        rows={5}
+                        value={newJob.description}
+                        onChange={(e) =>
+                          setNewJob({ ...newJob, description: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Required Skills * (comma-separated)
+                      </label>
+                      <input
+                        className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                        placeholder="e.g. React, Node.js, MongoDB, REST APIs"
+                        value={newJob.skills}
+                        onChange={(e) =>
+                          setNewJob({ ...newJob, skills: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Experience Level
+                      </label>
+                      <select
+                        className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-white"
+                        value={newJob.experienceLevel}
+                        onChange={(e) =>
+                          setNewJob({ ...newJob, experienceLevel: e.target.value })
+                        }
+                      >
+                        <option>Entry Level</option>
+                        <option>Mid Level</option>
+                        <option>Senior Level</option>
+                        <option>Executive</option>
+                      </select>
+                    </div>
+                    <div className="flex gap-3 justify-end pt-4 border-t">
                       <button
                         type="button"
                         onClick={() => {
-                          setCompanyLogo(null);
-                          setLogoFile(null);
+                          setShowModal(false);
+                          setFormStep(1);
                         }}
-                        className="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-all text-sm font-semibold"
+                        className="px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-all"
                       >
-                        Remove
+                        Cancel
                       </button>
-                    )}
-                  </div>
-                </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          // Validate step 1 fields
+                          if (!newJob.title || !newJob.company || !newJob.department || !newJob.location || !newJob.description || !newJob.skills.trim()) {
+                            setError("Please fill all required fields before proceeding");
+                            return;
+                          }
+                          setError(null);
+                          setFormStep(2);
+                        }}
+                        className="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all shadow-md"
+                      >
+                        Next →
+                      </button>
+                    </div>
+                  </>
+                )}
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Department *
-                    </label>
-                    <input
-                      className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                      placeholder="e.g. Engineering"
-                      value={newJob.department}
-                      onChange={(e) =>
-                        setNewJob({ ...newJob, department: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Location *
-                    </label>
-                    <input
-                      className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                      placeholder="e.g. Remote / NYC"
-                      value={newJob.location}
-                      onChange={(e) =>
-                        setNewJob({ ...newJob, location: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Job Type
-                  </label>
-                  <select
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-white"
-                    value={newJob.jobType}
-                    onChange={(e) =>
-                      setNewJob({ ...newJob, jobType: e.target.value })
-                    }
-                  >
-                    <option>Full-time</option>
-                    <option>Part-time</option>
-                    <option>Contract</option>
-                    <option>Remote</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Salary Range
-                  </label>
-                  <div className="grid grid-cols-3 gap-3">
-                    <input
-                      className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                      placeholder="Min"
-                      type="number"
-                      value={newJob.salaryMin}
-                      onChange={(e) =>
-                        setNewJob({ ...newJob, salaryMin: e.target.value })
-                      }
-                    />
-                    <input
-                      className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                      placeholder="Max"
-                      type="number"
-                      value={newJob.salaryMax}
-                      onChange={(e) =>
-                        setNewJob({ ...newJob, salaryMax: e.target.value })
-                      }
-                    />
-                    <select
-                      className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-white"
-                      value={newJob.currency}
-                      onChange={(e) =>
-                        setNewJob({ ...newJob, currency: e.target.value })
-                      }
-                    >
-                      <option>USD</option>
-                      <option>EUR</option>
-                      <option>GBP</option>
-                      <option>EGP</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Job Description *
-                  </label>
-                  <textarea
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                    placeholder="Describe the role, responsibilities, and requirements..."
-                    rows={5}
-                    value={newJob.description}
-                    onChange={(e) =>
-                      setNewJob({ ...newJob, description: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Required Skills * (comma-separated)
-                  </label>
-                  <input
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                    placeholder="e.g. React, Node.js, MongoDB, REST APIs"
-                    value={newJob.skills}
-                    onChange={(e) =>
-                      setNewJob({ ...newJob, skills: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Experience Level
-                  </label>
-                  <select
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-white"
-                    value={newJob.experienceLevel}
-                    onChange={(e) =>
-                      setNewJob({ ...newJob, experienceLevel: e.target.value })
-                    }
-                  >
-                    <option>Entry Level</option>
-                    <option>Mid Level</option>
-                    <option>Senior Level</option>
-                    <option>Executive</option>
-                  </select>
-                </div>
-                <div className="flex gap-3 justify-end pt-4 border-t">
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-all"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all shadow-md"
-                  >
-                    Post Job
-                  </button>
-                </div>
+                {/* Step 2: Application Questions */}
+                {formStep === 2 && (
+                  <>
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="text-xl font-bold text-gray-900 mb-2">
+                          Application Questions
+                        </h4>
+                        <p className="text-sm text-gray-600 mb-4">
+                          Add questions that candidates will answer when they apply for this position.
+                        </p>
+                      </div>
+
+                      {/* Current Questions List */}
+                      {applicationQuestions.length > 0 && (
+                        <div className="space-y-3 mb-4">
+                          <p className="text-sm font-semibold text-gray-700">
+                            Questions ({applicationQuestions.length}):
+                          </p>
+                          {applicationQuestions.map((q, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200"
+                            >
+                              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-sm font-bold">
+                                {idx + 1}
+                              </span>
+                              <p className="flex-1 text-gray-800">{q}</p>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setApplicationQuestions(
+                                    applicationQuestions.filter((_, i) => i !== idx)
+                                  );
+                                }}
+                                className="flex-shrink-0 text-red-500 hover:text-red-700 transition-colors"
+                              >
+                                <svg
+                                  className="w-5 h-5"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Add New Question */}
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Add Question
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            className="flex-1 border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                            placeholder="e.g. What interests you about this position?"
+                            value={newQuestion}
+                            onChange={(e) => setNewQuestion(e.target.value)}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                if (newQuestion.trim()) {
+                                  setApplicationQuestions([...applicationQuestions, newQuestion.trim()]);
+                                  setNewQuestion("");
+                                }
+                              }
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (newQuestion.trim()) {
+                                setApplicationQuestions([...applicationQuestions, newQuestion.trim()]);
+                                setNewQuestion("");
+                              }
+                            }}
+                            className="px-4 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all shadow-md"
+                          >
+                            + Add
+                          </button>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">
+                          Questions are optional. Press Enter or click Add to include a question.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 justify-end pt-4 border-t">
+                      <button
+                        type="button"
+                        onClick={() => setFormStep(1)}
+                        className="px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-all"
+                      >
+                        ← Back
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-6 py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-all shadow-md"
+                      >
+                        Post Job
+                      </button>
+                    </div>
+                  </>
+                )}
               </form>
             </div>
           </div>

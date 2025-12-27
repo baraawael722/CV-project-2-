@@ -19,6 +19,8 @@ import Learning from "./pages/Learning.jsx";
 import Interview from "./pages/Interview.jsx";
 import Profile from "./pages/Profile.jsx";
 import HRProfile from "./pages/HRProfile.jsx";
+import JobApplicants from "./pages/JobApplicants.jsx";
+import CandidateProfile from "./pages/CandidateProfile.jsx";
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -157,6 +159,24 @@ export default function App() {
             <ProtectedRoute allowedRoles={["hr"]}>
               <TopNavbar />
               <Jobs />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/hr/jobs/:jobId/applicants"
+          element={
+            <ProtectedRoute allowedRoles={["hr"]}>
+              <TopNavbar />
+              <JobApplicants />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/hr/candidates/:candidateId"
+          element={
+            <ProtectedRoute allowedRoles={["hr"]}>
+              <TopNavbar />
+              <CandidateProfile />
             </ProtectedRoute>
           }
         />

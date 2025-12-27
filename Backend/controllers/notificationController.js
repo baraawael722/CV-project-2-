@@ -4,12 +4,20 @@ import Notification from "../models/Notification.js";
 export const getNotifications = async (req, res) => {
   try {
     const notifications = await Notification.find({ userId: req.user.id })
+      .populate("jobId", "title company")
+      .populate("applicantId", "name email")
       .sort({ createdAt: -1 })
       .limit(50);
+
+    const unreadCount = await Notification.countDocuments({
+      userId: req.user.id,
+      read: false,
+    });
 
     res.json({
       success: true,
       count: notifications.length,
+      unreadCount,
       data: notifications,
     });
   } catch (error) {

@@ -10,6 +10,7 @@ import {
   updateApplicationStatus,
   calculateMatch,
   uploadResume,
+  downloadResume,
   getMyProfile,
 } from "../controllers/candidateController.js";
 import { protect } from "../middleware/authMiddleware.js";
@@ -59,6 +60,9 @@ router.post("/match", authorizeRoles("hr"), calculateMatch);
 
 // Employee resume upload (multipart/form-data) -> field name: cv
 router.post("/upload", authorizeRoles("employee"), upload.single("cv"), uploadResume);
+
+// Download candidate resume (for HR or employee viewing their own)
+router.get("/:id/resume", downloadResume);
 
 router
   .route("/:id")

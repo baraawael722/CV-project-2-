@@ -83,6 +83,10 @@ const candidateSchema = new mongoose.Schema(
           type: Number,
           default: 0,
         },
+        answers: {
+          type: mongoose.Schema.Types.Mixed,
+          default: {},
+        },
       },
     ],
     location: {
