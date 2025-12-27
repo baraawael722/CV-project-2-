@@ -709,3 +709,102 @@ export const downloadResume = async (req, res) => {
   }
 };
 
+// Get saved jobs for the authenticated employee
+export const getSavedJobs = async (req, res) => {
+  try {
+    const email = req.user?.email;
+    if (!email) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
+    let candidate = await Candidate.findOne({ email }).populate(
+      "savedJobs",
+      "title department company jobType salary location"
+    );
+
+    if (!candidate) {
+      return res.json({ success: true, data: [] });
+    }
+
+    return res.json({ success: true, data: candidate.savedJobs });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch saved jobs",
+      error: error.message,
+    });
+  }
+};
+
+// Toggle save/unsave a job for the authenticated employee
+export const toggleSaveJob = async (req, res) => {
+  try {
+    const email = req.user?.email;
+    const jobId = req.params.jobId;
+
+    if (!email) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
+    if (!jobId || !mongoose.Types.ObjectId.isValid(jobId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid jobId",
+      });
+    }
+
+    const job = await Job.findById(jobId).select("_id");
+    if (!job) {
+      return res.status(404).json({ success: false, message: "Job not found" });
+    }
+
+    let candidate = await Candidate.findOne({ email });
+    if (!candidate) {
+      candidate = await Candidate.create({
+        name: req.user?.name || email,
+        email,
+        savedJobs: [],
+      });
+    }
+
+    const idStr = job._id.toString();
+    const current = new Set((candidate.savedJobs || []).map((j) => j.toString()));
+
+    let action = "saved";
+    if (current.has(idStr)) {
+      // Unsave
+      candidate.savedJobs = candidate.savedJobs.filter(
+        (j) => j.toString() !== idStr
+      );
+      action = "unsaved";
+    } else {
+      // Save
+      candidate.savedJobs.push(job._id);
+    }
+
+    await candidate.save();
+
+    const populated = await Candidate.findById(candidate._id)
+      .populate("savedJobs", "title department company jobType salary location")
+      .select("savedJobs");
+
+    return res.json({
+      success: true,
+      message: `Job ${action} successfully`,
+      data: populated.savedJobs,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to toggle saved job",
+      error: error.message,
+    });
+  }
+};
+

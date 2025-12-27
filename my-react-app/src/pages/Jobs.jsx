@@ -528,7 +528,7 @@ export default function Jobs() {
                         />
                       </svg>
                       {job.jobType || "Full-time"}
-                    </span>
+                    </div>
                     <span className="flex items-center gap-2">
                       <svg
                         className="w-4 h-4"
@@ -565,7 +565,7 @@ export default function Jobs() {
                       <span className="font-medium">
                         {job.jobType || "Full-time"}
                       </span>
-                    </div>
+                    </span>
                     <div className="flex items-center gap-2 text-sm text-gray-700">
                       <svg
                         className="w-5 h-5 text-green-500"
