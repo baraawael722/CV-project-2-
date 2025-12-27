@@ -12,6 +12,8 @@ import {
   uploadResume,
   downloadResume,
   getMyProfile,
+  toggleSaveJob,
+  getSavedJobs,
 } from "../controllers/candidateController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { authorizeRoles } from "../middleware/roleMiddleware.js";
@@ -33,13 +35,21 @@ const fileFilter = (req, file, cb) => {
   else cb(new Error("Only PDF files are allowed"), false);
 };
 
-const upload = multer({ storage, fileFilter, limits: { fileSize: 10 * 1024 * 1024 } });
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
 
 // All routes require authentication
 router.use(protect);
 
 // Get my profile (for employees to get their own profile)
 router.get("/me", getMyProfile);
+
+// Saved jobs endpoints
+router.get("/saved-jobs", authorizeRoles("employee"), getSavedJobs);
+router.post("/saved-jobs/:jobId", authorizeRoles("employee"), toggleSaveJob);
 
 router
   .route("/")
@@ -59,7 +69,12 @@ router.put(
 router.post("/match", authorizeRoles("hr"), calculateMatch);
 
 // Employee resume upload (multipart/form-data) -> field name: cv
-router.post("/upload", authorizeRoles("employee"), upload.single("cv"), uploadResume);
+router.post(
+  "/upload",
+  authorizeRoles("employee"),
+  upload.single("cv"),
+  uploadResume
+);
 
 // Download candidate resume (for HR or employee viewing their own)
 router.get("/:id/resume", downloadResume);

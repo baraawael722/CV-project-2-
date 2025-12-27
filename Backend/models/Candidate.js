@@ -56,6 +56,38 @@ const candidateSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
+    // CV Classification Results (persisted)
+    classificationResult: {
+      jobTitle: {
+        type: String,
+        default: "",
+      },
+      confidence: {
+        type: Number,
+        default: 0,
+      },
+      method: {
+        type: String,
+        default: "",
+      },
+      classifiedAt: {
+        type: Date,
+        default: null,
+      },
+    },
+    // Extracted Skills from CV (for reference)
+    extractedSkills: [
+      {
+        type: String,
+      },
+    ],
+    // Saved Jobs (bookmarked by user)
+    savedJobs: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Job",
+      },
+    ],
     linkedinUrl: {
       type: String,
       default: "",
