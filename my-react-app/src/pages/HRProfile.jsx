@@ -200,17 +200,17 @@ export default function HRProfile() {
           setUser(updatedUser);
           setProfileImage(uploadData.profileImage);
           setImageFile(null);
-          
+
           // Trigger storage event for other components
-          window.dispatchEvent(new Event('storage'));
-          
+          window.dispatchEvent(new Event("storage"));
+
           showToast("✅ Profile image saved to database!", "success");
         } else {
           showToast(uploadData.message || "Failed to upload image", "error");
           return;
         }
       }
-      
+
       // Update profile info in backend
       const updateRes = await fetch("http://localhost:5000/api/auth/me", {
         method: "PUT",
@@ -232,10 +232,10 @@ export default function HRProfile() {
         };
         localStorage.setItem("user", JSON.stringify(updatedUser));
         setUser(updatedUser);
-        
+
         // Trigger storage event for other components
-        window.dispatchEvent(new Event('storage'));
-        
+        window.dispatchEvent(new Event("storage"));
+
         showToast("✅ Profile updated successfully!", "success");
       }
 
