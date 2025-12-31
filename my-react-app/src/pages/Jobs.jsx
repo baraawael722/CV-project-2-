@@ -16,6 +16,8 @@ export default function Jobs() {
   const [logoFile, setLogoFile] = useState(null);
   const [applicationQuestions, setApplicationQuestions] = useState([]);
   const [newQuestion, setNewQuestion] = useState("");
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedJob, setSelectedJob] = useState(null);
   const [newJob, setNewJob] = useState({
     title: "",
     company: "",
@@ -302,54 +304,54 @@ export default function Jobs() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-50 text-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+        <div className="mb-8 text-center">
+          <h1 className="text-5xl font-extrabold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
             Job Opportunities
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-xl text-gray-700 font-medium">
             Find your perfect match based on your skills
           </p>
         </div>
 
         {/* Top actions and Filters */}
-        <div className="bg-white rounded-xl shadow-md p-6 mb-8 border border-gray-200">
-          <div className="flex flex-wrap gap-3 items-center justify-between">
-            <div className="flex gap-3">
+        <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-6 mb-8 border-2 border-indigo-100">
+          <div className="flex flex-wrap gap-4 items-center justify-between">
+            <div className="flex gap-4">
               <button
                 onClick={() => setFilter("all")}
-                className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === "all"
-                    ? "bg-indigo-600 text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                className={`px-7 py-3.5 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 ${filter === "all"
+                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-300"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-gray-200"
                   }`}
               >
                 All Jobs ({jobs.length})
               </button>
               <button
                 onClick={() => setFilter("remote")}
-                className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === "remote"
-                    ? "bg-indigo-600 text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                className={`px-7 py-3.5 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 ${filter === "remote"
+                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-300"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-gray-200"
                   }`}
               >
                 Remote
               </button>
               <button
                 onClick={() => setFilter("fulltime")}
-                className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === "fulltime"
-                    ? "bg-indigo-600 text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                className={`px-7 py-3.5 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 ${filter === "fulltime"
+                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-300"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-gray-200"
                   }`}
               >
                 Full-time
               </button>
               <button
                 onClick={() => setFilter("saved")}
-                className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === "saved"
-                    ? "bg-indigo-600 text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                className={`px-7 py-3.5 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 ${filter === "saved"
+                    ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-300"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-gray-200"
                   }`}
               >
                 Saved ({savedJobs.length})
@@ -358,9 +360,9 @@ export default function Jobs() {
                 <button
                   onClick={fetchMLMatches}
                   disabled={matchLoading}
-                  className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === "ai-matched"
-                      ? "bg-purple-600 text-white shadow-md"
-                      : "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-md"
+                  className={`px-7 py-3.5 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 ${filter === "ai-matched"
+                      ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-xl shadow-purple-300"
+                      : "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-lg shadow-purple-300"
                     }`}
                 >
                   {matchLoading ? "Loading AI..." : "AI Recommended"}
@@ -370,7 +372,7 @@ export default function Jobs() {
             {user?.role === "hr" && (
               <button
                 onClick={() => setShowModal(true)}
-                className="px-6 py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 transition-all shadow-md"
+                className="px-7 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-emerald-300"
               >
                 + Post New Job
               </button>
@@ -472,19 +474,6 @@ export default function Jobs() {
                       <p className="text-base text-gray-600 font-medium">
                         {job.company}
                       </p>
-                    </div>
-                    <div className="flex flex-col items-end gap-2">
-                      <div
-                        className={`px-4 py-2 rounded-lg font-bold text-base shadow-sm ${(job.matchScore ?? job.match ?? 0) >= 90
-                            ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
-                            : (job.matchScore ?? job.match ?? 0) >= 80
-                              ? "bg-blue-100 text-blue-700 border border-blue-200"
-                              : "bg-amber-100 text-amber-700 border border-amber-200"
-                          }`}
-                      >
-                        {Number(job.matchScore ?? job.match ?? 0).toFixed(2)}%
-                        Match
-                      </div>
                     </div>
                   </div>
 
@@ -647,13 +636,9 @@ export default function Jobs() {
                     </button>
                     <button
                       onClick={() => {
-                        if (user?.role === "hr") {
-                          // HR sees applicants
-                          navigate(`/hr/jobs/${job._id || job.id}/applicants`);
-                        } else {
-                          // Employee sees job details
-                          navigate(`/employee/jobs/${job._id || job.id}`);
-                        }
+                        // Open inline modal for quick details
+                        setSelectedJob(job);
+                        setShowDetailsModal(true);
                       }}
                       className="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-all shadow-sm border border-gray-300"
                     >

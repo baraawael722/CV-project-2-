@@ -16,7 +16,8 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      const API_BASE = import.meta.env.VITE_API_BASE || "";
+      const response = await fetch(`${API_BASE}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,7 +53,9 @@ export default function Login() {
       }
     } catch (err) {
       console.error("Login error:", err);
-      setError("Network error. Please make sure the server is running.");
+      setError(
+        "Network error. Please make sure the backend (port 5000) is running."
+      );
     } finally {
       setLoading(false);
     }

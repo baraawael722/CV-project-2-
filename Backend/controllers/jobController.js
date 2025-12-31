@@ -21,8 +21,10 @@ export const getAllJobs = async (req, res) => {
 
     // For employees: calculate match scores using Python BERT matcher
     let enrichedJobs = jobs;
-    if (req.user.role === "employee") {
+    // Accept both "employee" and "user" roles for employees
+    if (req.user.role === "employee" || req.user.role === "user") {
       try {
+        console.log("📊 Calculating match scores for user with role:", req.user.role);
         // Import pythonMatcher here to avoid circular dependency
         const { getPythonMatcher } = await import("../utils/pythonMatcher.js");
         const pythonMatcher = getPythonMatcher();
@@ -32,12 +34,31 @@ export const getAllJobs = async (req, res) => {
           const cvText = candidate.resumeText;
           const jobDescriptions = jobs.map((job) => job.description || "");
 
-          // Use Python BERT matcher for accurate semantic similarity
-          const matches = await pythonMatcher.match(
-            cvText,
-            jobDescriptions,
-            jobs.length
-          );
+          console.log(`🔍 Matching CV against ${jobs.length} jobs...`);
+
+          let matches;
+          try {
+            // Try Python BERT matcher first
+            matches = await Promise.race([
+              pythonMatcher.match(cvText, jobDescriptions, jobs.length),
+              new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 30000))
+            ]);
+            console.log("✅ Used Python BERT matcher");
+          } catch (pythonError) {
+            console.warn("⚠️  Python matcher failed, falling back to hybrid matcher:", pythonError.message);
+            // Fallback to hybrid matcher
+            const { hybridMatch } = await import("../utils/hybridMatcher.js");
+            const results = hybridMatch(cvText, jobs, jobs.length);
+            // Convert hybridMatch format { job, matchScore } to Python format { job_index, similarity_score }
+            matches = results.map((r) => {
+              const jobIdx = jobs.findIndex(j => j._id.toString() === r.job._id.toString());
+              return {
+                job_index: jobIdx,
+                similarity_score: r.matchScore / 100  // hybridMatch returns 0-100, but API expects 0-1
+              };
+            });
+            console.log("✅ Used Hybrid matcher as fallback");
+          }
 
           enrichedJobs = jobs.map((job, idx) => {
             const matchData = matches.find((m) => m.job_index === idx);
@@ -48,10 +69,14 @@ export const getAllJobs = async (req, res) => {
             return jobObj;
           });
 
+          console.log("✅ Match scores calculated:", enrichedJobs.slice(0, 3).map(j => ({ title: j.title, score: j.matchScore })));
+
           // Sort by match score descending
           enrichedJobs.sort(
             (a, b) => (b.matchScore || 0) - (a.matchScore || 0)
           );
+        } else {
+          console.log("⚠️  No resume found for candidate:", req.user.email);
         }
       } catch (matchError) {
         console.error(
@@ -60,6 +85,8 @@ export const getAllJobs = async (req, res) => {
         );
         // Continue without match scores
       }
+    } else {
+      console.log("ℹ️  Role is HR, skipping match score calculation");
     }
 
     res.json({

@@ -7,7 +7,9 @@
     "my-react-app"
   ],
   "scripts": {
-    "dev": "concurrently \"npm:backend:dev\" \"npm:frontend:dev\" \"npm:ml:dev\"",
+    "dev": "concurrently -n backend,frontend,ml -c blue,magenta,green --restart-tries 99 --restart-after 3000 --success none \"npm:backend:dev\" \"npm:frontend:dev\" \"npm:ml:dev\"",
+    "dev:no-ml": "concurrently -n backend,frontend -c blue,magenta --restart-tries 99 --restart-after 3000 --success none \"npm:backend:dev\" \"npm:frontend:dev\"",
+    "dev:ps": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\start_all_services.ps1",
     "start": "npm run start --workspace Backend",
     "build": "npm run build --workspace my-react-app",
     "install:all": "npm install",

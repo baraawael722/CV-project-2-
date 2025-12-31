@@ -797,7 +797,10 @@ export const toggleSaveJob = async (req, res) => {
     return res.json({
       success: true,
       message: `Job ${action} successfully`,
-      data: populated.savedJobs,
+      data: {
+        action,
+        savedJobs: populated.savedJobs,
+      },
     });
   } catch (error) {
     return res.status(500).json({

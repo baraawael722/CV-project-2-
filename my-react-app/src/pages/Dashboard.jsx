@@ -39,6 +39,8 @@ export default function Dashboard() {
   const fetchDashboardData = async (token) => {
     try {
       setLoading(true);
+      console.log("🔄 Fetching jobs for dashboard...");
+
       // Fetch jobs from API
       const res = await fetch("http://localhost:5000/api/jobs", {
         headers: {
@@ -52,9 +54,18 @@ export default function Dashboard() {
       }
 
       const data = await res.json();
-      console.log("Jobs data received:", data); // For debugging
+      console.log("✅ Jobs data received from API:", data); // For debugging
+      console.log("📊 First job matchScore:", data.data?.[0]?.matchScore);
+      console.log("📊 Second job matchScore:", data.data?.[1]?.matchScore);
 
-      const jobsList = data.data || data.jobs || [];
+      // Ensure we're getting the data array
+      let jobsList = data.data || data.jobs || [];
+
+      // Verify matchScores are present
+      if (jobsList.length > 0 && !jobsList[0].matchScore) {
+        console.warn("⚠️  WARNING: No matchScore in jobs data!");
+        console.log("🔍 Job structure:", JSON.stringify(jobsList[0], null, 2));
+      }
 
       setJobs(jobsList.slice(0, 6)); // Get top 6 jobs for dashboard
       setStats({
@@ -66,7 +77,7 @@ export default function Dashboard() {
         savedJobs: 3,
       });
     } catch (error) {
-      console.error("Error fetching dashboard data:", error);
+      console.error("❌ Error fetching dashboard data:", error);
       // Show empty state on error
       setJobs([]);
       setStats({
