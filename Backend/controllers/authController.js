@@ -240,6 +240,8 @@ export const updateMyProfile = async (req, res) => {
         email: user.email,
         role: user.role,
         avatar: user.avatar || null,
+        profileImage: user.profileImage || null,
+        phone: user.phone || null,
       },
     });
   } catch (error) {

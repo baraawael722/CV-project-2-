@@ -200,22 +200,45 @@ export default function HRProfile() {
           setUser(updatedUser);
           setProfileImage(uploadData.profileImage);
           setImageFile(null);
+          
+          // Trigger storage event for other components
+          window.dispatchEvent(new Event('storage'));
+          
+          showToast("✅ Profile image saved to database!", "success");
         } else {
           showToast(uploadData.message || "Failed to upload image", "error");
           return;
         }
-      } else {
-        // Just update local storage
-        const updatedUser = {
-          ...user,
+      }
+      
+      // Update profile info in backend
+      const updateRes = await fetch("http://localhost:5000/api/auth/me", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
           name: profile.name,
           phone: profile.phone,
+        }),
+      });
+
+      if (updateRes.ok) {
+        const updateData = await updateRes.json();
+        const updatedUser = {
+          ...user,
+          ...updateData.user,
         };
         localStorage.setItem("user", JSON.stringify(updatedUser));
         setUser(updatedUser);
+        
+        // Trigger storage event for other components
+        window.dispatchEvent(new Event('storage'));
+        
+        showToast("✅ Profile updated successfully!", "success");
       }
 
-      showToast("Profile updated successfully!", "success");
       setEditing(false);
 
       // Refresh stats after updating profile
