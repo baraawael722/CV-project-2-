@@ -59,19 +59,36 @@ export default function Jobs() {
     const fetchSavedJobs = async () => {
       try {
         const token = localStorage.getItem("token");
-        if (!token || !user || user.role !== "employee") return;
+        if (!token || !user) return;
 
-        const res = await fetch(
-          "http://localhost:5000/api/candidates/saved-jobs",
-          {
-            headers: { Authorization: `Bearer ${token}` },
+        // For HR users
+        if (user.role === "hr") {
+          const res = await fetch(
+            "http://localhost:5000/api/jobs/hr/saved-jobs",
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+          const data = await res.json();
+          if (res.ok && data.data) {
+            const savedIds = data.data.map((job) => job._id || job.id);
+            setSavedJobs(savedIds);
+            console.log("✅ Loaded saved jobs for HR:", savedIds.length);
           }
-        );
-        const data = await res.json();
-        if (res.ok && data.data) {
-          const savedIds = data.data.map((job) => job._id || job.id);
-          setSavedJobs(savedIds);
-          console.log("✅ Loaded saved jobs:", savedIds.length);
+        } else if (user.role === "employee") {
+          // For employees
+          const res = await fetch(
+            "http://localhost:5000/api/candidates/saved-jobs",
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+          const data = await res.json();
+          if (res.ok && data.data) {
+            const savedIds = data.data.map((job) => job._id || job.id);
+            setSavedJobs(savedIds);
+            console.log("✅ Loaded saved jobs:", savedIds.length);
+          }
         }
       } catch (e) {
         console.warn("⚠️ Failed to load saved jobs:", e.message);
@@ -90,16 +107,19 @@ export default function Jobs() {
         return;
       }
 
-      const res = await fetch(
-        `http://localhost:5000/api/candidates/saved-jobs/${jobId}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      // Determine endpoint based on user role
+      const endpoint =
+        user?.role === "hr"
+          ? `http://localhost:5000/api/jobs/hr/saved-jobs/${jobId}`
+          : `http://localhost:5000/api/candidates/saved-jobs/${jobId}`;
+
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
       const data = await res.json();
 
@@ -201,7 +221,10 @@ export default function Jobs() {
 
       // Add application questions if any
       if (applicationQuestions.length > 0) {
-        formData.append("applicationQuestions", JSON.stringify(applicationQuestions));
+        formData.append(
+          "applicationQuestions",
+          JSON.stringify(applicationQuestions)
+        );
       }
 
       // Basic client-side required checks to avoid 400
@@ -322,37 +345,41 @@ export default function Jobs() {
             <div className="flex gap-4">
               <button
                 onClick={() => setFilter("all")}
-                className={`px-7 py-3.5 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 ${filter === "all"
+                className={`px-7 py-3.5 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 ${
+                  filter === "all"
                     ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-300"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-gray-200"
-                  }`}
+                }`}
               >
                 All Jobs ({jobs.length})
               </button>
               <button
                 onClick={() => setFilter("remote")}
-                className={`px-7 py-3.5 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 ${filter === "remote"
+                className={`px-7 py-3.5 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 ${
+                  filter === "remote"
                     ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-300"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-gray-200"
-                  }`}
+                }`}
               >
                 Remote
               </button>
               <button
                 onClick={() => setFilter("fulltime")}
-                className={`px-7 py-3.5 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 ${filter === "fulltime"
+                className={`px-7 py-3.5 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 ${
+                  filter === "fulltime"
                     ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-300"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-gray-200"
-                  }`}
+                }`}
               >
                 Full-time
               </button>
               <button
                 onClick={() => setFilter("saved")}
-                className={`px-7 py-3.5 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 ${filter === "saved"
+                className={`px-7 py-3.5 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 ${
+                  filter === "saved"
                     ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-300"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-gray-200"
-                  }`}
+                }`}
               >
                 Saved ({savedJobs.length})
               </button>
@@ -360,10 +387,11 @@ export default function Jobs() {
                 <button
                   onClick={fetchMLMatches}
                   disabled={matchLoading}
-                  className={`px-7 py-3.5 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 ${filter === "ai-matched"
+                  className={`px-7 py-3.5 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 ${
+                    filter === "ai-matched"
                       ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-xl shadow-purple-300"
                       : "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-lg shadow-purple-300"
-                    }`}
+                  }`}
                 >
                   {matchLoading ? "Loading AI..." : "AI Recommended"}
                 </button>
@@ -393,186 +421,196 @@ export default function Jobs() {
 
         {/* Jobs List */}
         <div className="space-y-6">
-          {(filter === "ai-matched" ? matchedJobs : jobs).map((job) => (
-            <div
-              key={job._id || job.id}
-              className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6 border-2 border-gray-100 hover:border-indigo-200 relative"
-            >
-              {/* AI Match Percentage Badge (shows only when available) */}
-              {(filter === "ai-matched" || job.matchScore !== undefined) &&
-                (() => {
-                  const raw =
-                    job.matchScore ?? job.match_percentage ?? job.matchPercent;
-                  // normalize: backend may send 0..1 or 0..100
-                  const scoreNum =
-                    typeof raw === "number"
-                      ? raw > 1
-                        ? raw
-                        : raw * 100
-                      : null;
+          {(() => {
+            let displayJobs = jobs;
 
-                  if (scoreNum === null || isNaN(scoreNum)) return null;
+            // Apply filters
+            if (filter === "ai-matched") {
+              displayJobs = matchedJobs;
+            } else if (filter === "saved") {
+              displayJobs = jobs.filter((job) =>
+                savedJobs.includes(job._id || job.id)
+              );
+            } else if (filter === "remote") {
+              displayJobs = jobs.filter(
+                (job) =>
+                  job.location && job.location.toLowerCase().includes("remote")
+              );
+            } else if (filter === "fulltime") {
+              displayJobs = jobs.filter((job) => job.jobType === "Full-time");
+            }
 
-                  // Determine match level and color
-                  const matchLevel =
-                    scoreNum >= 80
-                      ? "Excellent Match"
-                      : scoreNum >= 60
-                      ? "Fair Match"
-                      : "Low Match";
-
-                  const bgColor =
-                    scoreNum >= 80
-                      ? "from-green-500 to-emerald-600"
-                      : scoreNum >= 60
-                      ? "from-yellow-500 to-orange-500"
-                      : "from-red-500 to-pink-500";
-
-                  return (
-                    <div
-                      className={`absolute top-4 right-4 bg-gradient-to-r ${bgColor} text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg`}
-                    >
-                      {Number(scoreNum).toFixed(1)}% - {matchLevel}
-                    </div>
-                  );
-                })()}
-              <div className="flex items-start gap-6">
-                {/* Logo */}
-                <div className="flex-shrink-0 w-24 h-24 rounded-xl flex items-center justify-center overflow-hidden shadow-md">
-                  {job.companyLogo ? (
-                    <img
-                      src={job.companyLogo}
-                      alt={`${job.company || "Company"} Logo`}
-                      className="w-full h-full object-cover"
+            // Show empty state if no jobs
+            if (displayJobs.length === 0) {
+              return (
+                <div className="text-center py-12">
+                  <svg
+                    className="w-16 h-16 mx-auto mb-4 text-gray-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                     />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                      <svg
-                        className="w-10 h-10 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </div>
-                  )}
+                  </svg>
+                  <p className="text-gray-500 font-semibold text-lg mb-2">
+                    No jobs found
+                  </p>
+                  <p className="text-gray-400">
+                    {filter === "saved"
+                      ? "You haven't saved any jobs yet"
+                      : `No ${filter} jobs available`}
+                  </p>
                 </div>
+              );
+            }
 
-                {/* Job Info */}
-                <div className="flex-1">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-1">
-                        {job.title}
-                      </h3>
-                      <p className="text-base text-gray-600 font-medium">
-                        {job.company}
-                      </p>
-                    </div>
+            return displayJobs.map((job) => (
+              <div
+                key={job._id || job.id}
+                className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6 border-2 border-gray-100 hover:border-indigo-200 relative"
+              >
+                {/* AI Match Percentage Badge (shows only when available) */}
+                {(filter === "ai-matched" || job.matchScore !== undefined) &&
+                  (() => {
+                    const raw =
+                      job.matchScore ??
+                      job.match_percentage ??
+                      job.matchPercent;
+                    // normalize: backend may send 0..1 or 0..100
+                    const scoreNum =
+                      typeof raw === "number"
+                        ? raw > 1
+                          ? raw
+                          : raw * 100
+                        : null;
+
+                    if (scoreNum === null || isNaN(scoreNum)) return null;
+
+                    // Determine match level and color
+                    const matchLevel =
+                      scoreNum >= 80
+                        ? "Excellent Match"
+                        : scoreNum >= 60
+                        ? "Fair Match"
+                        : "Low Match";
+
+                    const bgColor =
+                      scoreNum >= 80
+                        ? "from-green-500 to-emerald-600"
+                        : scoreNum >= 60
+                        ? "from-yellow-500 to-orange-500"
+                        : "from-red-500 to-pink-500";
+
+                    return (
+                      <div
+                        className={`absolute top-4 right-4 bg-gradient-to-r ${bgColor} text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg`}
+                      >
+                        {Number(scoreNum).toFixed(1)}% - {matchLevel}
+                      </div>
+                    );
+                  })()}
+                <div className="flex items-start gap-6">
+                  {/* Logo */}
+                  <div className="flex-shrink-0 w-24 h-24 rounded-xl flex items-center justify-center overflow-hidden shadow-md">
+                    {job.companyLogo ? (
+                      <img
+                        src={job.companyLogo}
+                        alt={`${job.company || "Company"} Logo`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                        <svg
+                          className="w-10 h-10 text-white"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                          />
+                        </svg>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 mb-4">
-                    <div className="flex items-center gap-2 text-sm text-gray-700">
-                      <svg
-                        className="w-5 h-5 text-indigo-500"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
-                      <span className="font-medium">
-                        {job.location || "N/A"}
-                      </span>
+                  {/* Job Info */}
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h3 className="text-2xl font-bold text-gray-900 mb-1">
+                          {job.title}
+                        </h3>
+                        <p className="text-base text-gray-600 font-medium">
+                          {job.company}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-700">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                        />
-                      </svg>
-                      {job.jobType || "Full-time"}
-                    </div>
-                    <span className="flex items-center gap-2">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      {job.salary
-                        ? `${job.salary.min ?? ""}${job.salary.min ? "-" : ""}${job.salary.max ?? ""
-                          } ${job.salary.currency || ""}`.trim()
-                        : "Negotiable"}
-                    </span>
-                    <span className="flex items-center gap-2">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      <span className="font-medium">
+
+                    <div className="grid grid-cols-2 gap-3 mb-4">
+                      <div className="flex items-center gap-2 text-sm text-gray-700">
+                        <svg
+                          className="w-5 h-5 text-indigo-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                        </svg>
+                        <span className="font-medium">
+                          {job.location || "N/A"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-700">
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                          />
+                        </svg>
                         {job.jobType || "Full-time"}
-                      </span>
-                    </span>
-                    <div className="flex items-center gap-2 text-sm text-gray-700">
-                      <svg
-                        className="w-5 h-5 text-green-500"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      <span className="font-semibold text-green-700">
-                        {job.salaryMin && job.salaryMax
-                          ? `${job.salaryMin}-${job.salaryMax} USD`
-                          : job.salary
+                      </div>
+                      <span className="flex items-center gap-2">
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        {job.salary
                           ? `${job.salary.min ?? ""}${
                               job.salary.min ? "-" : ""
                             }${job.salary.max ?? ""} ${
@@ -580,83 +618,130 @@ export default function Jobs() {
                             }`.trim()
                           : "Negotiable"}
                       </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-700">
-                      <svg
-                        className="w-5 h-5 text-purple-500"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      <span className="font-medium">
-                        {job.posted || "Recently"}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {(job.requiredSkills || job.skills || []).map(
-                      (skill, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-md text-sm font-semibold"
+                      <span className="flex items-center gap-2">
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
                         >
-                          {skill}
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <span className="font-medium">
+                          {job.jobType || "Full-time"}
                         </span>
-                      )
-                    )}
-                  </div>
+                      </span>
+                      <div className="flex items-center gap-2 text-sm text-gray-700">
+                        <svg
+                          className="w-5 h-5 text-green-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <span className="font-semibold text-green-700">
+                          {job.salaryMin && job.salaryMax
+                            ? `${job.salaryMin}-${job.salaryMax} USD`
+                            : job.salary
+                            ? `${job.salary.min ?? ""}${
+                                job.salary.min ? "-" : ""
+                              }${job.salary.max ?? ""} ${
+                                job.salary.currency || ""
+                              }`.trim()
+                            : "Negotiable"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-700">
+                        <svg
+                          className="w-5 h-5 text-purple-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <span className="font-medium">
+                          {job.posted || "Recently"}
+                        </span>
+                      </div>
+                    </div>
 
-                  <div className="flex gap-3 mt-4">
-                    {user?.role === "employee" && (
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {(job.requiredSkills || job.skills || []).map(
+                        (skill, index) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-md text-sm font-semibold"
+                          >
+                            {skill}
+                          </span>
+                        )
+                      )}
+                    </div>
+
+                    <div className="flex gap-3 mt-4">
+                      {user?.role === "employee" && (
+                        <button
+                          onClick={() =>
+                            navigate(`/employee/jobs/${job._id || job.id}`)
+                          }
+                          className="flex-1 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                        >
+                          Apply Now
+                        </button>
+                      )}
                       <button
-                        onClick={() =>
-                          navigate(`/employee/jobs/${job._id || job.id}`)
-                        }
-                        className="flex-1 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                      >
-                        Apply Now
-                      </button>
-                    )}
-                    <button
-                      onClick={() => toggleSave(job._id || job.id)}
-                      className={`px-6 py-3 font-semibold rounded-lg transition-all shadow-sm ${savedJobs.includes(job._id || job.id)
-                          ? "bg-amber-500 text-white hover:bg-amber-600"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300"
+                        onClick={() => toggleSave(job._id || job.id)}
+                        className={`px-6 py-3 font-semibold rounded-lg transition-all shadow-sm ${
+                          savedJobs.includes(job._id || job.id)
+                            ? "bg-amber-500 text-white hover:bg-amber-600"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300"
                         }`}
-                    >
-                      {savedJobs.includes(job._id || job.id) ? "Saved" : "Save"}
-                    </button>
-                    <button
-                      onClick={() => {
-                        // Open inline modal for quick details
-                        setSelectedJob(job);
-                        setShowDetailsModal(true);
-                      }}
-                      className="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-all shadow-sm border border-gray-300"
-                    >
-                      Details
-                    </button>
-                    {user?.role === "hr" && (
-                      <button
-                        onClick={() => handleDeleteJob(job._id || job.id)}
-                        className="px-6 py-3 bg-red-100 text-red-600 font-bold rounded-xl hover:bg-red-200 transition-all shadow-md border-2 border-red-300"
                       >
-                        Delete
+                        {savedJobs.includes(job._id || job.id)
+                          ? "Saved"
+                          : "Save"}
                       </button>
-                    )}
+                      <button
+                        onClick={() => {
+                          // Open inline modal for quick details
+                          setSelectedJob(job);
+                          setShowDetailsModal(true);
+                        }}
+                        className="px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-all shadow-sm border border-gray-300"
+                      >
+                        Details
+                      </button>
+                      {user?.role === "hr" && (
+                        <button
+                          onClick={() => handleDeleteJob(job._id || job.id)}
+                          className="px-6 py-3 bg-red-100 text-red-600 font-bold rounded-xl hover:bg-red-200 transition-all shadow-md border-2 border-red-300"
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ));
+          })()}
         </div>
 
         {/* Job Details Modal */}
@@ -958,7 +1043,8 @@ export default function Jobs() {
                     Post New Job
                   </h3>
                   <p className="text-sm text-gray-500 mt-1">
-                    Step {formStep} of 2: {formStep === 1 ? "Job Details" : "Application Questions"}
+                    Step {formStep} of 2:{" "}
+                    {formStep === 1 ? "Job Details" : "Application Questions"}
                   </p>
                 </div>
                 <button
@@ -1061,7 +1147,9 @@ export default function Jobs() {
                               const file = e.target.files[0];
                               if (file) {
                                 if (file.size > 5 * 1024 * 1024) {
-                                  setError("Image size should be less than 5MB");
+                                  setError(
+                                    "Image size should be less than 5MB"
+                                  );
                                   return;
                                 }
                                 if (!file.type.startsWith("image/")) {
@@ -1214,7 +1302,10 @@ export default function Jobs() {
                         className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-white"
                         value={newJob.experienceLevel}
                         onChange={(e) =>
-                          setNewJob({ ...newJob, experienceLevel: e.target.value })
+                          setNewJob({
+                            ...newJob,
+                            experienceLevel: e.target.value,
+                          })
                         }
                       >
                         <option>Entry Level</option>
@@ -1238,8 +1329,17 @@ export default function Jobs() {
                         type="button"
                         onClick={() => {
                           // Validate step 1 fields
-                          if (!newJob.title || !newJob.company || !newJob.department || !newJob.location || !newJob.description || !newJob.skills.trim()) {
-                            setError("Please fill all required fields before proceeding");
+                          if (
+                            !newJob.title ||
+                            !newJob.company ||
+                            !newJob.department ||
+                            !newJob.location ||
+                            !newJob.description ||
+                            !newJob.skills.trim()
+                          ) {
+                            setError(
+                              "Please fill all required fields before proceeding"
+                            );
                             return;
                           }
                           setError(null);
@@ -1262,7 +1362,8 @@ export default function Jobs() {
                           Application Questions
                         </h4>
                         <p className="text-sm text-gray-600 mb-4">
-                          Add questions that candidates will answer when they apply for this position.
+                          Add questions that candidates will answer when they
+                          apply for this position.
                         </p>
                       </div>
 
@@ -1285,7 +1386,9 @@ export default function Jobs() {
                                 type="button"
                                 onClick={() => {
                                   setApplicationQuestions(
-                                    applicationQuestions.filter((_, i) => i !== idx)
+                                    applicationQuestions.filter(
+                                      (_, i) => i !== idx
+                                    )
                                   );
                                 }}
                                 className="flex-shrink-0 text-red-500 hover:text-red-700 transition-colors"
@@ -1322,10 +1425,13 @@ export default function Jobs() {
                             value={newQuestion}
                             onChange={(e) => setNewQuestion(e.target.value)}
                             onKeyPress={(e) => {
-                              if (e.key === 'Enter') {
+                              if (e.key === "Enter") {
                                 e.preventDefault();
                                 if (newQuestion.trim()) {
-                                  setApplicationQuestions([...applicationQuestions, newQuestion.trim()]);
+                                  setApplicationQuestions([
+                                    ...applicationQuestions,
+                                    newQuestion.trim(),
+                                  ]);
                                   setNewQuestion("");
                                 }
                               }
@@ -1335,7 +1441,10 @@ export default function Jobs() {
                             type="button"
                             onClick={() => {
                               if (newQuestion.trim()) {
-                                setApplicationQuestions([...applicationQuestions, newQuestion.trim()]);
+                                setApplicationQuestions([
+                                  ...applicationQuestions,
+                                  newQuestion.trim(),
+                                ]);
                                 setNewQuestion("");
                               }
                             }}
@@ -1345,7 +1454,8 @@ export default function Jobs() {
                           </button>
                         </div>
                         <p className="text-xs text-gray-500 mt-2">
-                          Questions are optional. Press Enter or click Add to include a question.
+                          Questions are optional. Press Enter or click Add to
+                          include a question.
                         </p>
                       </div>
                     </div>

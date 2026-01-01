@@ -1,6 +1,7 @@
 import Job from "../models/Job.js";
 import Candidate from "../models/Candidate.js";
 import Notification from "../models/Notification.js";
+import User from "../models/User.js";
 
 // Get all jobs
 export const getAllJobs = async (req, res) => {
@@ -24,7 +25,10 @@ export const getAllJobs = async (req, res) => {
     // Accept both "employee" and "user" roles for employees
     if (req.user.role === "employee" || req.user.role === "user") {
       try {
-        console.log("📊 Calculating match scores for user with role:", req.user.role);
+        console.log(
+          "📊 Calculating match scores for user with role:",
+          req.user.role
+        );
         // Import pythonMatcher here to avoid circular dependency
         const { getPythonMatcher } = await import("../utils/pythonMatcher.js");
         const pythonMatcher = getPythonMatcher();
@@ -41,20 +45,27 @@ export const getAllJobs = async (req, res) => {
             // Try Python BERT matcher first
             matches = await Promise.race([
               pythonMatcher.match(cvText, jobDescriptions, jobs.length),
-              new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 30000))
+              new Promise((_, reject) =>
+                setTimeout(() => reject(new Error("Timeout")), 30000)
+              ),
             ]);
             console.log("✅ Used Python BERT matcher");
           } catch (pythonError) {
-            console.warn("⚠️  Python matcher failed, falling back to hybrid matcher:", pythonError.message);
+            console.warn(
+              "⚠️  Python matcher failed, falling back to hybrid matcher:",
+              pythonError.message
+            );
             // Fallback to hybrid matcher
             const { hybridMatch } = await import("../utils/hybridMatcher.js");
             const results = hybridMatch(cvText, jobs, jobs.length);
             // Convert hybridMatch format { job, matchScore } to Python format { job_index, similarity_score }
             matches = results.map((r) => {
-              const jobIdx = jobs.findIndex(j => j._id.toString() === r.job._id.toString());
+              const jobIdx = jobs.findIndex(
+                (j) => j._id.toString() === r.job._id.toString()
+              );
               return {
                 job_index: jobIdx,
-                similarity_score: r.matchScore / 100  // hybridMatch returns 0-100, but API expects 0-1
+                similarity_score: r.matchScore / 100, // hybridMatch returns 0-100, but API expects 0-1
               };
             });
             console.log("✅ Used Hybrid matcher as fallback");
@@ -69,7 +80,12 @@ export const getAllJobs = async (req, res) => {
             return jobObj;
           });
 
-          console.log("✅ Match scores calculated:", enrichedJobs.slice(0, 3).map(j => ({ title: j.title, score: j.matchScore })));
+          console.log(
+            "✅ Match scores calculated:",
+            enrichedJobs
+              .slice(0, 3)
+              .map((j) => ({ title: j.title, score: j.matchScore }))
+          );
 
           // Sort by match score descending
           enrichedJobs.sort(
@@ -195,8 +211,9 @@ export const createJob = async (req, res) => {
     // Handle company logo if uploaded
     let companyLogo = null;
     if (req.file) {
-      companyLogo = `data:${req.file.mimetype
-        };base64,${req.file.buffer.toString("base64")}`;
+      companyLogo = `data:${
+        req.file.mimetype
+      };base64,${req.file.buffer.toString("base64")}`;
     }
 
     const job = await Job.create({
@@ -507,6 +524,107 @@ export const withdrawApplication = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server Error",
+      error: error.message,
+    });
+  }
+};
+// Get saved jobs for HR
+export const getSavedJobsHR = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
+    const user = await User.findById(userId).populate(
+      "savedJobs",
+      "title department company jobType location salary status"
+    );
+
+    if (!user) {
+      return res.json({ success: true, data: [] });
+    }
+
+    return res.json({ success: true, data: user.savedJobs });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch saved jobs",
+      error: error.message,
+    });
+  }
+};
+
+// Toggle save/unsave a job for HR
+export const toggleSaveJobHR = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    const jobId = req.params.jobId;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "User not authenticated",
+      });
+    }
+
+    if (!jobId || !jobId.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid jobId",
+      });
+    }
+
+    const job = await Job.findById(jobId).select("_id");
+    if (!job) {
+      return res.status(404).json({ success: false, message: "Job not found" });
+    }
+
+    let user = await User.findById(userId);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    const idStr = job._id.toString();
+    const current = new Set((user.savedJobs || []).map((j) => j.toString()));
+
+    let action = "saved";
+    if (current.has(idStr)) {
+      // Unsave
+      user.savedJobs = user.savedJobs.filter((j) => j.toString() !== idStr);
+      action = "unsaved";
+    } else {
+      // Save
+      user.savedJobs.push(job._id);
+    }
+
+    await user.save();
+
+    const populated = await User.findById(user._id)
+      .populate(
+        "savedJobs",
+        "title department company jobType salary location status"
+      )
+      .select("savedJobs");
+
+    return res.json({
+      success: true,
+      message: `Job ${action} successfully`,
+      data: {
+        action,
+        savedJobs: populated.savedJobs,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to toggle saved job",
       error: error.message,
     });
   }

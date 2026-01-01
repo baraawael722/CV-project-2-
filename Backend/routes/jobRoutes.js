@@ -10,6 +10,8 @@ import {
   getJobApplicants,
   applyToJob,
   withdrawApplication,
+  getSavedJobsHR,
+  toggleSaveJobHR,
 } from "../controllers/jobController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { authorizeRoles } from "../middleware/roleMiddleware.js";
@@ -50,8 +52,16 @@ router
 router.post("/:id/apply", authorizeRoles("employee", "user"), applyToJob);
 
 // Withdraw application (employees only)
-router.delete("/:id/withdraw", authorizeRoles("employee", "user"), withdrawApplication);
+router.delete(
+  "/:id/withdraw",
+  authorizeRoles("employee", "user"),
+  withdrawApplication
+);
 
 router.get("/:id/applicants", authorizeRoles("hr"), getJobApplicants);
+
+// Saved jobs endpoints for HR
+router.get("/hr/saved-jobs", authorizeRoles("hr"), getSavedJobsHR);
+router.post("/hr/saved-jobs/:jobId", authorizeRoles("hr"), toggleSaveJobHR);
 
 export default router;

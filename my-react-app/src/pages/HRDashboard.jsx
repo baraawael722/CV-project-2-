@@ -18,6 +18,7 @@ export default function HRDashboard() {
   const [recentCandidates, setRecentCandidates] = useState([]);
   const [recentJobs, setRecentJobs] = useState([]);
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
+  const [savedJobs, setSavedJobs] = useState([]);
   const chartData = [
     { label: "Mon", view: 180, applied: 90 },
     { label: "Tue", view: 210, applied: 100 },
@@ -198,6 +199,67 @@ export default function HRDashboard() {
       setMatchingCVs(false);
     }
   };
+
+  const toggleSaveJobHR = async (jobId) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        showToast("Please login to save jobs", "error");
+        return;
+      }
+
+      const res = await fetch(
+        `http://localhost:5000/api/jobs/hr/saved-jobs/${jobId}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = await res.json();
+
+      if (res.ok) {
+        if (data.data.action === "saved") {
+          setSavedJobs([...savedJobs, jobId]);
+          showToast("✅ Job saved successfully", "success");
+        } else {
+          setSavedJobs(savedJobs.filter((id) => id !== jobId));
+          showToast("✅ Job removed from saved", "success");
+        }
+      } else {
+        showToast("❌ " + data.message, "error");
+      }
+    } catch (e) {
+      console.error("❌ Error saving job:", e.message);
+      showToast("Error saving job: " + e.message, "error");
+    }
+  };
+
+  const fetchSavedJobsHR = async (token) => {
+    try {
+      const res = await fetch("http://localhost:5000/api/jobs/hr/saved-jobs", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok && data.data) {
+        const savedIds = data.data.map((job) => job._id || job.id);
+        setSavedJobs(savedIds);
+        console.log("✅ Loaded saved jobs for HR:", savedIds.length);
+      }
+    } catch (e) {
+      console.warn("⚠️ Failed to load saved jobs:", e.message);
+    }
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token && user?.role === "hr") {
+      fetchSavedJobsHR(token);
+    }
+  }, [user]);
 
   if (loading || !user) {
     return (
@@ -712,6 +774,18 @@ export default function HRDashboard() {
                           {matchingCVs && selectedJob?._id === job._id
                             ? "Finding..."
                             : "Find CVs"}
+                        </button>
+                        <button
+                          onClick={() => toggleSaveJobHR(job._id || job.id)}
+                          className={`px-4 py-2.5 font-semibold rounded-lg transition-all shadow-sm ${
+                            savedJobs.includes(job._id || job.id)
+                              ? "bg-amber-500 text-white hover:bg-amber-600"
+                              : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300"
+                          }`}
+                        >
+                          {savedJobs.includes(job._id || job.id)
+                            ? "Saved"
+                            : "Save"}
                         </button>
                         <button
                           onClick={() => handleDeleteJob(job._id)}
