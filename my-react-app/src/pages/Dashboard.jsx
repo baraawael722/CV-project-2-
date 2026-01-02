@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import JobStatsChart from "../components/JobStatsChart";
 
@@ -39,7 +39,7 @@ export default function Dashboard() {
   const fetchDashboardData = async (token) => {
     try {
       setLoading(true);
-      console.log("🔄 Fetching jobs for dashboard...");
+      console.log("ðŸ”„ Fetching jobs for dashboard...");
 
       // Fetch jobs from API
       const res = await fetch("http://localhost:5000/api/jobs", {
@@ -54,17 +54,17 @@ export default function Dashboard() {
       }
 
       const data = await res.json();
-      console.log("✅ Jobs data received from API:", data); // For debugging
-      console.log("📊 First job matchScore:", data.data?.[0]?.matchScore);
-      console.log("📊 Second job matchScore:", data.data?.[1]?.matchScore);
+      console.log("Jobs data received from API:", data); // For debugging
+      console.log("First job matchScore:", data.data?.[0]?.matchScore);
+      console.log("Second job matchScore:", data.data?.[1]?.matchScore);
 
       // Ensure we're getting the data array
       let jobsList = data.data || data.jobs || [];
 
       // Verify matchScores are present
       if (jobsList.length > 0 && !jobsList[0].matchScore) {
-        console.warn("⚠️  WARNING: No matchScore in jobs data!");
-        console.log("🔍 Job structure:", JSON.stringify(jobsList[0], null, 2));
+        console.warn("âš ï¸  WARNING: No matchScore in jobs data!");
+        console.log("ðŸ” Job structure:", JSON.stringify(jobsList[0], null, 2));
       }
 
       setJobs(jobsList.slice(0, 6)); // Get top 6 jobs for dashboard
@@ -77,7 +77,7 @@ export default function Dashboard() {
         savedJobs: 3,
       });
     } catch (error) {
-      console.error("❌ Error fetching dashboard data:", error);
+      console.error("Error fetching dashboard data:", error);
       // Show empty state on error
       setJobs([]);
       setStats({
@@ -93,10 +93,10 @@ export default function Dashboard() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-600 border-t-transparent mx-auto mb-4"></div>
-          <p className="text-gray-600 font-semibold">
+          <p className="text-slate-400 font-semibold">
             Loading your dashboard...
           </p>
         </div>
@@ -105,7 +105,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-slate-900">
       {/* Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 pb-32">
         {/* Animated Background Elements */}
@@ -136,7 +136,7 @@ export default function Dashboard() {
           {/* Quick Stats Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {/* Total Jobs */}
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+            <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
               <div className="flex items-center justify-between mb-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center">
                   <svg
@@ -154,16 +154,16 @@ export default function Dashboard() {
                   </svg>
                 </div>
               </div>
-              <div className="text-3xl font-bold text-gray-900 mb-1">
+              <div className="text-3xl font-bold text-white mb-1">
                 {loading ? "..." : stats.totalJobs}
               </div>
-              <div className="text-sm text-gray-600 font-medium">
+              <div className="text-sm text-slate-400 font-medium">
                 Available Jobs
               </div>
             </div>
 
             {/* Matched Jobs */}
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+            <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
               <div className="flex items-center justify-between mb-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center">
                   <svg
@@ -181,16 +181,16 @@ export default function Dashboard() {
                   </svg>
                 </div>
               </div>
-              <div className="text-3xl font-bold text-gray-900 mb-1">
+              <div className="text-3xl font-bold text-white mb-1">
                 {loading ? "..." : stats.matchedJobs}
               </div>
-              <div className="text-sm text-gray-600 font-medium">
+              <div className="text-sm text-slate-400 font-medium">
                 Matched Jobs
               </div>
             </div>
 
             {/* Applications */}
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+            <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
               <div className="flex items-center justify-between mb-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center">
                   <svg
@@ -208,16 +208,16 @@ export default function Dashboard() {
                   </svg>
                 </div>
               </div>
-              <div className="text-3xl font-bold text-gray-900 mb-1">
+              <div className="text-3xl font-bold text-white mb-1">
                 {stats.applications}
               </div>
-              <div className="text-sm text-gray-600 font-medium">
+              <div className="text-sm text-slate-400 font-medium">
                 Applications
               </div>
             </div>
 
             {/* Saved Jobs */}
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+            <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
               <div className="flex items-center justify-between mb-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-pink-600 rounded-xl flex items-center justify-center">
                   <svg
@@ -235,10 +235,10 @@ export default function Dashboard() {
                   </svg>
                 </div>
               </div>
-              <div className="text-3xl font-bold text-gray-900 mb-1">
+              <div className="text-3xl font-bold text-white mb-1">
                 {stats.savedJobs}
               </div>
-              <div className="text-sm text-gray-600 font-medium">
+              <div className="text-sm text-slate-400 font-medium">
                 Saved Jobs
               </div>
             </div>
@@ -254,7 +254,7 @@ export default function Dashboard() {
           >
             <path
               d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z"
-              fill="#EEF2FF"
+              fill="#0f172a"
             />
           </svg>
         </div>
@@ -262,13 +262,13 @@ export default function Dashboard() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 pb-12 relative z-10">
         {/* Featured Jobs Section */}
-        <div className="bg-white rounded-3xl shadow-2xl p-8 mb-8">
+        <div className="bg-slate-800 border border-slate-700 rounded-3xl shadow-2xl p-8 mb-8">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              <h2 className="text-3xl font-bold text-white mb-2">
                 Recommended Jobs For You
               </h2>
-              <p className="text-gray-600">
+              <p className="text-slate-400">
                 Based on your profile and preferences
               </p>
             </div>
@@ -276,7 +276,7 @@ export default function Dashboard() {
               to="/employee/jobs"
               className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold hover:shadow-xl transition-all duration-300 hover:scale-105"
             >
-              View All Jobs →
+              View All Jobs
             </Link>
           </div>
 
@@ -285,14 +285,14 @@ export default function Dashboard() {
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="animate-pulse bg-gray-100 rounded-2xl p-6 h-64"
+                  className="animate-pulse bg-slate-700 rounded-2xl p-6 h-64"
                 ></div>
               ))}
             </div>
           ) : jobs.length === 0 ? (
             <div className="text-center py-12">
               <svg
-                className="w-24 h-24 mx-auto text-gray-300 mb-4"
+                className="w-24 h-24 mx-auto text-slate-500 mb-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -304,7 +304,7 @@ export default function Dashboard() {
                   d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                 />
               </svg>
-              <p className="text-gray-500 text-lg">
+              <p className="text-slate-500 text-lg">
                 No jobs available at the moment
               </p>
             </div>
@@ -313,7 +313,7 @@ export default function Dashboard() {
               {jobs.map((job, index) => (
                 <div
                   key={job._id || index}
-                  className="group bg-gradient-to-br from-gray-50 to-white border-2 border-gray-100 rounded-2xl p-6 hover:border-blue-400 hover:shadow-xl transition-all duration-300 cursor-pointer relative"
+                  className="group bg-gradient-to-br from-slate-700 to-slate-800 border-2 border-slate-600 rounded-2xl p-6 hover:border-cyan-400 hover:shadow-xl transition-all duration-300 cursor-pointer relative"
                 >
                   {/* Match Score Badge */}
                   {job.matchScore !== undefined && job.matchScore > 0 && (
@@ -344,18 +344,18 @@ export default function Dashboard() {
                   </div>
 
                   {/* Job Title */}
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
+                  <h3 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors line-clamp-2">
                     {job.title}
                   </h3>
 
                   {/* Company Name */}
-                  <p className="text-gray-600 font-semibold mb-4">
+                  <p className="text-slate-400 font-semibold mb-4">
                     {job.company}
                   </p>
 
                   {/* Job Details */}
                   <div className="space-y-2 mb-4">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-2 text-sm text-slate-400">
                       <svg
                         className="w-4 h-4"
                         fill="none"
@@ -377,7 +377,7 @@ export default function Dashboard() {
                       </svg>
                       <span>{job.location || "Remote"}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-2 text-sm text-slate-400">
                       <svg
                         className="w-4 h-4"
                         fill="none"
@@ -422,13 +422,13 @@ export default function Dashboard() {
                       {job.requiredSkills.slice(0, 3).map((skill, i) => (
                         <span
                           key={i}
-                          className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full"
+                          className="px-3 py-1 bg-cyan-900/30 text-cyan-400 text-xs font-semibold rounded-full"
                         >
                           {skill}
                         </span>
                       ))}
                       {job.requiredSkills.length > 3 && (
-                        <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full">
+                        <span className="px-3 py-1 bg-slate-700 text-slate-300 text-xs font-semibold rounded-full">
                           +{job.requiredSkills.length - 3} more
                         </span>
                       )}
@@ -523,28 +523,28 @@ export default function Dashboard() {
               to="/employee/profile"
               className="block w-full text-center px-6 py-4 bg-white text-emerald-600 rounded-xl font-bold hover:bg-emerald-50 transition-all duration-300 shadow-lg hover:shadow-xl"
             >
-              Upload CV Now →
+              Upload CV Now
             </Link>
           </div>
         </div>
 
         {/* Career Progress */}
-        <div className="bg-white rounded-3xl shadow-xl p-8 mb-8">
+        <div className="bg-slate-800 border border-slate-700 rounded-3xl shadow-xl p-8 mb-8">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              <h2 className="text-3xl font-bold text-white mb-2">
                 Your Career Progress
               </h2>
-              <p className="text-gray-600">
+              <p className="text-slate-400">
                 Keep building your profile to unlock more opportunities
               </p>
             </div>
-            <div className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <div className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
               65%
             </div>
           </div>
 
-          <div className="relative w-full bg-gray-200 rounded-full h-6 mb-8">
+          <div className="relative w-full bg-slate-700 rounded-full h-6 mb-8">
             <div
               className="absolute top-0 left-0 h-6 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-full transition-all duration-1000 flex items-center justify-end pr-2"
               style={{ width: "65%" }}
@@ -556,7 +556,7 @@ export default function Dashboard() {
           {/* Progress Steps */}
           <div className="grid md:grid-cols-4 gap-4">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
                 <svg
                   className="w-6 h-6 text-white"
                   fill="none"
@@ -572,13 +572,13 @@ export default function Dashboard() {
                 </svg>
               </div>
               <div>
-                <h4 className="font-bold text-gray-900">Profile Created</h4>
-                <p className="text-sm text-gray-600">Complete</p>
+                <h4 className="font-bold text-white">Profile Created</h4>
+                <p className="text-sm text-slate-400">Complete</p>
               </div>
             </div>
 
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 animate-pulse">
+              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 animate-pulse">
                 <svg
                   className="w-6 h-6 text-white"
                   fill="none"
@@ -594,13 +594,13 @@ export default function Dashboard() {
                 </svg>
               </div>
               <div>
-                <h4 className="font-bold text-gray-900">Upload CV</h4>
-                <p className="text-sm text-blue-600">In Progress</p>
+                <h4 className="font-bold text-white">Upload CV</h4>
+                <p className="text-sm text-blue-400">In Progress</p>
               </div>
             </div>
 
             <div className="flex items-start gap-3 opacity-50">
-              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center flex-shrink-0">
                 <svg
                   className="w-6 h-6 text-white"
                   fill="none"
@@ -616,13 +616,13 @@ export default function Dashboard() {
                 </svg>
               </div>
               <div>
-                <h4 className="font-bold text-gray-900">Apply to Jobs</h4>
-                <p className="text-sm text-gray-600">Pending</p>
+                <h4 className="font-bold text-white">Apply to Jobs</h4>
+                <p className="text-sm text-slate-400">Pending</p>
               </div>
             </div>
 
             <div className="flex items-start gap-3 opacity-50">
-              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center flex-shrink-0">
                 <svg
                   className="w-6 h-6 text-white"
                   fill="none"
@@ -638,8 +638,8 @@ export default function Dashboard() {
                 </svg>
               </div>
               <div>
-                <h4 className="font-bold text-gray-900">Get Hired</h4>
-                <p className="text-sm text-gray-600">Pending</p>
+                <h4 className="font-bold text-white">Get Hired</h4>
+                <p className="text-sm text-slate-400">Pending</p>
               </div>
             </div>
           </div>

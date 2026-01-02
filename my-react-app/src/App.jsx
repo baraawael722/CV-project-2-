@@ -6,6 +6,8 @@ import {
 } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
 import TopNavbar from "./components/TopNavbar.jsx";
+import HRLayout from "./components/HRLayout.jsx";
+import PageTransition from "./components/PageTransition.jsx";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
@@ -20,6 +22,12 @@ import Profile from "./pages/Profile.jsx";
 import HRProfile from "./pages/HRProfile.jsx";
 import JobApplicants from "./pages/JobApplicants.jsx";
 import CandidateProfile from "./pages/CandidateProfile.jsx";
+import HRMessages from "./pages/HRMessages.jsx";
+import HRCompanyProfile from "./pages/HRCompanyProfile.jsx";
+import HRApplicants from "./pages/HRApplicants.jsx";
+import HRSchedule from "./pages/HRSchedule.jsx";
+import HRSettings from "./pages/HRSettings.jsx";
+import HRHelpCenter from "./pages/HRHelpCenter.jsx";
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -65,7 +73,9 @@ export default function App() {
           element={
             <ProtectedRoute allowedRoles={["employee", "user"]}>
               <TopNavbar />
-              <Dashboard />
+              <PageTransition>
+                <Dashboard />
+              </PageTransition>
             </ProtectedRoute>
           }
         />
@@ -74,7 +84,9 @@ export default function App() {
           element={
             <ProtectedRoute allowedRoles={["employee", "user"]}>
               <TopNavbar />
-              <Profile />
+              <PageTransition>
+                <Profile />
+              </PageTransition>
             </ProtectedRoute>
           }
         />
@@ -83,7 +95,9 @@ export default function App() {
           element={
             <ProtectedRoute allowedRoles={["employee", "user"]}>
               <TopNavbar />
-              <Jobs />
+              <PageTransition>
+                <Jobs />
+              </PageTransition>
             </ProtectedRoute>
           }
         />
@@ -92,7 +106,9 @@ export default function App() {
           element={
             <ProtectedRoute allowedRoles={["employee", "user"]}>
               <TopNavbar />
-              <JobDetails />
+              <PageTransition>
+                <JobDetails />
+              </PageTransition>
             </ProtectedRoute>
           }
         />
@@ -103,7 +119,9 @@ export default function App() {
           element={
             <ProtectedRoute allowedRoles={["employee", "user"]}>
               <TopNavbar />
-              <Interview />
+              <PageTransition>
+                <Interview />
+              </PageTransition>
             </ProtectedRoute>
           }
         />
@@ -113,8 +131,11 @@ export default function App() {
           path="/hr/dashboard"
           element={
             <ProtectedRoute allowedRoles={["hr"]}>
-              <TopNavbar />
-              <HRDashboard />
+              <HRLayout>
+                <PageTransition>
+                  <HRDashboard />
+                </PageTransition>
+              </HRLayout>
             </ProtectedRoute>
           }
         />
@@ -122,8 +143,11 @@ export default function App() {
           path="/hr/matched-candidates"
           element={
             <ProtectedRoute allowedRoles={["hr"]}>
-              <TopNavbar />
-              <MatchedCandidates />
+              <HRLayout>
+                <PageTransition>
+                  <MatchedCandidates />
+                </PageTransition>
+              </HRLayout>
             </ProtectedRoute>
           }
         />
@@ -131,8 +155,11 @@ export default function App() {
           path="/hr/profile"
           element={
             <ProtectedRoute allowedRoles={["hr"]}>
-              <TopNavbar />
-              <HRProfile />
+              <HRLayout>
+                <PageTransition>
+                  <HRProfile />
+                </PageTransition>
+              </HRLayout>
             </ProtectedRoute>
           }
         />
@@ -140,8 +167,11 @@ export default function App() {
           path="/hr/jobs"
           element={
             <ProtectedRoute allowedRoles={["hr"]}>
-              <TopNavbar />
-              <Jobs />
+              <HRLayout>
+                <PageTransition>
+                  <Jobs />
+                </PageTransition>
+              </HRLayout>
             </ProtectedRoute>
           }
         />
@@ -149,8 +179,11 @@ export default function App() {
           path="/hr/jobs/:jobId/applicants"
           element={
             <ProtectedRoute allowedRoles={["hr"]}>
-              <TopNavbar />
-              <JobApplicants />
+              <HRLayout>
+                <PageTransition>
+                  <JobApplicants />
+                </PageTransition>
+              </HRLayout>
             </ProtectedRoute>
           }
         />
@@ -158,8 +191,83 @@ export default function App() {
           path="/hr/candidates/:candidateId"
           element={
             <ProtectedRoute allowedRoles={["hr"]}>
-              <TopNavbar />
-              <CandidateProfile />
+              <HRLayout>
+                <PageTransition>
+                  <CandidateProfile />
+                </PageTransition>
+              </HRLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/hr/messages"
+          element={
+            <ProtectedRoute allowedRoles={["hr"]}>
+              <HRLayout>
+                <PageTransition>
+                  <HRMessages />
+                </PageTransition>
+              </HRLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/hr/company"
+          element={
+            <ProtectedRoute allowedRoles={["hr"]}>
+              <HRLayout>
+                <PageTransition>
+                  <HRCompanyProfile />
+                </PageTransition>
+              </HRLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/hr/applicants"
+          element={
+            <ProtectedRoute allowedRoles={["hr"]}>
+              <HRLayout>
+                <PageTransition>
+                  <HRApplicants />
+                </PageTransition>
+              </HRLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/hr/schedule"
+          element={
+            <ProtectedRoute allowedRoles={["hr"]}>
+              <HRLayout>
+                <PageTransition>
+                  <HRSchedule />
+                </PageTransition>
+              </HRLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/hr/settings"
+          element={
+            <ProtectedRoute allowedRoles={["hr"]}>
+              <HRLayout>
+                <PageTransition>
+                  <HRSettings />
+                </PageTransition>
+              </HRLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/hr/help"
+          element={
+            <ProtectedRoute allowedRoles={["hr"]}>
+              <HRLayout>
+                <PageTransition>
+                  <HRHelpCenter />
+                </PageTransition>
+              </HRLayout>
             </ProtectedRoute>
           }
         />
