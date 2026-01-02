@@ -1,49 +1,74 @@
 import React from "react";
+import { useTheme } from "../context/ThemeContext.jsx";
 
 const ContactSection = () => {
+  const { isDark } = useTheme();
+  
   return (
     <section
       id="contact"
-      className="relative py-24 px-4 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50"
+      className={`relative py-24 px-4 transition-colors duration-300 ${
+        isDark 
+          ? "bg-gradient-to-br from-slate-800 via-blue-900 to-slate-900"
+          : "bg-gradient-to-br from-blue-50 via-white to-cyan-50"
+      }`}
     >
       <div className="max-w-5xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-16 reveal" data-delay="1">
-          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
+          <h2 className={`text-4xl lg:text-5xl font-bold mb-4 ${
+            isDark ? "text-white" : "text-slate-900"
+          }`}>
             Get started now
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className={`text-lg max-w-2xl mx-auto ${
+            isDark ? "text-slate-300" : "text-slate-600"
+          }`}>
             Create an account and start your dream job hunting journey today
           </p>
         </div>
 
         {/* Contact Form */}
         <div
-          className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 reveal-gentle"
+          className={`rounded-3xl shadow-2xl p-8 md:p-12 reveal-gentle ${
+            isDark 
+              ? "bg-slate-800 border border-slate-700" 
+              : "bg-white border border-gray-200"
+          }`}
           data-delay="2"
         >
           <form className="space-y-6">
             {/* Email Input */}
-            <div className="flex items-center gap-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-2">
+            <div className={`flex items-center gap-3 rounded-2xl p-2 ${
+              isDark 
+                ? "bg-slate-700 border border-slate-600" 
+                : "bg-gray-100 border border-gray-300"
+            }`}>
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 px-6 py-4 bg-transparent text-gray-700 placeholder-gray-500 focus:outline-none text-lg"
+                className={`flex-1 px-6 py-4 bg-transparent focus:outline-none text-lg ${
+                  isDark 
+                    ? "text-white placeholder-slate-400" 
+                    : "text-slate-900 placeholder-slate-500"
+                }`}
               />
               <button
                 type="submit"
-                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
               >
                 Submit
               </button>
             </div>
 
             {/* Terms */}
-            <p className="text-center text-sm text-gray-600">
+            <p className={`text-center text-sm ${
+              isDark ? "text-slate-400" : "text-slate-500"
+            }`}>
               By signing up you agree to our{" "}
               <a
                 href="#"
-                className="font-semibold text-blue-600 hover:text-purple-600 transition-colors"
+                className="font-semibold text-blue-400 hover:text-cyan-400 transition-colors"
               >
                 Terms & Conditions
               </a>

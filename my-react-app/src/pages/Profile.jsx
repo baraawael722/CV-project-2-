@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Toast from "../components/Toast";
 
@@ -88,16 +88,16 @@ export default function Profile() {
       if (response.ok) {
         const data = await response.json();
         setSavedJobs(data.data || []);
-        console.log("âœ… Loaded saved jobs:", data.data?.length || 0);
+        console.log("� Loaded saved jobs:", data.data?.length || 0);
       }
     } catch (error) {
-      console.error("âš ï¸ Error fetching saved jobs:", error);
+      console.error("⚠️ Error fetching saved jobs:", error);
     }
   };
 
   const fetchCandidateProfile = async (token, email) => {
     try {
-      console.log("ðŸ” Fetching candidate profile...");
+      console.log("Fetching candidate profile...");
 
       // Use /me endpoint for employees to get their own profile
       const response = await fetch(`http://localhost:5000/api/candidates/me`, {
@@ -106,11 +106,11 @@ export default function Profile() {
         },
       });
 
-      console.log("ðŸ“¥ Profile response status:", response.status);
+      console.log("Profile response status:", response.status);
 
       if (response.ok) {
         const data = await response.json();
-        console.log("ðŸ“¦ Profile data:", data);
+        console.log("Profile data:", data);
 
         if (data.data) {
           const candidateData = data.data;
@@ -140,7 +140,7 @@ export default function Profile() {
               classifiedAt: candidateData.classificationResult.classifiedAt,
             });
             console.log(
-              "âœ… Loaded saved classification result:",
+              "� Loaded saved classification result:",
               candidateData.classificationResult
             );
           }
@@ -153,23 +153,23 @@ export default function Profile() {
             setHasUploadedCV(true);
             setCvFileName("CV uploaded successfully");
             console.log(
-              "âœ… CV already uploaded, resumeUrl:",
+              "� CV already uploaded, resumeUrl:",
               candidateData.resumeUrl
             );
           } else {
             setHasUploadedCV(false);
-            console.log("â„¹ï¸ No CV uploaded yet");
+            console.log("ℹ️ No CV uploaded yet");
           }
 
-          console.log("âœ… Profile loaded successfully");
+          console.log("� Profile loaded successfully");
         } else {
-          console.log("â„¹ï¸ No profile found yet");
+          console.log("ℹ️ No profile found yet");
         }
       } else {
-        console.error("âŒ Failed to fetch profile:", response.status);
+        console.error("❌ Failed to fetch profile:", response.status);
       }
     } catch (error) {
-      console.error("âŒ Error fetching profile:", error);
+      console.error("❌ Error fetching profile:", error);
     }
   };
 
@@ -243,22 +243,22 @@ export default function Profile() {
   };
 
   const handleCVSubmit = async () => {
-    console.log("ðŸŽ¯ handleCVSubmit called!");
+    console.log("handleCVSubmit called!");
 
     if (!cvFile) {
-      console.log("âŒ No file selected");
+      console.log("❌ No file selected");
       showToast("Please select a CV file first", "error");
       return;
     }
 
     const token = localStorage.getItem("token");
 
-    console.log("ðŸš€ Starting CV upload...");
-    console.log("ðŸ“„ File:", cvFile.name, cvFile.type, cvFile.size, "bytes");
-    console.log("ðŸ”‘ Token:", token ? "EXISTS" : "MISSING");
+    console.log("Starting CV upload...");
+    console.log("File:", cvFile.name, cvFile.type, cvFile.size, "bytes");
+    console.log("Token:", token ? "EXISTS" : "MISSING");
 
     if (!token) {
-      console.error("âŒ No token found! User not logged in.");
+      console.error("❌ No token found! User not logged in.");
       showToast(
         "You must be logged in to upload CV. Please login again.",
         "error"
@@ -273,7 +273,7 @@ export default function Profile() {
       formData.append("cv", cvFile);
 
       console.log(
-        "ðŸ“¤ Sending request to backend...",
+        "Sending request to backend...",
         "URL:",
         "http://localhost:5000/api/candidates/upload"
       );
@@ -289,15 +289,11 @@ export default function Profile() {
         }
       );
 
-      console.log("ðŸ“¥ Response received!");
-      console.log(
-        "ðŸ“¥ Response status:",
-        response.status,
-        response.statusText
-      );
+      console.log("Response received!");
+      console.log("Response status:", response.status, response.statusText);
 
       const data = await response.json();
-      console.log("ðŸ“¦ Response data:", JSON.stringify(data, null, 2));
+      console.log("Response data:", JSON.stringify(data, null, 2));
 
       if (response.ok) {
         // Update profile with extracted fields and classification
@@ -346,12 +342,12 @@ export default function Profile() {
         // Refresh candidate profile from server
         fetchCandidateProfile(token, user.email);
       } else {
-        console.error("âŒ Upload failed:", data.message);
+        console.error("❌ Upload failed:", data.message);
         showToast(`Upload error: ${data.message || "Server error"}`, "error");
       }
       setUploading(false);
     } catch (error) {
-      console.error("âŒ Upload error:", error);
+      console.error("❌ Upload error:", error);
       showToast("Upload failed. Please try again.", "error");
       setUploading(false);
     }
@@ -389,7 +385,7 @@ export default function Profile() {
 
     try {
       setClassifying(true);
-      console.log("ðŸ”¬ Starting CV classification...");
+      console.log("Starting CV classification...");
 
       const response = await fetch("http://localhost:5000/api/ml/classify-cv", {
         method: "POST",
@@ -400,7 +396,7 @@ export default function Profile() {
       });
 
       const data = await response.json();
-      console.log("ðŸ“¦ Classification result:", data);
+      console.log("Classification result:", data);
 
       if (response.ok && data.success) {
         const classificationData = {
@@ -424,13 +420,13 @@ export default function Profile() {
         }));
 
         console.log(
-          "ðŸ’¾ Classification result saved to database and will persist on refresh"
+          "Classification result saved to database and will persist on refresh"
         );
       } else {
         throw new Error(data.message || "Classification failed");
       }
     } catch (error) {
-      console.error("âŒ Classification error:", error);
+      console.error("❌ Classification error:", error);
       showToast(`Classification failed: ${error.message}`, "error");
     } finally {
       setClassifying(false);
@@ -740,26 +736,26 @@ export default function Profile() {
                     <div className="space-y-4">
                       <div className="border-4 border-solid border-purple-500 rounded-xl p-6 bg-purple-900/20 border-purple-500/50">
                         <div className="flex items-center justify-between mb-4">
-                          <h4 className="text-lg font-bold text-purple-900">
-                            ðŸŽ¯ Auto-Classification Result
+                          <h4 className="text-lg font-bold text-purple-300">
+                            Auto-Classification Result
                           </h4>
                           {classificationResult.classifiedAt && (
-                            <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">
-                              âœ“ Saved
+                            <span className="text-xs bg-green-500 text-white px-3 py-1 rounded-full font-semibold">
+                              Saved
                             </span>
                           )}
                         </div>
                         <div className="grid grid-cols-2 gap-4 mb-4">
                           <div>
-                            <p className="text-sm text-slate-400 mb-1">
+                            <p className="text-sm text-slate-300 mb-1">
                               Job Title:
                             </p>
-                            <p className="text-xl font-bold text-purple-900">
+                            <p className="text-xl font-bold text-purple-200">
                               {classificationResult.jobTitle}
                             </p>
                           </div>
                         </div>
-                        <div className="text-sm text-purple-700 bg-purple-100 p-2 rounded">
+                        <div className="text-sm text-purple-300 bg-purple-800/50 p-2 rounded">
                           Method:{" "}
                           {classificationResult.decision_method || "unknown"}
                         </div>
@@ -776,8 +772,8 @@ export default function Profile() {
                       {/* AI Analysis Details */}
                       {classificationResult.ai_analysis && (
                         <div className="border-4 border-solid border-blue-500 rounded-xl p-6 bg-blue-900/20 border-blue-500/50">
-                          <h4 className="text-lg font-bold text-blue-900 mb-4">
-                            ðŸ¤– AI Analysis
+                          <h4 className="text-lg font-bold text-blue-300 mb-4">
+                            AI Analysis
                           </h4>
 
                           {classificationResult.ai_analysis.primary_role && (
@@ -785,7 +781,7 @@ export default function Profile() {
                               <p className="text-sm text-slate-300 font-medium font-semibold mb-1">
                                 Primary Role:
                               </p>
-                              <p className="text-blue-900 text-lg">
+                              <p className="text-blue-200 text-lg font-semibold">
                                 {classificationResult.ai_analysis.primary_role}
                               </p>
                             </div>
@@ -797,7 +793,7 @@ export default function Profile() {
                               <p className="text-sm text-slate-300 font-medium font-semibold mb-1">
                                 Experience:
                               </p>
-                              <p className="text-blue-900">
+                              <p className="text-blue-200 font-semibold">
                                 {
                                   classificationResult.ai_analysis
                                     .experience_years
@@ -819,7 +815,7 @@ export default function Profile() {
                                     (skill, idx) => (
                                       <span
                                         key={idx}
-                                        className="px-3 py-1 bg-blue-200 text-blue-900 rounded-full text-sm font-semibold"
+                                        className="px-3 py-1 bg-blue-500 text-white rounded-full text-sm font-semibold"
                                       >
                                         {skill}
                                       </span>
@@ -841,7 +837,7 @@ export default function Profile() {
                                     (lang, idx) => (
                                       <span
                                         key={idx}
-                                        className="px-3 py-1 bg-indigo-200 text-indigo-900 rounded-full text-sm font-semibold"
+                                        className="px-3 py-1 bg-indigo-500 text-white rounded-full text-sm font-semibold"
                                       >
                                         {lang}
                                       </span>
@@ -863,7 +859,7 @@ export default function Profile() {
                                     (project, idx) => (
                                       <li
                                         key={idx}
-                                        className="text-blue-900 text-sm"
+                                        className="text-blue-200 text-sm"
                                       >
                                         {project}
                                       </li>
@@ -886,7 +882,7 @@ export default function Profile() {
                                     (cat, idx) => (
                                       <span
                                         key={idx}
-                                        className="px-3 py-1 bg-green-200 text-green-900 rounded-full text-sm font-semibold"
+                                        className="px-3 py-1 bg-green-500 text-white rounded-full text-sm font-semibold"
                                       >
                                         {cat}
                                       </span>
@@ -992,7 +988,7 @@ export default function Profile() {
             <div className="bg-gradient-to-br from-slate-800 to-slate-700 rounded-2xl shadow-2xl p-8 border-2 border-slate-600">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-3xl font-extrabold text-white drop-shadow-lg">
-                  Skills ðŸ’ª
+                  Skills
                 </h2>
                 <button
                   onClick={handleAddSkill}
@@ -1018,7 +1014,7 @@ export default function Profile() {
                         onClick={() => handleRemoveSkill(index)}
                         className="text-blue-700 hover:text-red-600 font-bold opacity-0 group-hover:opacity-100 transition-opacity"
                       >
-                        âœ•
+                        ×
                       </button>
                     </span>
                   ))}
@@ -1029,7 +1025,7 @@ export default function Profile() {
             {/* Education & Experience */}
             <div className="bg-gradient-to-br from-slate-800 to-slate-700 rounded-2xl shadow-2xl p-8 border-2 border-slate-600">
               <h2 className="text-2xl font-bold text-white mb-6 drop-shadow-lg font-extrabold">
-                Education & Experience ðŸŽ“
+                Education & Experience
               </h2>
 
               <div className="space-y-4">
@@ -1148,8 +1144,8 @@ export default function Profile() {
 
             {/* Saved Jobs */}
             <div className="bg-gradient-to-br from-slate-800 to-slate-700 rounded-2xl shadow-2xl p-6 border-2 border-slate-600">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">
-                â­ Saved Jobs
+              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                ⭐ Saved Jobs
               </h2>
               <div className="space-y-3">
                 {savedJobs.length > 0 ? (
@@ -1161,19 +1157,19 @@ export default function Profile() {
                       }
                       className="p-3 bg-slate-800 rounded-lg hover:bg-slate-700 transition-all cursor-pointer"
                     >
-                      <h3 className="font-bold text-gray-900 text-sm mb-1">
+                      <h3 className="font-bold text-white text-sm mb-1">
                         {job.title}
                       </h3>
-                      <p className="text-xs text-slate-400">{job.company}</p>
+                      <p className="text-xs text-slate-300">{job.company}</p>
                       {job.location && (
-                        <p className="text-xs text-slate-500 mt-1">
-                          ðŸ“ {job.location}
+                        <p className="text-xs text-slate-400 mt-1">
+                          {job.location}
                         </p>
                       )}
                     </div>
                   ))
                 ) : (
-                  <p className="text-slate-500 text-sm text-center py-4">
+                  <p className="text-slate-400 text-sm text-center py-4">
                     No saved jobs yet. Browse jobs and click "Save" to bookmark
                     them!
                   </p>
@@ -1183,22 +1179,20 @@ export default function Profile() {
                 onClick={() => navigate("/employee/jobs")}
                 className="w-full mt-4 px-4 py-2 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-all text-sm"
               >
-                View All Jobs â†’
+                View All Jobs →
               </button>
             </div>
 
             {/* Saved Courses */}
             <div className="bg-gradient-to-br from-slate-800 to-slate-700 rounded-2xl shadow-2xl p-6 border-2 border-slate-600">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">
-                ðŸ“š My Courses
-              </h2>
+              <h2 className="text-xl font-bold text-white mb-4">My Courses</h2>
               <div className="space-y-3">
                 {savedCourses.map((course) => (
                   <div
                     key={course.id}
                     className="p-3 bg-slate-800 rounded-lg hover:bg-slate-700 transition-all"
                   >
-                    <h3 className="font-bold text-gray-900 text-sm mb-2">
+                    <h3 className="font-bold text-white text-sm mb-2">
                       {course.title}
                     </h3>
                     <div className="w-full bg-slate-700 rounded-full h-2">
@@ -1214,7 +1208,7 @@ export default function Profile() {
                 ))}
               </div>
               <button className="w-full mt-4 px-4 py-2 bg-purple-600 text-white font-bold rounded-full hover:bg-purple-700 transition-all text-sm">
-                View All Courses â†’
+                View All Courses →
               </button>
             </div>
 
@@ -1224,7 +1218,7 @@ export default function Profile() {
                 onClick={handleLogout}
                 className="w-full px-6 py-3 bg-red-600 text-white font-bold rounded-full hover:bg-red-700 transition-all"
               >
-                ðŸšª Logout
+                Logout
               </button>
             </div>
           </div>

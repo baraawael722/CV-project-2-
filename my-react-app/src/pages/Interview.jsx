@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 
 const API_BASE_URL =
@@ -9,7 +9,7 @@ export default function Interview() {
     {
       role: "assistant",
       content:
-        "Hello! ðŸ‘‹ I'm your AI Career Assistant powered by Groq AI. Upload your CV or ask me anything about your career, skills, or job preparation!",
+        "Hello! I'm your AI Career Assistant powered by Groq AI. Upload your CV or ask me anything about your career, skills, or job preparation!",
       feedback: null,
     },
   ]);
@@ -49,7 +49,7 @@ export default function Interview() {
             {
               role: "assistant",
               content:
-                "âœ… Your CV has been loaded! I can now provide personalized career advice based on your experience and skills. What would you like to know?",
+                "Your CV has been loaded! I can now provide personalized career advice based on your experience and skills. What would you like to know?",
               feedback: null,
             },
           ]);
@@ -80,7 +80,7 @@ export default function Interview() {
           ...prev,
           {
             role: "assistant",
-            content: `ðŸ“„ CV uploaded successfully! (${file.name})\n\nI've analyzed your CV. You can now ask me questions about:\n- Your skills and experience\n- Career recommendations\n- Missing skills for specific jobs\n- Interview preparation\n\nWhat would you like to know?`,
+            content: `CV uploaded successfully! (${file.name})\n\nI've analyzed your CV. You can now ask me questions about:\n- Your skills and experience\n- Career recommendations\n- Missing skills for specific jobs\n- Interview preparation\n\nWhat would you like to know?`,
             feedback: null,
           },
         ]);
@@ -146,7 +146,7 @@ export default function Interview() {
 
       const errorMessage = {
         role: "assistant",
-        content: `âŒ Sorry, I encountered an error: ${
+        content: `Sorry, I encountered an error: ${
           error.response?.data?.message || error.message
         }\n\nPlease make sure:\n1. You are logged in\n2. The backend server is running\n3. GROQ_API_KEY is configured in .env`,
         feedback: null,
@@ -164,7 +164,7 @@ export default function Interview() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">
-            AI Career Assistant ðŸ¤–
+            AI Career Assistant
           </h1>
           <p className="text-lg text-slate-400">
             Powered by Groq AI - Get personalized career advice based on your CV
@@ -176,7 +176,7 @@ export default function Interview() {
           <div className="bg-slate-800 rounded-xl shadow-md p-6 border border-slate-700">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <span className="text-3xl">{cvUploaded ? "âœ…" : "ðŸ“„"}</span>
+                <span className="text-3xl">{cvUploaded ? "✓" : "📄"}</span>
                 <div>
                   <h3 className="font-bold text-white">
                     {cvUploaded ? "CV Loaded" : "Upload Your CV"}

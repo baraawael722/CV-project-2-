@@ -1,6 +1,5 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import JobStatsChart from "../components/JobStatsChart";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -39,7 +38,7 @@ export default function Dashboard() {
   const fetchDashboardData = async (token) => {
     try {
       setLoading(true);
-      console.log("ðŸ”„ Fetching jobs for dashboard...");
+      console.log("Fetching jobs for dashboard...");
 
       // Fetch jobs from API
       const res = await fetch("http://localhost:5000/api/jobs", {
@@ -63,8 +62,8 @@ export default function Dashboard() {
 
       // Verify matchScores are present
       if (jobsList.length > 0 && !jobsList[0].matchScore) {
-        console.warn("âš ï¸  WARNING: No matchScore in jobs data!");
-        console.log("ðŸ” Job structure:", JSON.stringify(jobsList[0], null, 2));
+        console.warn("WARNING: No matchScore in jobs data!");
+        console.log("Job structure:", JSON.stringify(jobsList[0], null, 2));
       }
 
       setJobs(jobsList.slice(0, 6)); // Get top 6 jobs for dashboard
@@ -107,7 +106,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-slate-900">
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 pb-32">
+      <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-blue-900 to-slate-800 pb-32">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden opacity-20">
           <div
@@ -316,11 +315,38 @@ export default function Dashboard() {
                   className="group bg-gradient-to-br from-slate-700 to-slate-800 border-2 border-slate-600 rounded-2xl p-6 hover:border-cyan-400 hover:shadow-xl transition-all duration-300 cursor-pointer relative"
                 >
                   {/* Match Score Badge */}
-                  {job.matchScore !== undefined && job.matchScore > 0 && (
-                    <div className="absolute top-4 right-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
-                      {Math.round(job.matchScore * 100)}% Match
-                    </div>
-                  )}
+                  {job.matchScore !== undefined &&
+                    job.matchScore > 0 &&
+                    (() => {
+                      // Normalize score (backend may send 0..1 or 0..100)
+                      const scoreNum =
+                        job.matchScore > 1
+                          ? job.matchScore
+                          : job.matchScore * 100;
+
+                      // Determine match level and color
+                      const matchLevel =
+                        scoreNum >= 80
+                          ? "Excellent Match"
+                          : scoreNum >= 60
+                          ? "Fair Match"
+                          : "Low Match";
+
+                      const bgColor =
+                        scoreNum >= 80
+                          ? "from-green-500 to-emerald-600"
+                          : scoreNum >= 60
+                          ? "from-yellow-500 to-orange-500"
+                          : "from-red-500 to-pink-500";
+
+                      return (
+                        <div
+                          className={`absolute top-4 right-4 bg-gradient-to-r ${bgColor} text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg z-10`}
+                        >
+                          {Number(scoreNum).toFixed(1)}% - {matchLevel}
+                        </div>
+                      );
+                    })()}
 
                   {/* Company Logo - Real or Placeholder */}
                   <div className="w-14 h-14 bg-gradient-to-br from-blue-400 to-purple-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform overflow-hidden">
@@ -644,9 +670,6 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-
-        {/* Stats Chart */}
-        <JobStatsChart />
       </div>
     </div>
   );

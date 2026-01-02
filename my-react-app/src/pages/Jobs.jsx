@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Jobs() {
@@ -28,7 +28,7 @@ export default function Jobs() {
     salaryMax: "",
     currency: "USD",
     description: "",
-    skills: "", // comma-separated â†’ requiredSkills
+    skills: "", // comma-separated requiredSkills
     experienceLevel: "Entry Level",
   });
   const user = useMemo(
@@ -73,7 +73,7 @@ export default function Jobs() {
           if (res.ok && data.data) {
             const savedIds = data.data.map((job) => job._id || job.id);
             setSavedJobs(savedIds);
-            console.log("âœ… Loaded saved jobs for HR:", savedIds.length);
+            console.log("Loaded saved jobs for HR:", savedIds.length);
           }
         } else if (user.role === "employee") {
           // For employees
@@ -87,11 +87,11 @@ export default function Jobs() {
           if (res.ok && data.data) {
             const savedIds = data.data.map((job) => job._id || job.id);
             setSavedJobs(savedIds);
-            console.log("âœ… Loaded saved jobs:", savedIds.length);
+            console.log("Loaded saved jobs:", savedIds.length);
           }
         }
       } catch (e) {
-        console.warn("âš ï¸ Failed to load saved jobs:", e.message);
+        console.warn("️ Failed to load saved jobs:", e.message);
       }
     };
 
@@ -127,16 +127,16 @@ export default function Jobs() {
         // Update local state
         if (data.data.action === "saved") {
           setSavedJobs([...savedJobs, jobId]);
-          console.log("âœ… Job saved");
+          console.log("Job saved");
         } else {
           setSavedJobs(savedJobs.filter((id) => id !== jobId));
-          console.log("âœ… Job removed from saved");
+          console.log("Job removed from saved");
         }
       } else {
-        console.error("âŒ Failed to save job:", data.message);
+        console.error("Failed to save job:", data.message);
       }
     } catch (e) {
-      console.error("âŒ Error saving job:", e.message);
+      console.error("Error saving job:", e.message);
     }
   };
 
@@ -147,7 +147,7 @@ export default function Jobs() {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Not authenticated");
 
-      console.log("ðŸŽ¯ Fetching AI job matches...");
+      console.log("Fetching AI job matches...");
 
       const res = await fetch("http://localhost:5000/api/ml/match-jobs", {
         method: "GET",
@@ -158,31 +158,29 @@ export default function Jobs() {
       });
 
       const data = await res.json();
-      console.log("ðŸ“¥ Response:", data);
+      console.log("Response:", data);
 
       if (!res.ok) {
         // Show specific error message
         if (data.message && data.message.includes("No CV found")) {
           throw new Error(
-            "âš ï¸ Please upload your CV first to get AI recommendations!"
+            "️ Please upload your CV first to get AI recommendations!"
           );
         } else if (data.message && data.message.includes("No jobs available")) {
-          throw new Error("âš ï¸ No jobs available yet. Check back later!");
+          throw new Error("️ No jobs available yet. Check back later!");
         }
         throw new Error(data?.message || "Failed to fetch matches");
       }
 
       if (!data.data || data.data.length === 0) {
-        setError(
-          "âš ï¸ No matching jobs found. Try uploading a more detailed CV!"
-        );
+        setError("️ No matching jobs found. Try uploading a more detailed CV!");
         setMatchedJobs([]);
       } else {
         setMatchedJobs(data.data || []);
         setFilter("ai-matched");
       }
     } catch (e) {
-      console.error("âŒ Error:", e.message);
+      console.error("Error:", e.message);
       setError(e.message);
     } finally {
       setMatchLoading(false);
@@ -392,7 +390,7 @@ export default function Jobs() {
                     : "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
                 }`}
               >
-                {matchLoading ? "Loading..." : "ðŸ¤– AI Recommendations"}
+                {matchLoading ? "Loading..." : "AI Recommendations"}
               </button>
             )}
             {user?.role === "hr" && (
@@ -470,7 +468,7 @@ export default function Jobs() {
               return displayJobs.map((job) => (
                 <div
                   key={job._id || job.id}
-                  className="bg-slate-800 rounded-xl hover:bg-slate-750 transition-all p-6 border border-slate-700"
+                  className="bg-slate-800 rounded-xl hover:bg-slate-750 transition-all p-6 border border-slate-700 relative"
                 >
                   {/* AI Match Percentage Badge (shows only when available) */}
                   {(filter === "ai-matched" || job.matchScore !== undefined) &&
@@ -506,7 +504,7 @@ export default function Jobs() {
 
                       return (
                         <div
-                          className={`absolute top-4 right-4 bg-gradient-to-r ${bgColor} text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg`}
+                          className={`absolute top-4 right-4 bg-gradient-to-r ${bgColor} text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg z-10`}
                         >
                           {Number(scoreNum).toFixed(1)}% - {matchLevel}
                         </div>
@@ -1359,7 +1357,7 @@ export default function Jobs() {
                           }}
                           className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all shadow-md"
                         >
-                          Next â†’
+                          Next{" "}
                         </button>
                       </div>
                     </>
@@ -1478,7 +1476,7 @@ export default function Jobs() {
                           onClick={() => setFormStep(1)}
                           className="px-6 py-3 bg-slate-700 text-slate-300 font-semibold rounded-lg hover:bg-slate-600 transition-all"
                         >
-                          â† Back
+                          Back
                         </button>
                         <button
                           type="submit"

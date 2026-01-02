@@ -4,6 +4,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import { ThemeProvider } from "./context/ThemeContext.jsx";
 import Navbar from "./components/Navbar.jsx";
 import TopNavbar from "./components/TopNavbar.jsx";
 import HRLayout from "./components/HRLayout.jsx";
@@ -50,18 +51,19 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
 export default function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Public Landing Page */}
-        <Route
-          path="/"
-          element={
-            <>
-              <Navbar />
-              <Home />
-            </>
-          }
-        />
+    <ThemeProvider>
+      <Router>
+        <Routes>
+          {/* Public Landing Page */}
+          <Route
+            path="/"
+            element={
+              <>
+                <Navbar />
+                <Home />
+              </>
+            }
+          />
 
         {/* Auth Pages */}
         <Route path="/login" element={<Login />} />
@@ -297,5 +299,6 @@ export default function App() {
         />
       </Routes>
     </Router>
+    </ThemeProvider>
   );
 }
