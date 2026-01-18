@@ -527,6 +527,10 @@ export const uploadResume = async (req, res) => {
       candidate.resumeUrl = fileId.toString(); // Store GridFS file ID
       candidate.resumeText = extractedText;
 
+      // Clear old classification when uploading new CV
+      candidate.classificationResult = null;
+      candidate.jobTitle = "";
+
       // Merge skills (avoid duplicates)
       if (extractedFields.skills.length > 0) {
         const existingSkills = new Set(
@@ -566,7 +570,7 @@ export const uploadResume = async (req, res) => {
 
     // Auto-classify CV job title
     let classificationResult = null;
-    if (extractedText && extractedText.length > 100) {
+    if (extractedText && extractedText.length > 50) {
       try {
         console.log("🔬 Auto-classifying CV...");
         const classifyResponse = await axios.post(
@@ -576,7 +580,7 @@ export const uploadResume = async (req, res) => {
             use_groq_analysis: true,
           },
           {
-            timeout: 15000, // 15 seconds timeout
+            timeout: 30000, // 30 seconds timeout (increased)
           }
         );
 
@@ -609,6 +613,8 @@ export const uploadResume = async (req, res) => {
             confidence: confidence,
             method: classifyResponse.data.decision_method,
           };
+        } else {
+          console.warn("⚠️ Classification returned success=false");
         }
       } catch (classifyError) {
         console.warn(
@@ -617,6 +623,8 @@ export const uploadResume = async (req, res) => {
         );
         // Don't fail the upload if classification fails
       }
+    } else {
+      console.log("⚠️ CV text too short for classification:", extractedText?.length || 0, "chars");
     }
 
     return res.json({

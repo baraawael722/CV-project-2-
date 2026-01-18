@@ -351,6 +351,7 @@ export const chatModel = async (req, res) => {
 /**
  * Match CVs to Job Description (for HR)
  * Finds best matching candidate CVs for a given job description
+ * Uses the SAME matching logic as Employee matching for consistent scores
  */
 export const matchCVsToJob = async (req, res) => {
   try {
@@ -397,102 +398,25 @@ export const matchCVsToJob = async (req, res) => {
 
     console.log(`📄 Found ${candidates.length} candidates with CVs`);
 
-    // Prepare CV texts
-    const cvTexts = candidates.map((c) => c.resumeText || "");
+    // Use hybridMatchCVsToJob - same matching logic as Employee (hybridMatch)
+    const { hybridMatchCVsToJob } = await import("../utils/hybridMatcher.js");
 
-    // Call Python script to match CVs to job
-    const { spawn } = await import("child_process");
-    const scriptPath = path.join(
-      __dirname,
-      "..",
-      "scripts",
-      "match_cvs_to_job.py"
-    );
+    const topMatches = hybridMatchCVsToJob(jobDescription, candidates, 10);
 
-    const python = spawn("python", [scriptPath], {
-      stdio: ["pipe", "pipe", "pipe"],
-      shell: false,
-      env: { ...process.env, PYTHONIOENCODING: "utf-8" },
-    });
-
-    const inputData = {
-      job_description: jobDescription,
-      cv_texts: cvTexts,
-      top_k: 10,
-    };
-
-    // Send input to Python
-    python.stdin.write(JSON.stringify(inputData));
-    python.stdin.end();
-
-    let outputData = "";
-    let errorData = "";
-
-    python.stdout.on("data", (data) => {
-      outputData += data.toString();
-    });
-
-    python.stderr.on("data", (data) => {
-      errorData += data.toString();
-      console.log("🐍 Python:", data.toString().trim());
-    });
-
-    // Wait for Python to complete
-    await new Promise((resolve, reject) => {
-      python.on("close", (code) => {
-        if (code !== 0) {
-          reject(
-            new Error(`Python script exited with code ${code}: ${errorData}`)
-          );
-        } else {
-          resolve();
-        }
-      });
-
-      python.on("error", (error) => {
-        reject(new Error(`Failed to start Python: ${error.message}`));
-      });
-
-      // Timeout after 60 seconds
-      setTimeout(() => {
-        python.kill();
-        reject(new Error("Python script timeout (60s)"));
-      }, 60000);
-    });
-
-    // Parse Python output
-    const result = JSON.parse(outputData);
-
-    if (!result.success) {
-      throw new Error(result.error || "Python matcher failed");
-    }
-
-    // Map results back to full candidate objects
-    // Note: Python returns 'job_index' but we're matching CVs, so it's actually cv_index
-    const matchedCandidates = result.matches
-      .map((match) => {
-        const cvIndex =
-          match.job_index !== undefined ? match.job_index : match.cv_index;
-        const candidate = candidates[cvIndex];
-
-        if (!candidate) {
-          console.error(`⚠️ No candidate found at index ${cvIndex}`);
-          return null;
-        }
-
-        return {
-          _id: candidate._id,
-          name: candidate.name,
-          email: candidate.email,
-          phone: candidate.phone,
-          skills: candidate.skills,
-          experience: candidate.experience,
-          education: candidate.education,
-          matchScore: Math.round(match.similarity_score * 100) / 100,
-          resumeText: candidate.resumeText.substring(0, 300) + "...", // Preview only
-        };
-      })
-      .filter((c) => c !== null);
+    // Map results to expected format
+    const matchedCandidates = topMatches.map((match) => ({
+      _id: match.candidate._id,
+      name: match.candidate.name,
+      email: match.candidate.email,
+      phone: match.candidate.phone,
+      skills: match.candidate.skills,
+      experience: match.candidate.experience,
+      education: match.candidate.education,
+      matchScore: match.matchScore,
+      matchedSkills: match.matchResult?.matched || [],
+      missingSkills: match.matchResult?.missing || [],
+      resumeText: match.candidate.resumeText.substring(0, 300) + "...",
+    }));
 
     console.log(`✅ Matched ${matchedCandidates.length} candidates to job`);
     matchedCandidates.slice(0, 5).forEach((c, idx) => {
@@ -503,7 +427,7 @@ export const matchCVsToJob = async (req, res) => {
       success: true,
       data: matchedCandidates,
       jobTitle: job.title,
-      method: "python_bert_hybrid_cv_matching",
+      method: "Hybrid Skill Matching (same as Employee)",
     });
   } catch (error) {
     console.error("❌ Error matching CVs to job:", error.message);

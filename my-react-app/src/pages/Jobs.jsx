@@ -3,7 +3,12 @@ import { useNavigate } from "react-router-dom";
 
 export default function Jobs() {
   const navigate = useNavigate();
-  const [filter, setFilter] = useState("all");
+  const user = useMemo(
+    () => JSON.parse(localStorage.getItem("user") || "null"),
+    []
+  );
+  // HR sees all jobs, Employee sees AI matched by default
+  const [filter, setFilter] = useState(user?.role === "employee" ? "ai-matched" : "all");
   const [savedJobs, setSavedJobs] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [matchedJobs, setMatchedJobs] = useState([]);
@@ -31,10 +36,6 @@ export default function Jobs() {
     skills: "", // comma-separated → requiredSkills
     experienceLevel: "Entry Level",
   });
-  const user = useMemo(
-    () => JSON.parse(localStorage.getItem("user") || "null"),
-    []
-  );
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -81,6 +82,13 @@ export default function Jobs() {
     fetchJobs();
     fetchSavedJobs();
   }, []);
+
+  // Auto-load AI matched jobs for employees
+  useEffect(() => {
+    if (user?.role === "employee" && jobs.length > 0) {
+      fetchMLMatches();
+    }
+  }, [jobs]);
 
   const toggleSave = async (jobId) => {
     try {
@@ -323,8 +331,8 @@ export default function Jobs() {
               <button
                 onClick={() => setFilter("all")}
                 className={`px-7 py-3.5 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 ${filter === "all"
-                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-300"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-gray-200"
+                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-300"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-gray-200"
                   }`}
               >
                 All Jobs ({jobs.length})
@@ -332,8 +340,8 @@ export default function Jobs() {
               <button
                 onClick={() => setFilter("remote")}
                 className={`px-7 py-3.5 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 ${filter === "remote"
-                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-300"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-gray-200"
+                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-300"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-gray-200"
                   }`}
               >
                 Remote
@@ -341,8 +349,8 @@ export default function Jobs() {
               <button
                 onClick={() => setFilter("fulltime")}
                 className={`px-7 py-3.5 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 ${filter === "fulltime"
-                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-300"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-gray-200"
+                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-300"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-gray-200"
                   }`}
               >
                 Full-time
@@ -350,8 +358,8 @@ export default function Jobs() {
               <button
                 onClick={() => setFilter("saved")}
                 className={`px-7 py-3.5 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 ${filter === "saved"
-                    ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-300"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-gray-200"
+                  ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-300"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-gray-200"
                   }`}
               >
                 Saved ({savedJobs.length})
@@ -361,8 +369,8 @@ export default function Jobs() {
                   onClick={fetchMLMatches}
                   disabled={matchLoading}
                   className={`px-7 py-3.5 rounded-xl font-bold transition-all duration-300 transform hover:scale-105 ${filter === "ai-matched"
-                      ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-xl shadow-purple-300"
-                      : "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-lg shadow-purple-300"
+                    ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-xl shadow-purple-300"
+                    : "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-lg shadow-purple-300"
                     }`}
                 >
                   {matchLoading ? "Loading AI..." : "AI Recommended"}
@@ -393,7 +401,14 @@ export default function Jobs() {
 
         {/* Jobs List */}
         <div className="space-y-6">
-          {(filter === "ai-matched" ? matchedJobs : jobs).map((job) => (
+          {(filter === "ai-matched"
+            ? matchedJobs.filter((job) => {
+              const raw = job.matchScore ?? job.match_percentage ?? job.matchPercent;
+              const scoreNum = typeof raw === "number" ? (raw > 1 ? raw : raw * 100) : 0;
+              return scoreNum >= 60; // Only show jobs with 60%+ match
+            })
+            : jobs
+          ).map((job) => (
             <div
               key={job._id || job.id}
               className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6 border-2 border-gray-100 hover:border-indigo-200 relative"
@@ -418,15 +433,15 @@ export default function Jobs() {
                     scoreNum >= 80
                       ? "Excellent Match"
                       : scoreNum >= 60
-                      ? "Fair Match"
-                      : "Low Match";
+                        ? "Fair Match"
+                        : "Low Match";
 
                   const bgColor =
                     scoreNum >= 80
                       ? "from-green-500 to-emerald-600"
                       : scoreNum >= 60
-                      ? "from-yellow-500 to-orange-500"
-                      : "from-red-500 to-pink-500";
+                        ? "from-yellow-500 to-orange-500"
+                        : "from-red-500 to-pink-500";
 
                   return (
                     <div
@@ -573,12 +588,10 @@ export default function Jobs() {
                         {job.salaryMin && job.salaryMax
                           ? `${job.salaryMin}-${job.salaryMax} USD`
                           : job.salary
-                          ? `${job.salary.min ?? ""}${
-                              job.salary.min ? "-" : ""
-                            }${job.salary.max ?? ""} ${
-                              job.salary.currency || ""
-                            }`.trim()
-                          : "Negotiable"}
+                            ? `${job.salary.min ?? ""}${job.salary.min ? "-" : ""
+                              }${job.salary.max ?? ""} ${job.salary.currency || ""
+                              }`.trim()
+                            : "Negotiable"}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-700">
@@ -628,8 +641,8 @@ export default function Jobs() {
                     <button
                       onClick={() => toggleSave(job._id || job.id)}
                       className={`px-6 py-3 font-semibold rounded-lg transition-all shadow-sm ${savedJobs.includes(job._id || job.id)
-                          ? "bg-amber-500 text-white hover:bg-amber-600"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300"
+                        ? "bg-amber-500 text-white hover:bg-amber-600"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300"
                         }`}
                     >
                       {savedJobs.includes(job._id || job.id) ? "Saved" : "Save"}
@@ -801,12 +814,10 @@ export default function Jobs() {
                       {selectedJob.salaryMin && selectedJob.salaryMax
                         ? `$${selectedJob.salaryMin}-${selectedJob.salaryMax} USD`
                         : selectedJob.salary
-                        ? `${selectedJob.salary.min ?? ""}${
-                            selectedJob.salary.min ? "-" : ""
-                          }${selectedJob.salary.max ?? ""} ${
-                            selectedJob.salary.currency || ""
-                          }`.trim()
-                        : "Negotiable"}
+                          ? `${selectedJob.salary.min ?? ""}${selectedJob.salary.min ? "-" : ""
+                            }${selectedJob.salary.max ?? ""} ${selectedJob.salary.currency || ""
+                            }`.trim()
+                          : "Negotiable"}
                     </p>
                   </div>
 
@@ -888,7 +899,7 @@ export default function Jobs() {
                 {/* Required Skills */}
                 {(selectedJob.requiredSkills || selectedJob.skills) &&
                   (selectedJob.requiredSkills || selectedJob.skills).length >
-                    0 && (
+                  0 && (
                     <div className="bg-purple-50 p-6 rounded-xl border border-purple-200">
                       <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                         <svg
