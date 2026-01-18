@@ -225,22 +225,21 @@ export default function MatchedCandidates() {
                   candidate.matchScore >= 80
                     ? "#10b981"
                     : candidate.matchScore >= 60
-                    ? "#f59e0b"
-                    : "#ef4444",
+                      ? "#f59e0b"
+                      : "#ef4444",
               }}
             >
               <div className="flex items-start gap-4">
                 {/* Rank Badge */}
                 <div
-                  className={`flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white ${
-                    index === 0
+                  className={`flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white ${index === 0
                       ? "bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-lg"
                       : index === 1
-                      ? "bg-gradient-to-br from-gray-300 to-gray-500"
-                      : index === 2
-                      ? "bg-gradient-to-br from-orange-400 to-orange-600"
-                      : "bg-gradient-to-br from-purple-500 to-pink-500"
-                  }`}
+                        ? "bg-gradient-to-br from-gray-300 to-gray-500"
+                        : index === 2
+                          ? "bg-gradient-to-br from-orange-400 to-orange-600"
+                          : "bg-gradient-to-br from-purple-500 to-pink-500"
+                    }`}
                 >
                   #{index + 1}
                 </div>
@@ -309,19 +308,18 @@ export default function MatchedCandidates() {
                         {candidate.matchScore >= 80
                           ? "Excellent Match"
                           : candidate.matchScore >= 60
-                          ? "Fair Match"
-                          : "Low Match"}
+                            ? "Fair Match"
+                            : "Low Match"}
                       </span>
                     </div>
                     <div className="relative w-full bg-gray-200 rounded-full h-8 overflow-hidden">
                       <div
-                        className={`absolute top-0 left-0 h-full rounded-full transition-all duration-500 ${
-                          candidate.matchScore >= 80
+                        className={`absolute top-0 left-0 h-full rounded-full transition-all duration-500 ${candidate.matchScore >= 80
                             ? "bg-gradient-to-r from-green-500 to-emerald-600"
                             : candidate.matchScore >= 60
-                            ? "bg-gradient-to-r from-yellow-500 to-orange-500"
-                            : "bg-gradient-to-r from-red-500 to-pink-500"
-                        }`}
+                              ? "bg-gradient-to-r from-yellow-500 to-orange-500"
+                              : "bg-gradient-to-r from-red-500 to-pink-500"
+                          }`}
                         style={{ width: `${candidate.matchScore}%` }}
                       ></div>
                     </div>
@@ -473,7 +471,14 @@ export default function MatchedCandidates() {
                         Call
                       </a>
                     )}
-                    <button className="px-6 py-3 bg-purple-100 text-purple-700 rounded-lg font-semibold hover:bg-purple-200 transition-all flex items-center gap-2">
+                    <button
+                      onClick={() =>
+                        navigate(`/hr/candidates/${candidate._id}`, {
+                          state: { candidate },
+                        })
+                      }
+                      className="px-6 py-3 bg-purple-100 text-purple-700 rounded-lg font-semibold hover:bg-purple-200 transition-all flex items-center gap-2"
+                    >
                       <svg
                         className="w-5 h-5"
                         fill="none"

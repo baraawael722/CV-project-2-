@@ -234,6 +234,9 @@ export default function Profile() {
         return;
       }
 
+      // Clear old classification immediately when selecting new CV
+      setClassificationResult(null);
+
       setCvFile(file);
       showToast(
         `CV file "${file.name}" selected! Click "Upload CV" to save.`,
@@ -268,6 +271,9 @@ export default function Profile() {
 
     try {
       setUploading(true);
+
+      // Clear old classification result immediately when uploading new CV
+      setClassificationResult(null);
 
       const formData = new FormData();
       formData.append("cv", cvFile);
@@ -722,6 +728,8 @@ export default function Profile() {
                           onClick={() => {
                             setHasUploadedCV(false);
                             setCvFileName("");
+                            // Clear old classification when clicking Edit/Change CV
+                            setClassificationResult(null);
                           }}
                           className="px-6 py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-all"
                         >
@@ -805,7 +813,7 @@ export default function Profile() {
 
                           {classificationResult.ai_analysis.skills &&
                             classificationResult.ai_analysis.skills.length >
-                              0 && (
+                            0 && (
                               <div className="mb-4">
                                 <p className="text-sm text-slate-300 font-medium font-semibold mb-2">
                                   Technical Skills:
@@ -827,7 +835,7 @@ export default function Profile() {
 
                           {classificationResult.ai_analysis.languages &&
                             classificationResult.ai_analysis.languages.length >
-                              0 && (
+                            0 && (
                               <div className="mb-4">
                                 <p className="text-sm text-slate-300 font-medium font-semibold mb-2">
                                   Languages:
@@ -849,7 +857,7 @@ export default function Profile() {
 
                           {classificationResult.ai_analysis.projects &&
                             classificationResult.ai_analysis.projects.length >
-                              0 && (
+                            0 && (
                               <div className="mb-4">
                                 <p className="text-sm text-slate-300 font-medium font-semibold mb-2">
                                   Projects:

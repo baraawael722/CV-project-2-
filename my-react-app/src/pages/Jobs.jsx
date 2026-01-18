@@ -3,7 +3,12 @@ import { useNavigate } from "react-router-dom";
 
 export default function Jobs() {
   const navigate = useNavigate();
-  const [filter, setFilter] = useState("all");
+  const user = useMemo(
+    () => JSON.parse(localStorage.getItem("user") || "null"),
+    []
+  );
+  // HR sees all jobs, Employee sees AI matched by default
+  const [filter, setFilter] = useState(user?.role === "employee" ? "ai-matched" : "all");
   const [savedJobs, setSavedJobs] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [matchedJobs, setMatchedJobs] = useState([]);
@@ -31,10 +36,6 @@ export default function Jobs() {
     skills: "", // comma-separated requiredSkills
     experienceLevel: "Entry Level",
   });
-  const user = useMemo(
-    () => JSON.parse(localStorage.getItem("user") || "null"),
-    []
-  );
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -98,6 +99,13 @@ export default function Jobs() {
     fetchJobs();
     fetchSavedJobs();
   }, []);
+
+  // Auto-load AI matched jobs for employees
+  useEffect(() => {
+    if (user?.role === "employee" && jobs.length > 0) {
+      fetchMLMatches();
+    }
+  }, [jobs]);
 
   const toggleSave = async (jobId) => {
     try {

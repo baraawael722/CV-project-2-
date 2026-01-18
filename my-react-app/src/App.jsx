@@ -15,6 +15,7 @@ import Register from "./pages/Register.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import HRDashboard from "./pages/HRDashboard.jsx";
 import MatchedCandidates from "./pages/MatchedCandidates.jsx";
+import AllJobsMatching from "./pages/AllJobsMatching.jsx";
 // Skills page removed
 import Jobs from "./pages/Jobs.jsx";
 import JobDetails from "./pages/JobDetails.jsx";
@@ -150,6 +151,15 @@ export default function App() {
                   <MatchedCandidates />
                 </PageTransition>
               </HRLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/hr/all-jobs-matching"
+          element={
+            <ProtectedRoute allowedRoles={["hr"]}>
+              <TopNavbar />
+              <AllJobsMatching />
             </ProtectedRoute>
           }
         />
