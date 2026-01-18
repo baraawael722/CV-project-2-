@@ -73,23 +73,30 @@ const categories = [
 
 const CategorySection = () => {
   const { isDark } = useTheme();
-  
+
   return (
-    <section id="jobs" className="relative py-24 px-4 transition-colors duration-300">
+    <section
+      id="jobs"
+      className="relative py-24 px-4 transition-colors duration-300"
+    >
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-16 reveal" data-delay="1">
-          <h2 className={`text-4xl lg:text-5xl font-bold mb-4 ${
-            isDark ? "text-white" : "text-slate-900"
-          }`}>
+          <h2
+            className={`text-4xl lg:text-5xl font-bold mb-4 ${
+              isDark ? "text-white" : "text-slate-900"
+            }`}
+          >
             Browse jobs by{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
               category
             </span>
           </h2>
-          <p className={`text-lg max-w-2xl mx-auto ${
-            isDark ? "text-slate-300" : "text-slate-600"
-          }`}>
+          <p
+            className={`text-lg max-w-2xl mx-auto ${
+              isDark ? "text-slate-300" : "text-slate-600"
+            }`}
+          >
             Choose the field you're most interested in and discover thousands of
             opportunities
           </p>
@@ -101,8 +108,8 @@ const CategorySection = () => {
             <div
               key={index}
               className={`group relative rounded-3xl p-8 cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 hover:border-blue-500 reveal-gentle ${
-                isDark 
-                  ? "bg-slate-700 border border-slate-600" 
+                isDark
+                  ? "bg-slate-700 border border-slate-600"
                   : "bg-white border border-gray-200 shadow-lg"
               } ${category.featured ? "lg:scale-110 shadow-xl border-blue-500" : ""}`}
               data-delay={(index % 3) + 1}
@@ -119,15 +126,19 @@ const CategorySection = () => {
                 {category.icon}
               </div>
 
-              <h3 className={`text-xl font-bold mb-2 ${
-                isDark ? "text-white" : "text-slate-900"
-              }`}>
+              <h3
+                className={`text-xl font-bold mb-2 ${
+                  isDark ? "text-white" : "text-slate-900"
+                }`}
+              >
                 {category.title}
               </h3>
 
-              <p className={`text-sm font-medium ${
-                isDark ? "text-slate-400" : "text-slate-600"
-              }`}>
+              <p
+                className={`text-sm font-medium ${
+                  isDark ? "text-slate-400" : "text-slate-600"
+                }`}
+              >
                 {category.jobs}
               </p>
 

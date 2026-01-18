@@ -44,7 +44,7 @@ export default function Login() {
         // Check if there's a redirect URL saved
         const redirectUrl = localStorage.getItem("redirectAfterLogin");
         const jobId = localStorage.getItem("applyToJobId");
-        
+
         if (redirectUrl && jobId) {
           // Clear the saved redirect data
           localStorage.removeItem("redirectAfterLogin");
@@ -65,13 +65,13 @@ export default function Login() {
       } else {
         // Show error message
         setError(
-          data.message || "Login failed. Please check your credentials."
+          data.message || "Login failed. Please check your credentials.",
         );
       }
     } catch (err) {
       console.error("Login error:", err);
       setError(
-        "Network error. Please make sure the backend (port 5000) is running."
+        "Network error. Please make sure the backend (port 5000) is running.",
       );
     } finally {
       setLoading(false);
@@ -79,11 +79,13 @@ export default function Login() {
   };
 
   return (
-    <div className={`min-h-screen flex items-center justify-center py-8 transition-colors duration-300 relative overflow-hidden ${
-      isDark 
-        ? "bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800"
-        : "bg-gradient-to-br from-blue-50 via-white to-cyan-50"
-    }`}>
+    <div
+      className={`min-h-screen flex items-center justify-center py-8 transition-colors duration-300 relative overflow-hidden ${
+        isDark
+          ? "bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800"
+          : "bg-gradient-to-br from-blue-50 via-white to-cyan-50"
+      }`}
+    >
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
@@ -106,11 +108,11 @@ export default function Login() {
         ></div>
       </div>
       {/* Main Container - Split Layout */}
-      <div className={`relative z-10 w-full max-w-4xl shadow-2xl rounded-2xl overflow-hidden animate-fadeIn border ${
-        isDark 
-          ? "bg-slate-800 border-slate-700"
-          : "bg-white border-gray-200"
-      }`}>
+      <div
+        className={`relative z-10 w-full max-w-4xl shadow-2xl rounded-2xl overflow-hidden animate-fadeIn border ${
+          isDark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-200"
+        }`}
+      >
         <style>{`
           @keyframes fadeIn {
             from {

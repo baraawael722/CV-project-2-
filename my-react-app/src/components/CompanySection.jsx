@@ -15,7 +15,7 @@ const companies = [
 
 const CompanySection = () => {
   const { isDark } = useTheme();
-  
+
   return (
     <section
       id="about"
@@ -24,9 +24,11 @@ const CompanySection = () => {
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-16 reveal" data-delay="1">
-          <h2 className={`text-4xl lg:text-5xl font-bold mb-4 ${
-            isDark ? "text-white" : "text-slate-900"
-          }`}>
+          <h2
+            className={`text-4xl lg:text-5xl font-bold mb-4 ${
+              isDark ? "text-white" : "text-slate-900"
+            }`}
+          >
             Over{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
               10,000 top
@@ -34,9 +36,11 @@ const CompanySection = () => {
             <br />
             companies join with us
           </h2>
-          <p className={`text-lg max-w-2xl mx-auto ${
-            isDark ? "text-slate-300" : "text-slate-600"
-          }`}>
+          <p
+            className={`text-lg max-w-2xl mx-auto ${
+              isDark ? "text-slate-300" : "text-slate-600"
+            }`}
+          >
             Join a community with staff, pensions, as well as other benefits, we
             will always be the best choice for your career.
           </p>
@@ -51,8 +55,8 @@ const CompanySection = () => {
             <div
               key={index}
               className={`group rounded-2xl p-6 w-full h-32 flex items-center justify-center shadow-lg hover:shadow-2xl hover:border-blue-500 transition-all duration-300 hover:-translate-y-2 cursor-pointer ${
-                isDark 
-                  ? "bg-slate-800 border border-slate-700" 
+                isDark
+                  ? "bg-slate-800 border border-slate-700"
                   : "bg-white border border-gray-200"
               }`}
             >

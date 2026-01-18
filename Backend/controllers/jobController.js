@@ -50,7 +50,7 @@ export const getAllJobs = async (req, res) => {
       try {
         console.log(
           "📊 Calculating match scores for user with role:",
-          req.user.role
+          req.user.role,
         );
         // Import pythonMatcher here to avoid circular dependency
         const { getPythonMatcher } = await import("../utils/pythonMatcher.js");
@@ -69,14 +69,14 @@ export const getAllJobs = async (req, res) => {
             matches = await Promise.race([
               pythonMatcher.match(cvText, jobDescriptions, jobs.length),
               new Promise((_, reject) =>
-                setTimeout(() => reject(new Error("Timeout")), 30000)
+                setTimeout(() => reject(new Error("Timeout")), 30000),
               ),
             ]);
             console.log("✅ Used Python BERT matcher");
           } catch (pythonError) {
             console.warn(
               "⚠️  Python matcher failed, falling back to hybrid matcher:",
-              pythonError.message
+              pythonError.message,
             );
             // Fallback to hybrid matcher
             const { hybridMatch } = await import("../utils/hybridMatcher.js");
@@ -84,7 +84,7 @@ export const getAllJobs = async (req, res) => {
             // Convert hybridMatch format { job, matchScore } to Python format { job_index, similarity_score }
             matches = results.map((r) => {
               const jobIdx = jobs.findIndex(
-                (j) => j._id.toString() === r.job._id.toString()
+                (j) => j._id.toString() === r.job._id.toString(),
               );
               return {
                 job_index: jobIdx,
@@ -107,12 +107,12 @@ export const getAllJobs = async (req, res) => {
             "✅ Match scores calculated:",
             enrichedJobs
               .slice(0, 3)
-              .map((j) => ({ title: j.title, score: j.matchScore }))
+              .map((j) => ({ title: j.title, score: j.matchScore })),
           );
 
           // Sort by match score descending
           enrichedJobs.sort(
-            (a, b) => (b.matchScore || 0) - (a.matchScore || 0)
+            (a, b) => (b.matchScore || 0) - (a.matchScore || 0),
           );
         } else {
           console.log("⚠️  No resume found for candidate:", req.user.email);
@@ -120,7 +120,7 @@ export const getAllJobs = async (req, res) => {
       } catch (matchError) {
         console.error(
           "❌ Failed to calculate match scores:",
-          matchError.message
+          matchError.message,
         );
         // Continue without match scores
       }
@@ -147,7 +147,7 @@ export const getJob = async (req, res) => {
   try {
     const job = await Job.findById(req.params.id).populate(
       "postedBy",
-      "name email"
+      "name email",
     );
 
     if (!job) {
@@ -175,7 +175,7 @@ export const createJob = async (req, res) => {
   try {
     console.log(
       "📥 createJob called by user:",
-      req.user ? req.user._id : "unknown"
+      req.user ? req.user._id : "unknown",
     );
     console.log("📋 req.body keys:", Object.keys(req.body));
     if (req.file)
@@ -183,7 +183,7 @@ export const createJob = async (req, res) => {
         "📎 Uploaded file:",
         req.file.originalname,
         "size:",
-        req.file.size
+        req.file.size,
       );
     const {
       title,
@@ -385,7 +385,7 @@ export const getJobApplicants = async (req, res) => {
     // Extract application details for this specific job
     const applicantsWithDetails = candidates.map((candidate) => {
       const application = candidate.applications.find(
-        (app) => app.jobId && app.jobId.toString() === req.params.id
+        (app) => app.jobId && app.jobId.toString() === req.params.id,
       );
 
       return {
@@ -449,7 +449,7 @@ export const applyToJob = async (req, res) => {
 
     // Check if already applied
     const alreadyApplied = candidate.applications?.some(
-      (app) => app.jobId && app.jobId.toString() === jobId
+      (app) => app.jobId && app.jobId.toString() === jobId,
     );
 
     if (alreadyApplied) {
@@ -525,7 +525,7 @@ export const withdrawApplication = async (req, res) => {
 
     // Check if applied
     const applicationIndex = candidate.applications?.findIndex(
-      (app) => app.jobId && app.jobId.toString() === jobId
+      (app) => app.jobId && app.jobId.toString() === jobId,
     );
 
     if (applicationIndex === -1) {
@@ -565,7 +565,7 @@ export const getSavedJobsHR = async (req, res) => {
 
     const user = await User.findById(userId).populate(
       "savedJobs",
-      "title department company jobType location salary status"
+      "title department company jobType location salary status",
     );
 
     if (!user) {
@@ -632,7 +632,7 @@ export const toggleSaveJobHR = async (req, res) => {
     const populated = await User.findById(user._id)
       .populate(
         "savedJobs",
-        "title department company jobType salary location status"
+        "title department company jobType salary location status",
       )
       .select("savedJobs");
 

@@ -4,7 +4,7 @@ import { useTheme } from "../context/ThemeContext.jsx";
 
 const HeroSection = () => {
   const { isDark } = useTheme();
-  
+
   return (
     <section
       id="home"
@@ -35,9 +35,11 @@ const HeroSection = () => {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 grid lg:grid-cols-2 gap-12 items-center">
         {/* Left Side: Text Content */}
         <div className="reveal" data-delay="1">
-          <h1 className={`text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-tight mb-6 ${
-            isDark ? "text-white" : "text-slate-900"
-          }`}>
+          <h1
+            className={`text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-tight mb-6 ${
+              isDark ? "text-white" : "text-slate-900"
+            }`}
+          >
             Find your job{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
               better
@@ -49,19 +51,23 @@ const HeroSection = () => {
             </span>
           </h1>
 
-          <p className={`text-lg sm:text-xl mb-8 max-w-xl leading-relaxed ${
-            isDark ? "text-slate-300" : "text-slate-600"
-          }`}>
+          <p
+            className={`text-lg sm:text-xl mb-8 max-w-xl leading-relaxed ${
+              isDark ? "text-slate-300" : "text-slate-600"
+            }`}
+          >
             Find your job that makes you grow both in skills and career and in
             life.
           </p>
 
           {/* Search Bar */}
-          <div className={`flex items-center gap-3 rounded-full shadow-2xl p-2 mb-8 max-w-2xl ${
-            isDark 
-              ? "bg-slate-800 border border-slate-700" 
-              : "bg-white border border-gray-200"
-          }`}>
+          <div
+            className={`flex items-center gap-3 rounded-full shadow-2xl p-2 mb-8 max-w-2xl ${
+              isDark
+                ? "bg-slate-800 border border-slate-700"
+                : "bg-white border border-gray-200"
+            }`}
+          >
             <svg
               className={`w-6 h-6 ml-4 ${isDark ? "text-slate-400" : "text-gray-400"}`}
               fill="none"
@@ -79,7 +85,9 @@ const HeroSection = () => {
               type="text"
               placeholder="Search by job title or keyword"
               className={`flex-1 px-4 py-3 focus:outline-none bg-transparent ${
-                isDark ? "text-white placeholder-slate-400" : "text-slate-900 placeholder-gray-500"
+                isDark
+                  ? "text-white placeholder-slate-400"
+                  : "text-slate-900 placeholder-gray-500"
               }`}
             />
             <button className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
@@ -90,16 +98,40 @@ const HeroSection = () => {
           {/* Stats */}
           <div className="flex items-center gap-8 flex-wrap">
             <div>
-              <div className={`text-3xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>10,000+</div>
-              <div className={`text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>Job Listings</div>
+              <div
+                className={`text-3xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}
+              >
+                10,000+
+              </div>
+              <div
+                className={`text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}
+              >
+                Job Listings
+              </div>
             </div>
             <div>
-              <div className={`text-3xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>5,000+</div>
-              <div className={`text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>Companies</div>
+              <div
+                className={`text-3xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}
+              >
+                5,000+
+              </div>
+              <div
+                className={`text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}
+              >
+                Companies
+              </div>
             </div>
             <div>
-              <div className={`text-3xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>1M+</div>
-              <div className={`text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}>Success Stories</div>
+              <div
+                className={`text-3xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}
+              >
+                1M+
+              </div>
+              <div
+                className={`text-sm ${isDark ? "text-slate-400" : "text-slate-600"}`}
+              >
+                Success Stories
+              </div>
             </div>
           </div>
         </div>
@@ -121,7 +153,9 @@ const HeroSection = () => {
             {/* Figma Icon */}
             <div
               className={`absolute top-16 right-20 w-14 h-14 rounded-2xl shadow-2xl flex items-center justify-center animate-bounce-slow ${
-                isDark ? "bg-slate-800 border border-slate-700" : "bg-white border border-gray-200"
+                isDark
+                  ? "bg-slate-800 border border-slate-700"
+                  : "bg-white border border-gray-200"
               }`}
               style={{ animationDelay: "0s" }}
             >

@@ -59,7 +59,7 @@ router.post("/:id/apply", authorizeRoles("employee", "user"), applyToJob);
 router.delete(
   "/:id/withdraw",
   authorizeRoles("employee", "user"),
-  withdrawApplication
+  withdrawApplication,
 );
 
 router.get("/:id/applicants", authorizeRoles("hr"), getJobApplicants);

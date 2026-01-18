@@ -33,20 +33,24 @@ const testimonials = [
 
 const TestimonialSection = () => {
   const { isDark } = useTheme();
-  
+
   return (
     <section className="relative py-24 px-4 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-16 reveal" data-delay="1">
-          <h2 className={`text-4xl lg:text-5xl font-bold mb-4 ${
-            isDark ? "text-white" : "text-slate-900"
-          }`}>
+          <h2
+            className={`text-4xl lg:text-5xl font-bold mb-4 ${
+              isDark ? "text-white" : "text-slate-900"
+            }`}
+          >
             Testimonials
           </h2>
-          <p className={`text-lg max-w-2xl mx-auto ${
-            isDark ? "text-slate-300" : "text-slate-600"
-          }`}>
+          <p
+            className={`text-lg max-w-2xl mx-auto ${
+              isDark ? "text-slate-300" : "text-slate-600"
+            }`}
+          >
             See what our users say about their experience
           </p>
         </div>
@@ -57,8 +61,8 @@ const TestimonialSection = () => {
             <div
               key={index}
               className={`rounded-3xl p-8 shadow-xl hover:shadow-2xl hover:border-blue-500 transition-all duration-500 hover:-translate-y-2 reveal-gentle ${
-                isDark 
-                  ? "bg-slate-800 border border-slate-700" 
+                isDark
+                  ? "bg-slate-800 border border-slate-700"
                   : "bg-white border border-gray-200"
               }`}
               data-delay={index + 1}
@@ -77,30 +81,38 @@ const TestimonialSection = () => {
               </div>
 
               {/* Quote */}
-              <p className={`leading-relaxed mb-8 italic text-lg ${
-                isDark ? "text-slate-300" : "text-slate-600"
-              }`}>
+              <p
+                className={`leading-relaxed mb-8 italic text-lg ${
+                  isDark ? "text-slate-300" : "text-slate-600"
+                }`}
+              >
                 "{testimonial.text}"
               </p>
 
               {/* User Info */}
-              <div className={`flex items-center gap-4 pt-6 border-t ${
-                isDark ? "border-slate-700" : "border-gray-200"
-              }`}>
+              <div
+                className={`flex items-center gap-4 pt-6 border-t ${
+                  isDark ? "border-slate-700" : "border-gray-200"
+                }`}
+              >
                 <div
                   className={`w-14 h-14 bg-gradient-to-br ${testimonial.color} rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg`}
                 >
                   {testimonial.avatar}
                 </div>
                 <div>
-                  <div className={`font-bold text-lg ${
-                    isDark ? "text-white" : "text-slate-900"
-                  }`}>
+                  <div
+                    className={`font-bold text-lg ${
+                      isDark ? "text-white" : "text-slate-900"
+                    }`}
+                  >
                     {testimonial.name}
                   </div>
-                  <div className={`text-sm ${
-                    isDark ? "text-slate-400" : "text-slate-500"
-                  }`}>
+                  <div
+                    className={`text-sm ${
+                      isDark ? "text-slate-400" : "text-slate-500"
+                    }`}
+                  >
                     {testimonial.role} @ {testimonial.company}
                   </div>
                 </div>
@@ -115,8 +127,12 @@ const TestimonialSection = () => {
           data-delay="4"
         >
           <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-          <div className={`w-3 h-3 rounded-full ${isDark ? "bg-slate-600" : "bg-gray-300"}`}></div>
-          <div className={`w-3 h-3 rounded-full ${isDark ? "bg-slate-600" : "bg-gray-300"}`}></div>
+          <div
+            className={`w-3 h-3 rounded-full ${isDark ? "bg-slate-600" : "bg-gray-300"}`}
+          ></div>
+          <div
+            className={`w-3 h-3 rounded-full ${isDark ? "bg-slate-600" : "bg-gray-300"}`}
+          ></div>
         </div>
       </div>
     </section>
