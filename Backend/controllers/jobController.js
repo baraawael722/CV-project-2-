@@ -3,6 +3,29 @@ import Candidate from "../models/Candidate.js";
 import Notification from "../models/Notification.js";
 import User from "../models/User.js";
 
+// Get latest 3 jobs (public endpoint - no auth required)
+export const getLatestJobs = async (req, res) => {
+  try {
+    // Get the latest 3 active jobs sorted by creation date
+    const jobs = await Job.find({ status: "Active" })
+      .sort({ createdAt: -1 })
+      .limit(3)
+      .populate("postedBy", "name email");
+
+    res.json({
+      success: true,
+      count: jobs.length,
+      data: jobs,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: error.message,
+    });
+  }
+};
+
 // Get all jobs
 export const getAllJobs = async (req, res) => {
   try {

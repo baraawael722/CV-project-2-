@@ -7,11 +7,7 @@ const FeatureSection = () => {
   return (
     <section
       id="features"
-      className={`relative py-24 px-4 transition-colors duration-300 ${
-        isDark 
-          ? "bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900"
-          : "bg-gradient-to-br from-gray-50 via-white to-blue-50"
-      }`}
+      className="relative py-24 px-4 transition-colors duration-300"
     >
       <div className="max-w-7xl mx-auto">
         {/* Feature 1: Find your passion */}

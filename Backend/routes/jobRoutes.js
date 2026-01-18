@@ -12,6 +12,7 @@ import {
   withdrawApplication,
   getSavedJobsHR,
   toggleSaveJobHR,
+  getLatestJobs,
 } from "../controllers/jobController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { authorizeRoles } from "../middleware/roleMiddleware.js";
@@ -31,7 +32,10 @@ const upload = multer({
 
 const router = express.Router();
 
-// All routes require authentication
+// Public route - get latest 3 jobs (no authentication required)
+router.get("/latest", getLatestJobs);
+
+// All other routes require authentication
 router.use(protect);
 
 // Routes that require HR role for creation, but GET is public for authenticated users

@@ -35,9 +35,7 @@ const TestimonialSection = () => {
   const { isDark } = useTheme();
   
   return (
-    <section className={`relative py-24 px-4 transition-colors duration-300 ${
-      isDark ? "bg-slate-900" : "bg-gray-50"
-    }`}>
+    <section className="relative py-24 px-4 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-16 reveal" data-delay="1">

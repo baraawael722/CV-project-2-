@@ -41,11 +41,26 @@ export default function Login() {
         // Show success message
         console.log("✅ Login successful!", data);
 
-        // Redirect based on role
-        if (data.user.role === "hr") {
-          navigate("/hr/dashboard");
+        // Check if there's a redirect URL saved
+        const redirectUrl = localStorage.getItem("redirectAfterLogin");
+        const jobId = localStorage.getItem("applyToJobId");
+        
+        if (redirectUrl && jobId) {
+          // Clear the saved redirect data
+          localStorage.removeItem("redirectAfterLogin");
+          localStorage.removeItem("applyToJobId");
+          // Redirect to the job details page
+          navigate(`/employee/jobs/${jobId}`);
+        } else if (redirectUrl) {
+          localStorage.removeItem("redirectAfterLogin");
+          navigate(redirectUrl);
         } else {
-          navigate("/employee/dashboard");
+          // Normal redirect based on role
+          if (data.user.role === "hr") {
+            navigate("/hr/dashboard");
+          } else {
+            navigate("/employee/dashboard");
+          }
         }
       } else {
         // Show error message
@@ -64,13 +79,34 @@ export default function Login() {
   };
 
   return (
-    <div className={`min-h-screen flex items-center justify-center py-8 transition-colors duration-300 ${
+    <div className={`min-h-screen flex items-center justify-center py-8 transition-colors duration-300 relative overflow-hidden ${
       isDark 
         ? "bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800"
         : "bg-gradient-to-br from-blue-50 via-white to-cyan-50"
     }`}>
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div
+          className={`absolute top-20 left-10 w-72 h-72 rounded-full mix-blend-multiply filter blur-3xl animate-float ${
+            isDark ? "bg-blue-500 opacity-20" : "bg-blue-400 opacity-30"
+          }`}
+          style={{ animationDelay: "0s" }}
+        ></div>
+        <div
+          className={`absolute top-40 right-10 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl animate-float ${
+            isDark ? "bg-blue-600 opacity-20" : "bg-cyan-400 opacity-30"
+          }`}
+          style={{ animationDelay: "2s" }}
+        ></div>
+        <div
+          className={`absolute -bottom-32 left-1/3 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl animate-float ${
+            isDark ? "bg-cyan-500 opacity-20" : "bg-blue-300 opacity-30"
+          }`}
+          style={{ animationDelay: "4s" }}
+        ></div>
+      </div>
       {/* Main Container - Split Layout */}
-      <div className={`w-full max-w-4xl shadow-2xl rounded-2xl overflow-hidden animate-fadeIn border ${
+      <div className={`relative z-10 w-full max-w-4xl shadow-2xl rounded-2xl overflow-hidden animate-fadeIn border ${
         isDark 
           ? "bg-slate-800 border-slate-700"
           : "bg-white border-gray-200"

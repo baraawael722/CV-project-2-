@@ -7,11 +7,7 @@ const ContactSection = () => {
   return (
     <section
       id="contact"
-      className={`relative py-24 px-4 transition-colors duration-300 ${
-        isDark 
-          ? "bg-gradient-to-br from-slate-800 via-blue-900 to-slate-900"
-          : "bg-gradient-to-br from-blue-50 via-white to-cyan-50"
-      }`}
+      className="relative py-24 px-4 transition-colors duration-300"
     >
       <div className="max-w-5xl mx-auto">
         {/* Section Header */}

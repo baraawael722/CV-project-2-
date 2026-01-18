@@ -8,11 +8,7 @@ const HeroSection = () => {
   return (
     <section
       id="home"
-      className={`relative min-h-screen flex items-center justify-center overflow-hidden transition-colors duration-300 ${
-        isDark 
-          ? "bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800"
-          : "bg-gradient-to-br from-blue-50 via-white to-cyan-50"
-      }`}
+      className="relative min-h-screen flex items-center justify-center overflow-hidden transition-colors duration-300"
     >
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
