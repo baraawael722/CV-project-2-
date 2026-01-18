@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTheme } from "../context/ThemeContext.jsx";
 
 export default function Register() {
   const navigate = useNavigate();
+  const { isDark } = useTheme();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -75,9 +77,17 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8">
+    <div className={`min-h-screen flex items-center justify-center py-8 transition-colors duration-300 ${
+      isDark 
+        ? "bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800"
+        : "bg-gradient-to-br from-blue-50 via-white to-cyan-50"
+    }`}>
       {/* Main Container - Split Layout */}
-      <div className="w-full max-w-4xl bg-white shadow-2xl rounded-2xl overflow-hidden animate-fadeIn">
+      <div className={`w-full max-w-4xl shadow-2xl rounded-2xl overflow-hidden animate-fadeIn border ${
+        isDark 
+          ? "bg-slate-800 border-slate-700"
+          : "bg-white border-gray-200"
+      }`}>
         <style>{`
           @keyframes fadeIn {
             from {
@@ -141,23 +151,23 @@ export default function Register() {
                       />
                     </svg>
                   </div>
-                  <span className="text-lg font-bold text-gray-900">
+                  <span className="text-lg font-bold text-white">
                     JobCompass
                   </span>
                 </div>
 
-                <h2 className="text-lg font-bold text-gray-900 mb-1">
+                <h2 className="text-lg font-bold text-white mb-1">
                   Create Account
                 </h2>
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-slate-300">
                   Join thousands of professionals today
                 </p>
               </div>
 
               {/* Error Message */}
               {error && (
-                <div className="mb-2 p-2.5 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-xs text-red-800">{error}</p>
+                <div className="mb-2 p-2.5 bg-red-900/30 border border-red-500/50 rounded-lg">
+                  <p className="text-xs text-red-300">{error}</p>
                 </div>
               )}
 
@@ -165,7 +175,7 @@ export default function Register() {
                 {/* Google Register */}
                 <button
                   type="button"
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-50 hover:border-indigo-300 transition-all duration-300 transform hover:scale-[1.02]"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 border-2 border-slate-600 rounded-lg hover:bg-slate-700 hover:border-blue-500 transition-all duration-300 transform hover:scale-[1.02]"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path
@@ -185,7 +195,7 @@ export default function Register() {
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                     />
                   </svg>
-                  <span className="text-gray-700 font-medium">
+                  <span className="text-white font-medium">
                     Sign up with Google
                   </span>
                 </button>
@@ -193,10 +203,10 @@ export default function Register() {
                 {/* Divider */}
                 <div className="relative my-2">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300"></div>
+                    <div className="w-full border-t border-slate-600"></div>
                   </div>
                   <div className="relative flex justify-center text-xs">
-                    <span className="px-2 bg-white text-gray-500 uppercase tracking-wide">
+                    <span className="px-2 bg-slate-800 text-slate-400 uppercase tracking-wide">
                       OR SIGN UP WITH EMAIL
                     </span>
                   </div>
@@ -206,7 +216,7 @@ export default function Register() {
                 <div>
                   <label
                     htmlFor="name"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium text-slate-300 mb-1"
                   >
                     Full Name
                   </label>
@@ -215,7 +225,7 @@ export default function Register() {
                     id="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-400"
                     placeholder="Full Name"
                     required
                   />
@@ -225,7 +235,7 @@ export default function Register() {
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium text-slate-300 mb-1"
                   >
                     Email
                   </label>
@@ -234,7 +244,7 @@ export default function Register() {
                     id="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full px-3 py-2 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-400"
                     placeholder="Email Address"
                     required
                   />
@@ -244,7 +254,7 @@ export default function Register() {
                 <div>
                   <label
                     htmlFor="password"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium text-slate-300 mb-1"
                   >
                     Password
                   </label>
@@ -254,7 +264,7 @@ export default function Register() {
                       id="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      className="w-full px-3 py-2 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-400"
                       placeholder="Password"
                       required
                       minLength={8}
@@ -262,7 +272,7 @@ export default function Register() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white"
                     >
                       {showPassword ? (
                         <svg
@@ -307,7 +317,7 @@ export default function Register() {
                 <div>
                   <label
                     htmlFor="confirmPassword"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium text-slate-300 mb-1"
                   >
                     Confirm Password
                   </label>
@@ -317,7 +327,7 @@ export default function Register() {
                       id="confirmPassword"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      className="w-full px-3 py-2 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-400"
                       placeholder="Confirm Password"
                       required
                     />
@@ -326,7 +336,7 @@ export default function Register() {
                       onClick={() =>
                         setShowConfirmPassword(!showConfirmPassword)
                       }
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white"
                     >
                       {showConfirmPassword ? (
                         <svg
@@ -369,7 +379,7 @@ export default function Register() {
 
                 {/* Role Selection */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  <label className="block text-sm font-medium text-slate-300 mb-1.5">
                     I am a
                   </label>
                   <div className="grid grid-cols-2 gap-2">
@@ -378,8 +388,8 @@ export default function Register() {
                       onClick={() => setRole("employee")}
                       className={`py-2 px-3 rounded-lg font-medium transition-all duration-200 border-2 ${
                         role === "employee"
-                          ? "bg-indigo-600 text-white border-indigo-600"
-                          : "bg-white text-gray-700 border-gray-300 hover:border-indigo-400"
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "bg-slate-700 text-slate-300 border-slate-600 hover:border-blue-400"
                       }`}
                     >
                       Employee
@@ -389,8 +399,8 @@ export default function Register() {
                       onClick={() => setRole("hr")}
                       className={`py-2 px-3 rounded-lg font-medium transition-all duration-200 border-2 ${
                         role === "hr"
-                          ? "bg-indigo-600 text-white border-indigo-600"
-                          : "bg-white text-gray-700 border-gray-300 hover:border-indigo-400"
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "bg-slate-700 text-slate-300 border-slate-600 hover:border-blue-400"
                       }`}
                     >
                       HR
@@ -405,21 +415,21 @@ export default function Register() {
                     id="terms"
                     checked={agreed}
                     onChange={(e) => setAgreed(e.target.checked)}
-                    className="mt-1 w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                    className="mt-1 w-4 h-4 text-blue-600 border-slate-600 rounded focus:ring-blue-500 bg-slate-700"
                     required
                   />
-                  <label htmlFor="terms" className="text-sm text-gray-600">
+                  <label htmlFor="terms" className="text-sm text-slate-300">
                     I agree to the{" "}
                     <a
                       href="#"
-                      className="text-indigo-600 hover:text-indigo-700 font-medium"
+                      className="text-blue-400 hover:text-blue-300 font-medium"
                     >
                       Terms of Service
                     </a>{" "}
                     and{" "}
                     <a
                       href="#"
-                      className="text-indigo-600 hover:text-indigo-700 font-medium"
+                      className="text-blue-400 hover:text-blue-300 font-medium"
                     >
                       Privacy Policy
                     </a>
@@ -430,17 +440,17 @@ export default function Register() {
                 <button
                   type="submit"
                   disabled={loading || !agreed}
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
                   {loading ? "Creating account..." : "Sign Up"}
                 </button>
 
                 {/* Login Link */}
-                <p className="text-center text-sm text-gray-600 mt-4">
+                <p className="text-center text-sm text-slate-300 mt-4">
                   Already have an account?{" "}
                   <Link
                     to="/login"
-                    className="text-indigo-600 hover:text-indigo-700 font-semibold transition-all duration-300 hover:underline"
+                    className="text-blue-400 hover:text-blue-300 font-semibold transition-all duration-300 hover:underline"
                   >
                     Log in
                   </Link>
@@ -457,10 +467,16 @@ export default function Register() {
               className="absolute inset-0 w-full h-full object-cover"
             />
             <div className="relative max-w-xs text-center z-10 px-8">
-              <h3 className="text-3xl font-bold text-white drop-shadow-lg" style={{textShadow: '2px 2px 8px rgba(0,0,0,0.8)'}}>
+              <h3
+                className="text-3xl font-bold text-white drop-shadow-lg"
+                style={{ textShadow: "2px 2px 8px rgba(0,0,0,0.8)" }}
+              >
                 Join Our Community
               </h3>
-              <p className="text-base text-white mt-3 drop-shadow-lg" style={{textShadow: '1px 1px 6px rgba(0,0,0,0.8)'}}>
+              <p
+                className="text-base text-white mt-3 drop-shadow-lg"
+                style={{ textShadow: "1px 1px 6px rgba(0,0,0,0.8)" }}
+              >
                 Create your account and start your career journey
               </p>
             </div>

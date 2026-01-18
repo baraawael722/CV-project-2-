@@ -200,22 +200,45 @@ export default function HRProfile() {
           setUser(updatedUser);
           setProfileImage(uploadData.profileImage);
           setImageFile(null);
+
+          // Trigger storage event for other components
+          window.dispatchEvent(new Event("storage"));
+
+          showToast("✅ Profile image saved to database!", "success");
         } else {
           showToast(uploadData.message || "Failed to upload image", "error");
           return;
         }
-      } else {
-        // Just update local storage
-        const updatedUser = {
-          ...user,
+      }
+
+      // Update profile info in backend
+      const updateRes = await fetch("http://localhost:5000/api/auth/me", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
           name: profile.name,
           phone: profile.phone,
+        }),
+      });
+
+      if (updateRes.ok) {
+        const updateData = await updateRes.json();
+        const updatedUser = {
+          ...user,
+          ...updateData.user,
         };
         localStorage.setItem("user", JSON.stringify(updatedUser));
         setUser(updatedUser);
+
+        // Trigger storage event for other components
+        window.dispatchEvent(new Event("storage"));
+
+        showToast("✅ Profile updated successfully!", "success");
       }
 
-      showToast("Profile updated successfully!", "success");
       setEditing(false);
 
       // Refresh stats after updating profile
@@ -242,18 +265,18 @@ export default function HRProfile() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-4 border-indigo-600 border-t-transparent"></div>
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-cyan-400 border-t-transparent"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-12">
+    <div className="min-h-screen bg-slate-900 pb-12 page-slide-up">
       {/* Header with Gradient Background */}
-      <div className="relative bg-gradient-to-r from-blue-500 via-blue-600 to-purple-600 h-48 rounded-b-3xl shadow-lg">
+      <div className="relative bg-gradient-to-r from-blue-600 to-cyan-500 h-48 rounded-b-3xl shadow-lg">
         <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2">
-          <div className="relative w-32 h-32 rounded-full bg-white shadow-2xl flex items-center justify-center border-4 border-white">
+          <div className="relative w-32 h-32 rounded-full bg-slate-800 shadow-2xl flex items-center justify-center border-4 border-slate-700">
             {profileImage ? (
               <img
                 src={profileImage}
@@ -268,7 +291,7 @@ export default function HRProfile() {
             {editing && (
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute bottom-0 right-0 w-10 h-10 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition flex items-center justify-center border-2 border-white"
+                className="absolute bottom-0 right-0 w-10 h-10 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-full shadow-lg hover:from-blue-700 hover:to-cyan-600 transition flex items-center justify-center border-2 border-slate-700"
                 title="Change profile picture"
               >
                 <svg
@@ -305,10 +328,10 @@ export default function HRProfile() {
 
       {/* User Info */}
       <div className="text-center mt-20 mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-4xl font-bold text-white mb-3 drop-shadow-lg">
           {profile.name}
         </h1>
-        <p className="text-gray-600 mb-1">
+        <p className="text-slate-300 text-lg mb-2 font-medium">
           Member since{" "}
           {new Date().toLocaleDateString("en-US", {
             month: "short",
@@ -317,20 +340,20 @@ export default function HRProfile() {
           })}{" "}
           • {profile.location}
         </p>
-        <span className="inline-block px-4 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold mt-2">
+        <span className="inline-block px-5 py-2 bg-gradient-to-r from-blue-600/40 to-cyan-500/40 text-cyan-300 rounded-full text-base font-bold mt-3 border-2 border-cyan-400/50 shadow-lg shadow-cyan-500/20">
           {profile.position}
         </span>
       </div>
 
       {/* Stats Cards */}
       <div className="max-w-6xl mx-auto px-6 mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-900">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-3xl font-bold text-white drop-shadow-md">
             Performance Overview
           </h2>
           <button
             onClick={refreshStats}
-            className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
+            className="px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-cyan-600 transition flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 transform duration-300"
           >
             <svg
               className="w-4 h-4"
@@ -349,38 +372,42 @@ export default function HRProfile() {
           </button>
         </div>
         <div className="grid md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-2xl shadow-md p-6 text-center border-2 border-gray-100 hover:border-blue-300 transition">
-            <p className="text-5xl font-bold text-blue-600 mb-2">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-700 rounded-2xl shadow-xl p-8 text-center border-2 border-cyan-500/30 hover:border-cyan-400/60 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/20">
+            <p className="text-6xl font-extrabold text-cyan-400 mb-3 drop-shadow-lg">
               {stats.totalJobs}
             </p>
-            <p className="text-gray-600 font-semibold">Jobs Posted</p>
+            <p className="text-slate-200 text-lg font-bold">Jobs Posted</p>
           </div>
-          <div className="bg-white rounded-2xl shadow-md p-6 text-center border-2 border-gray-100 hover:border-purple-300 transition">
-            <p className="text-5xl font-bold text-purple-600 mb-2">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-700 rounded-2xl shadow-xl p-8 text-center border-2 border-purple-500/30 hover:border-purple-400/60 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20">
+            <p className="text-6xl font-extrabold text-purple-400 mb-3 drop-shadow-lg">
               {stats.totalCandidates}
             </p>
-            <p className="text-gray-600 font-semibold">Candidates Reviewed</p>
+            <p className="text-slate-200 text-lg font-bold">
+              Candidates Reviewed
+            </p>
           </div>
-          <div className="bg-white rounded-2xl shadow-md p-6 text-center border-2 border-gray-100 hover:border-green-300 transition">
-            <p className="text-5xl font-bold text-green-600 mb-2">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-700 rounded-2xl shadow-xl p-8 text-center border-2 border-emerald-500/30 hover:border-emerald-400/60 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/20">
+            <p className="text-6xl font-extrabold text-emerald-400 mb-3 drop-shadow-lg">
               {stats.totalInterviews}
             </p>
-            <p className="text-gray-600 font-semibold">Interviews Scheduled</p>
+            <p className="text-slate-200 text-lg font-bold">
+              Interviews Scheduled
+            </p>
           </div>
         </div>
       </div>
 
       {/* Profile Details */}
       <div className="max-w-6xl mx-auto px-6">
-        <div className="bg-white rounded-2xl shadow-lg p-8 border-2 border-gray-100">
+        <div className="bg-gradient-to-br from-slate-800 to-slate-700 rounded-2xl shadow-2xl p-8 border-2 border-slate-600">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-3xl font-bold text-white drop-shadow-md">
               Profile Information
             </h2>
             {!editing ? (
               <button
                 onClick={() => setEditing(true)}
-                className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition"
+                className="px-6 py-2 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-cyan-600 transition"
               >
                 Edit Profile
               </button>
@@ -388,13 +415,13 @@ export default function HRProfile() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setEditing(false)}
-                  className="px-6 py-2 bg-gray-200 text-gray-700 font-semibold rounded-xl hover:bg-gray-300 transition"
+                  className="px-6 py-2 bg-slate-700 text-slate-300 font-semibold rounded-lg hover:bg-slate-600 transition border border-slate-600"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSave}
-                  className="px-6 py-2 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition"
+                  className="px-6 py-2 bg-gradient-to-r from-emerald-600 to-green-500 text-white font-semibold rounded-lg hover:from-emerald-700 hover:to-green-600 transition"
                 >
                   Save Changes
                 </button>
@@ -405,7 +432,7 @@ export default function HRProfile() {
           <div className="grid md:grid-cols-2 gap-6">
             {/* Name */}
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-slate-200 mb-2 uppercase tracking-wide">
                 Full Name
               </label>
               {editing ? (
@@ -415,10 +442,10 @@ export default function HRProfile() {
                   onChange={(e) =>
                     setProfile({ ...profile, name: e.target.value })
                   }
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                  className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 text-white rounded-lg focus:border-cyan-400 focus:ring-4 focus:ring-cyan-500/30 transition placeholder-slate-400 font-medium"
                 />
               ) : (
-                <p className="text-lg text-gray-900 font-medium">
+                <p className="text-xl text-white font-semibold">
                   {profile.name}
                 </p>
               )}
@@ -426,17 +453,17 @@ export default function HRProfile() {
 
             {/* Email */}
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-slate-200 mb-2 uppercase tracking-wide">
                 Email Address
               </label>
-              <p className="text-lg text-gray-900 font-medium">
+              <p className="text-xl text-white font-semibold">
                 {profile.email}
               </p>
             </div>
 
             {/* Phone */}
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-slate-200 mb-2 uppercase tracking-wide">
                 Phone Number
               </label>
               {editing ? (
@@ -446,10 +473,10 @@ export default function HRProfile() {
                   onChange={(e) =>
                     setProfile({ ...profile, phone: e.target.value })
                   }
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                  className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 text-white rounded-lg focus:border-cyan-400 focus:ring-4 focus:ring-cyan-500/30 transition placeholder-slate-400 font-medium"
                 />
               ) : (
-                <p className="text-lg text-gray-900 font-medium">
+                <p className="text-xl text-white font-semibold">
                   {profile.phone || "Not provided"}
                 </p>
               )}
@@ -457,7 +484,7 @@ export default function HRProfile() {
 
             {/* Department */}
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-slate-200 mb-2 uppercase tracking-wide">
                 Department
               </label>
               {editing ? (
@@ -467,10 +494,10 @@ export default function HRProfile() {
                   onChange={(e) =>
                     setProfile({ ...profile, department: e.target.value })
                   }
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                  className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 text-white rounded-lg focus:border-cyan-400 focus:ring-4 focus:ring-cyan-500/30 transition placeholder-slate-400 font-medium"
                 />
               ) : (
-                <p className="text-lg text-gray-900 font-medium">
+                <p className="text-xl text-white font-semibold">
                   {profile.department}
                 </p>
               )}
@@ -478,7 +505,7 @@ export default function HRProfile() {
 
             {/* Position */}
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-slate-200 mb-2 uppercase tracking-wide">
                 Position
               </label>
               {editing ? (
@@ -488,10 +515,10 @@ export default function HRProfile() {
                   onChange={(e) =>
                     setProfile({ ...profile, position: e.target.value })
                   }
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                  className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 text-white rounded-lg focus:border-cyan-400 focus:ring-4 focus:ring-cyan-500/30 transition placeholder-slate-400 font-medium"
                 />
               ) : (
-                <p className="text-lg text-gray-900 font-medium">
+                <p className="text-xl text-white font-semibold">
                   {profile.position}
                 </p>
               )}
@@ -499,7 +526,7 @@ export default function HRProfile() {
 
             {/* Location */}
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
+              <label className="block text-sm font-bold text-slate-200 mb-2 uppercase tracking-wide">
                 Location
               </label>
               {editing ? (
@@ -509,10 +536,10 @@ export default function HRProfile() {
                   onChange={(e) =>
                     setProfile({ ...profile, location: e.target.value })
                   }
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition"
+                  className="w-full px-4 py-3 bg-slate-700 border-2 border-slate-600 text-white rounded-lg focus:border-cyan-400 focus:ring-4 focus:ring-cyan-500/30 transition placeholder-slate-400 font-medium"
                 />
               ) : (
-                <p className="text-lg text-gray-900 font-medium">
+                <p className="text-xl text-white font-semibold">
                   {profile.location}
                 </p>
               )}
@@ -524,7 +551,7 @@ export default function HRProfile() {
         <div className="mt-6 text-center">
           <button
             onClick={handleLogout}
-            className="px-8 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition shadow-md"
+            className="px-8 py-3 bg-red-900/50 text-red-400 font-semibold rounded-lg hover:bg-red-900/70 transition border border-red-800"
           >
             🚪 Logout
           </button>

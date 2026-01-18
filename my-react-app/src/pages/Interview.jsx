@@ -9,7 +9,7 @@ export default function Interview() {
     {
       role: "assistant",
       content:
-        "Hello! 👋 I'm your AI Career Assistant powered by Groq AI. Upload your CV or ask me anything about your career, skills, or job preparation!",
+        "Hello! I'm your AI Career Assistant powered by Groq AI. Upload your CV or ask me anything about your career, skills, or job preparation!",
       feedback: null,
     },
   ]);
@@ -49,7 +49,7 @@ export default function Interview() {
             {
               role: "assistant",
               content:
-                "✅ Your CV has been loaded! I can now provide personalized career advice based on your experience and skills. What would you like to know?",
+                "Your CV has been loaded! I can now provide personalized career advice based on your experience and skills. What would you like to know?",
               feedback: null,
             },
           ]);
@@ -80,7 +80,7 @@ export default function Interview() {
           ...prev,
           {
             role: "assistant",
-            content: `📄 CV uploaded successfully! (${file.name})\n\nI've analyzed your CV. You can now ask me questions about:\n- Your skills and experience\n- Career recommendations\n- Missing skills for specific jobs\n- Interview preparation\n\nWhat would you like to know?`,
+            content: `CV uploaded successfully! (${file.name})\n\nI've analyzed your CV. You can now ask me questions about:\n- Your skills and experience\n- Career recommendations\n- Missing skills for specific jobs\n- Interview preparation\n\nWhat would you like to know?`,
             feedback: null,
           },
         ]);
@@ -146,7 +146,7 @@ export default function Interview() {
 
       const errorMessage = {
         role: "assistant",
-        content: `❌ Sorry, I encountered an error: ${
+        content: `Sorry, I encountered an error: ${
           error.response?.data?.message || error.message
         }\n\nPlease make sure:\n1. You are logged in\n2. The backend server is running\n3. GROQ_API_KEY is configured in .env`,
         feedback: null,
@@ -159,29 +159,29 @@ export default function Interview() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 text-gray-800">
+    <div className="min-h-screen bg-slate-900 text-slate-200">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            AI Career Assistant 🤖
+          <h1 className="text-4xl font-bold text-white mb-2">
+            AI Career Assistant
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-slate-400">
             Powered by Groq AI - Get personalized career advice based on your CV
           </p>
         </div>
 
         {/* CV Upload Section */}
         <div className="mb-6">
-          <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+          <div className="bg-slate-800 rounded-xl shadow-md p-6 border border-slate-700">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <span className="text-3xl">{cvUploaded ? "✅" : "📄"}</span>
+                <span className="text-3xl">{cvUploaded ? "✓" : "📄"}</span>
                 <div>
-                  <h3 className="font-bold text-gray-900">
+                  <h3 className="font-bold text-white">
                     {cvUploaded ? "CV Loaded" : "Upload Your CV"}
                   </h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-slate-400">
                     {cvUploaded
                       ? "Your CV is loaded. Ask me anything about your career!"
                       : "Upload a .txt CV file for personalized career advice"}
@@ -207,22 +207,22 @@ export default function Interview() {
 
         {/* Chat Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
-          <div className="bg-white rounded-xl shadow-md p-6 text-center border border-gray-100">
-            <div className="text-3xl font-bold text-blue-600 mb-2">
+          <div className="bg-slate-800 border border-slate-700 rounded-xl shadow-md p-6 text-center">
+            <div className="text-3xl font-bold text-blue-400 mb-2">
               {messages.filter((m) => m.role === "user").length}
             </div>
-            <div className="text-sm text-gray-600">Questions Asked</div>
+            <div className="text-sm text-slate-400">Questions Asked</div>
           </div>
-          <div className="bg-white rounded-xl shadow-md p-6 text-center border border-gray-100">
-            <div className="text-3xl font-bold text-green-600 mb-2">
-              {cvUploaded ? "✓" : "✗"}
+          <div className="bg-slate-800 border border-slate-700 rounded-xl shadow-md p-6 text-center">
+            <div className="text-3xl font-bold text-green-400 mb-2">
+              {cvUploaded ? "Uploaded" : "Not Uploaded"}
             </div>
-            <div className="text-sm text-gray-600">CV Status</div>
+            <div className="text-sm text-slate-400">CV Status</div>
           </div>
         </div>
 
         {/* Chat Interface */}
-        <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+        <div className="bg-slate-800 border border-slate-700 rounded-xl shadow-md overflow-hidden">
           {/* Messages Area */}
           <div className="h-[600px] overflow-y-auto p-6 space-y-6">
             {messages.map((message, index) => (
@@ -233,28 +233,27 @@ export default function Interview() {
                       AI
                     </div>
                     <div className="flex-1">
-                      <div className="bg-blue-50 rounded-2xl rounded-tl-none p-4 inline-block max-w-2xl">
-                        <p className="text-gray-900 whitespace-pre-wrap">
+                      <div className="bg-slate-700 rounded-2xl rounded-tl-none p-4 inline-block max-w-2xl">
+                        <p className="text-slate-200 whitespace-pre-wrap">
                           {message.content}
                         </p>
                       </div>
 
                       {message.feedback && (
-                        <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl border-l-4 border-green-500">
+                        <div className="mt-4 p-4 bg-gradient-to-r from-green-900/30 to-blue-900/30 rounded-xl border-l-4 border-green-500">
                           <div className="flex items-center gap-2 mb-3">
-                            <span className="text-2xl">📊</span>
-                            <h4 className="font-bold text-gray-900">
+                            <h4 className="font-bold text-green-400">
                               Your Score: {message.feedback.score}/100
                             </h4>
                           </div>
 
                           <div className="mb-3">
-                            <h5 className="font-semibold text-green-700 mb-2">
-                              ✅ Strengths:
+                            <h5 className="font-semibold text-green-400 mb-2">
+                              Strengths:
                             </h5>
                             <ul className="list-disc list-inside space-y-1">
                               {message.feedback.strengths.map((strength, i) => (
-                                <li key={i} className="text-gray-700">
+                                <li key={i} className="text-slate-300">
                                   {strength}
                                 </li>
                               ))}
@@ -262,13 +261,13 @@ export default function Interview() {
                           </div>
 
                           <div>
-                            <h5 className="font-semibold text-orange-700 mb-2">
-                              💡 Areas for Improvement:
+                            <h5 className="font-semibold text-orange-400 mb-2">
+                              Areas for Improvement:
                             </h5>
                             <ul className="list-disc list-inside space-y-1">
                               {message.feedback.improvements.map(
                                 (improvement, i) => (
-                                  <li key={i} className="text-gray-700">
+                                  <li key={i} className="text-slate-300">
                                     {improvement}
                                   </li>
                                 )
@@ -286,7 +285,7 @@ export default function Interview() {
                         <p>{message.content}</p>
                       </div>
                     </div>
-                    <div className="flex-shrink-0 w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-gray-700 font-bold">
+                    <div className="flex-shrink-0 w-10 h-10 bg-cyan-600 rounded-full flex items-center justify-center text-white font-bold">
                       You
                     </div>
                   </div>
@@ -299,15 +298,15 @@ export default function Interview() {
                 <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
                   AI
                 </div>
-                <div className="bg-blue-50 rounded-2xl rounded-tl-none p-4">
+                <div className="bg-slate-700 rounded-2xl rounded-tl-none p-4">
                   <div className="flex gap-2">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div>
                     <div
-                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"
                       style={{ animationDelay: "0.2s" }}
                     ></div>
                     <div
-                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"
                       style={{ animationDelay: "0.4s" }}
                     ></div>
                   </div>
@@ -319,7 +318,7 @@ export default function Interview() {
           </div>
 
           {/* Input Area */}
-          <div className="border-t border-gray-200 p-6 bg-gray-50">
+          <div className="border-t border-slate-700 p-6 bg-slate-800">
             <div className="flex gap-4">
               <input
                 type="text"
@@ -333,7 +332,7 @@ export default function Interview() {
                     ? "Ask about your CV, skills, career advice..."
                     : "Ask me anything about career development..."
                 }
-                className="flex-1 px-6 py-4 border-2 border-gray-300 rounded-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all text-gray-900 placeholder-gray-500 bg-white"
+                className="flex-1 px-6 py-4 border-2 border-slate-600 rounded-full focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 transition-all text-white placeholder-slate-400 bg-slate-700"
                 disabled={isTyping}
               />
               <button
@@ -341,11 +340,11 @@ export default function Interview() {
                 disabled={!input.trim() || isTyping}
                 className="px-8 py-4 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
               >
-                {isTyping ? "⏳" : "📤"} Send
+                {isTyping ? "Sending..." : "Send"}
               </button>
             </div>
-            <p className="text-sm text-gray-600 mt-3 text-center">
-              💡 Tip:{" "}
+            <p className="text-sm text-slate-400 mt-3 text-center">
+              Tip:{" "}
               {cvUploaded
                 ? "Ask specific questions about your skills, experience, or get job recommendations"
                 : "Upload your CV for personalized advice"}

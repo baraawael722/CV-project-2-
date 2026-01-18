@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useTheme } from "../context/ThemeContext.jsx";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
+  const { isDark, toggleTheme } = useTheme();
 
   const handleNavClick = (e, id) => {
     e.preventDefault();
@@ -27,7 +29,9 @@ export default function Navbar() {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "scrolled bg-white/10 backdrop-blur-md shadow-sm border-b border-white/10 py-4"
+          ? isDark
+            ? "scrolled bg-slate-900/90 backdrop-blur-md shadow-lg border-b border-slate-700/50 py-4"
+            : "scrolled bg-white/90 backdrop-blur-md shadow-lg border-b border-gray-200/50 py-4"
           : "bg-transparent py-6"
       }`}
       style={{ WebkitBackdropFilter: isScrolled ? "blur(8px)" : "none" }}
@@ -84,7 +88,13 @@ export default function Navbar() {
             {/* Brand Name */}
             <span
               className={`font-bold transition-all duration-300 ${
-                isScrolled ? "text-gray-800 text-xl" : "text-gray-800 text-2xl"
+                isScrolled
+                  ? isDark
+                    ? "text-white text-xl"
+                    : "text-slate-900 text-xl"
+                  : isDark
+                  ? "text-white text-2xl"
+                  : "text-slate-900 text-2xl"
               }`}
             >
               JobCompass
@@ -96,8 +106,10 @@ export default function Navbar() {
             <a
               href="#home"
               className={`nav-link font-semibold transition-all duration-300 ${
-                isScrolled ? "text-base" : "text-2xl"
-              }`}
+                isDark
+                  ? "text-slate-300 hover:text-white"
+                  : "text-slate-600 hover:text-slate-900"
+              } ${isScrolled ? "text-base" : "text-2xl"}`}
               onClick={(e) => handleNavClick(e, "home")}
             >
               Home
@@ -105,8 +117,10 @@ export default function Navbar() {
             <a
               href="#about"
               className={`nav-link font-semibold transition-all duration-300 ${
-                isScrolled ? "text-base" : "text-2xl"
-              }`}
+                isDark
+                  ? "text-slate-300 hover:text-white"
+                  : "text-slate-600 hover:text-slate-900"
+              } ${isScrolled ? "text-base" : "text-2xl"}`}
               onClick={(e) => handleNavClick(e, "about")}
             >
               About Us
@@ -114,8 +128,10 @@ export default function Navbar() {
             <a
               href="#jobs"
               className={`nav-link font-semibold transition-all duration-300 ${
-                isScrolled ? "text-base" : "text-2xl"
-              }`}
+                isDark
+                  ? "text-slate-300 hover:text-white"
+                  : "text-slate-600 hover:text-slate-900"
+              } ${isScrolled ? "text-base" : "text-2xl"}`}
               onClick={(e) => handleNavClick(e, "jobs")}
             >
               Jobs
@@ -123,8 +139,10 @@ export default function Navbar() {
             <a
               href="#features"
               className={`nav-link font-semibold transition-all duration-300 ${
-                isScrolled ? "text-base" : "text-2xl"
-              }`}
+                isDark
+                  ? "text-slate-300 hover:text-white"
+                  : "text-slate-600 hover:text-slate-900"
+              } ${isScrolled ? "text-base" : "text-2xl"}`}
               onClick={(e) => handleNavClick(e, "features")}
             >
               Features

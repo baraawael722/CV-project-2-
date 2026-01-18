@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export default function MatchedCandidates() {
@@ -18,13 +18,13 @@ export default function MatchedCandidates() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+    <div className="min-h-screen bg-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-8 text-white mb-8 shadow-xl">
           <button
             onClick={() => navigate("/hr/dashboard")}
-            className="mb-4 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-all flex items-center gap-2"
+            className="mb-4 px-4 py-2 bg-slate-800 border border-slate-700/20 hover:bg-slate-800 border border-slate-700/30 rounded-lg transition-all flex items-center gap-2"
           >
             <svg
               className="w-5 h-5"
@@ -85,10 +85,10 @@ export default function MatchedCandidates() {
         </div>
 
         {/* AI Analysis Summary */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border-l-4 border-purple-500">
+        <div className="bg-slate-800 rounded-xl shadow-lg p-6 mb-8 border-l-4 border-cyan-500">
           <div className="flex items-start gap-3">
             <svg
-              className="w-10 h-10 text-purple-600 flex-shrink-0"
+              className="w-10 h-10 text-cyan-400 flex-shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -101,12 +101,12 @@ export default function MatchedCandidates() {
               />
             </svg>
             <div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
+              <h3 className="text-xl font-bold text-white mb-2">
                 AI Analysis Summary
               </h3>
-              <p className="text-gray-700 leading-relaxed">
+              <p className="text-slate-300 leading-relaxed">
                 Our AI system analyzed{" "}
-                <span className="font-bold text-purple-600">
+                <span className="font-bold text-cyan-400">
                   {candidates.length} candidate CVs
                 </span>{" "}
                 using
@@ -123,19 +123,19 @@ export default function MatchedCandidates() {
                 and skills to your job requirements.
               </p>
               <div className="mt-4 grid md:grid-cols-3 gap-4">
-                <div className="bg-green-50 p-3 rounded-lg">
-                  <div className="text-sm text-gray-600 font-semibold">
+                <div className="bg-green-900/30 p-3 rounded-lg border border-green-700/50">
+                  <div className="text-sm text-slate-300 font-semibold">
                     Excellent Matches (80%+)
                   </div>
-                  <div className="text-2xl font-bold text-green-600">
+                  <div className="text-2xl font-bold text-green-400">
                     {candidates.filter((c) => c.matchScore >= 80).length}
                   </div>
                 </div>
-                <div className="bg-yellow-50 p-3 rounded-lg">
-                  <div className="text-sm text-gray-600 font-semibold">
+                <div className="bg-yellow-900/30 p-3 rounded-lg border border-yellow-700/50">
+                  <div className="text-sm text-slate-300 font-semibold">
                     Good Matches (60-80%)
                   </div>
-                  <div className="text-2xl font-bold text-yellow-600">
+                  <div className="text-2xl font-bold text-yellow-400">
                     {
                       candidates.filter(
                         (c) => c.matchScore >= 60 && c.matchScore < 80
@@ -143,11 +143,11 @@ export default function MatchedCandidates() {
                     }
                   </div>
                 </div>
-                <div className="bg-gray-50 p-3 rounded-lg">
-                  <div className="text-sm text-gray-600 font-semibold">
+                <div className="bg-slate-700/50 p-3 rounded-lg border border-slate-600">
+                  <div className="text-sm text-slate-300 font-semibold">
                     Fair Matches (60%+)
                   </div>
-                  <div className="text-2xl font-bold text-gray-600">
+                  <div className="text-2xl font-bold text-slate-300">
                     {candidates.filter((c) => c.matchScore >= 60).length}
                   </div>
                 </div>
@@ -157,8 +157,8 @@ export default function MatchedCandidates() {
         </div>
 
         {/* Job Details */}
-        <div className="bg-white rounded-xl shadow-md p-6 mb-8 border border-gray-200">
-          <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <div className="bg-slate-800 rounded-xl shadow-md p-6 mb-8 border border-slate-700">
+          <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
             <svg
               className="w-5 h-5"
               fill="none"
@@ -176,36 +176,38 @@ export default function MatchedCandidates() {
           </h3>
           <div className="grid md:grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="font-semibold text-gray-700">Department:</span>
-              <span className="ml-2 text-gray-600">
+              <span className="font-semibold text-slate-300">Department:</span>
+              <span className="ml-2 text-slate-400">
                 {job.department || "N/A"}
               </span>
             </div>
             <div>
-              <span className="font-semibold text-gray-700">Location:</span>
-              <span className="ml-2 text-gray-600">
+              <span className="font-semibold text-slate-300">Location:</span>
+              <span className="ml-2 text-slate-400">
                 {job.location || "N/A"}
               </span>
             </div>
             <div>
-              <span className="font-semibold text-gray-700">
+              <span className="font-semibold text-slate-300">
                 Experience Level:
               </span>
-              <span className="ml-2 text-gray-600">
+              <span className="ml-2 text-slate-400">
                 {job.experienceLevel || "N/A"}
               </span>
             </div>
             <div>
-              <span className="font-semibold text-gray-700">Job Type:</span>
-              <span className="ml-2 text-gray-600">{job.jobType || "N/A"}</span>
+              <span className="font-semibold text-slate-300">Job Type:</span>
+              <span className="ml-2 text-slate-400">
+                {job.jobType || "N/A"}
+              </span>
             </div>
           </div>
           {job.description && (
             <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-              <p className="text-xs font-semibold text-gray-700 mb-2">
+              <p className="text-xs font-semibold text-slate-300 mb-2">
                 Description:
               </p>
-              <p className="text-sm text-gray-600 leading-relaxed line-clamp-3">
+              <p className="text-sm text-slate-400 leading-relaxed line-clamp-3">
                 {job.description}
               </p>
             </div>
@@ -217,7 +219,7 @@ export default function MatchedCandidates() {
           {candidates.map((candidate, index) => (
             <div
               key={candidate._id}
-              className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-6 border-l-4"
+              className="bg-slate-800 border border-slate-700 rounded-xl shadow-lg hover:shadow-2xl transition-all p-6 border-l-4"
               style={{
                 borderLeftColor:
                   candidate.matchScore >= 80
@@ -246,10 +248,10 @@ export default function MatchedCandidates() {
                 <div className="flex-1">
                   {/* Name & Contact */}
                   <div className="mb-4">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                    <h3 className="text-2xl font-bold text-white mb-2">
                       {candidate.name}
                     </h3>
-                    <div className="flex flex-wrap gap-3 text-sm text-gray-600">
+                    <div className="flex flex-wrap gap-3 text-sm text-slate-400">
                       <div className="flex items-center gap-1">
                         <svg
                           className="w-4 h-4"
@@ -290,16 +292,17 @@ export default function MatchedCandidates() {
                   {/* Match Score */}
                   <div className="mb-4">
                     <div className="flex items-center gap-3 mb-2">
-                      <span className="text-sm font-bold text-gray-700">
+                      <span className="text-sm font-bold text-slate-300">
                         Match Score:
                       </span>
                       <span
-                        className={`px-3 py-1 rounded-full text-sm font-bold ${candidate.matchScore >= 80
-                            ? "bg-green-100 text-green-700"
+                        className={`px-3 py-1 rounded-full text-sm font-bold ${
+                          candidate.matchScore >= 80
+                            ? "bg-green-100 text-green-400"
                             : candidate.matchScore >= 60
-                              ? "bg-yellow-100 text-yellow-700"
-                              : "bg-red-100 text-red-700"
-                          }`}
+                            ? "bg-yellow-100 text-yellow-400"
+                            : "bg-red-100 text-red-400"
+                        }`}
                       >
                         {candidate.matchScore.toFixed(1)}% -{" "}
                         {candidate.matchScore >= 80
@@ -325,7 +328,7 @@ export default function MatchedCandidates() {
                   {/* Skills */}
                   {candidate.skills && candidate.skills.length > 0 && (
                     <div className="mb-4">
-                      <p className="text-sm font-bold text-gray-700 mb-2">
+                      <p className="text-sm font-bold text-slate-300 mb-2">
                         Skills:
                       </p>
                       <div className="flex flex-wrap gap-2">
@@ -346,7 +349,7 @@ export default function MatchedCandidates() {
                     {candidate.experience && (
                       <div className="flex items-start gap-2">
                         <svg
-                          className="w-5 h-5 text-gray-600 flex-shrink-0 mt-0.5"
+                          className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -359,10 +362,10 @@ export default function MatchedCandidates() {
                           />
                         </svg>
                         <div>
-                          <span className="font-semibold text-gray-700">
+                          <span className="font-semibold text-slate-300">
                             Experience:
                           </span>
-                          <p className="text-gray-600">
+                          <p className="text-slate-400">
                             {candidate.experience}
                           </p>
                         </div>
@@ -371,7 +374,7 @@ export default function MatchedCandidates() {
                     {candidate.education && (
                       <div className="flex items-start gap-2">
                         <svg
-                          className="w-5 h-5 text-gray-600 flex-shrink-0 mt-0.5"
+                          className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -390,10 +393,12 @@ export default function MatchedCandidates() {
                           />
                         </svg>
                         <div>
-                          <span className="font-semibold text-gray-700">
+                          <span className="font-semibold text-slate-300">
                             Education:
                           </span>
-                          <p className="text-gray-600">{candidate.education}</p>
+                          <p className="text-slate-400">
+                            {candidate.education}
+                          </p>
                         </div>
                       </div>
                     )}
@@ -402,7 +407,7 @@ export default function MatchedCandidates() {
                   {/* CV Preview */}
                   {candidate.resumeText && (
                     <div className="p-4 bg-gray-50 rounded-lg mb-4">
-                      <p className="text-xs font-bold text-gray-700 mb-2 flex items-center gap-1">
+                      <p className="text-xs font-bold text-slate-300 mb-2 flex items-center gap-1">
                         <svg
                           className="w-4 h-4"
                           fill="none"
@@ -418,7 +423,7 @@ export default function MatchedCandidates() {
                         </svg>
                         CV Preview:
                       </p>
-                      <p className="text-sm text-gray-600 leading-relaxed">
+                      <p className="text-sm text-slate-400 leading-relaxed">
                         {candidate.resumeText}
                       </p>
                     </div>
@@ -504,7 +509,7 @@ export default function MatchedCandidates() {
 
         {/* Empty State */}
         {candidates.length === 0 && (
-          <div className="bg-white rounded-xl shadow-lg p-12 text-center">
+          <div className="bg-slate-800 border border-slate-700 rounded-xl shadow-lg p-12 text-center">
             <svg
               className="w-20 h-20 mx-auto mb-4 text-gray-400"
               fill="none"
@@ -518,10 +523,10 @@ export default function MatchedCandidates() {
                 d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">
+            <h3 className="text-2xl font-bold text-white mb-2">
               No Matching Candidates Found
             </h3>
-            <p className="text-gray-600">
+            <p className="text-slate-400">
               Try adjusting your job requirements or check back later for new
               candidates.
             </p>
