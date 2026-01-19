@@ -126,10 +126,29 @@ export const getAllCandidates = async (req, res) => {
 // Get single candidate
 export const getCandidate = async (req, res) => {
   try {
-    const candidate = await Candidate.findById(req.params.id).populate(
-      "applications.jobId",
-      "title department"
-    );
+    let candidate;
+    const id = req.params.id;
+
+    // First try to find by Candidate ID
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      candidate = await Candidate.findById(id).populate(
+        "applications.jobId",
+        "title department"
+      );
+    }
+
+    // If not found, try to find by email (User ID lookup)
+    if (!candidate) {
+      // Try to find candidate by looking up user email
+      const User = mongoose.model("User");
+      const user = await User.findById(id);
+      if (user && user.email) {
+        candidate = await Candidate.findOne({ email: user.email }).populate(
+          "applications.jobId",
+          "title department"
+        );
+      }
+    }
 
     if (!candidate) {
       return res.status(404).json({
@@ -657,7 +676,22 @@ export const uploadResume = async (req, res) => {
 // Download Resume from GridFS
 export const downloadResume = async (req, res) => {
   try {
-    const candidate = await Candidate.findById(req.params.id);
+    let candidate;
+    const id = req.params.id;
+
+    // First try to find by Candidate ID
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      candidate = await Candidate.findById(id);
+    }
+
+    // If not found, try to find by User ID (lookup user email first)
+    if (!candidate) {
+      const User = mongoose.model("User");
+      const user = await User.findById(id);
+      if (user && user.email) {
+        candidate = await Candidate.findOne({ email: user.email });
+      }
+    }
 
     if (!candidate) {
       return res.status(404).json({
