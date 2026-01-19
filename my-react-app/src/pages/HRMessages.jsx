@@ -139,8 +139,8 @@ export default function HRMessages() {
             key={tab.key}
             onClick={() => setFilter(tab.key)}
             className={`px-5 py-3 rounded-xl text-sm font-bold transition-all ${filter === tab.key
-                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/30"
-                : "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 hover:border-indigo-500/50"
+              ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/30"
+              : "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700 hover:border-indigo-500/50"
               }`}
           >
             {tab.label}
@@ -182,10 +182,10 @@ export default function HRMessages() {
               >
                 {/* Icon */}
                 <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 ${notification.type === "application"
-                    ? "bg-gradient-to-br from-blue-500 to-indigo-600"
-                    : notification.type === "interview"
-                      ? "bg-gradient-to-br from-green-500 to-teal-600"
-                      : "bg-gradient-to-br from-purple-500 to-pink-600"
+                  ? "bg-gradient-to-br from-blue-500 to-indigo-600"
+                  : notification.type === "interview"
+                    ? "bg-gradient-to-br from-green-500 to-teal-600"
+                    : "bg-gradient-to-br from-purple-500 to-pink-600"
                   }`}>
                   {notification.type === "application" ? (
                     <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -125,8 +125,8 @@ const LatestJobsSection = () => {
           <div className="text-center">
             <div
               className={`inline-flex items-center gap-2 px-6 py-3 rounded-full ${isDark
-                  ? "bg-red-900/30 text-red-400"
-                  : "bg-red-100 text-red-600"
+                ? "bg-red-900/30 text-red-400"
+                : "bg-red-100 text-red-600"
                 }`}
             >
               <svg
@@ -160,8 +160,8 @@ const LatestJobsSection = () => {
           <div className="text-center">
             <div
               className={`inline-flex flex-col items-center gap-4 px-8 py-6 rounded-2xl ${isDark
-                  ? "bg-slate-800 border border-slate-700"
-                  : "bg-gray-100 border border-gray-200"
+                ? "bg-slate-800 border border-slate-700"
+                : "bg-gray-100 border border-gray-200"
                 }`}
             >
               <svg
@@ -228,8 +228,8 @@ const LatestJobsSection = () => {
             <div
               key={job._id || job.id || index}
               className={`group relative rounded-3xl p-8 cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-3 ${isDark
-                  ? "bg-slate-900 border-2 border-slate-700 hover:border-blue-500"
-                  : "bg-white border-2 border-gray-300 shadow-xl hover:border-blue-500"
+                ? "bg-slate-900 border-2 border-slate-700 hover:border-blue-500"
+                : "bg-white border-2 border-gray-300 shadow-xl hover:border-blue-500"
                 }`}
             >
               {/* Company Logo */}
@@ -256,10 +256,10 @@ const LatestJobsSection = () => {
                 </div>
                 <span
                   className={`px-3 py-1 rounded-full text-xs font-semibold ${job.jobType === "Full-time"
-                      ? "bg-green-100 text-green-700"
-                      : job.jobType === "Part-time"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-blue-100 text-blue-700"
+                    ? "bg-green-100 text-green-700"
+                    : job.jobType === "Part-time"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : "bg-blue-100 text-blue-700"
                     }`}
                 >
                   {job.jobType || "Full-time"}
@@ -352,8 +352,8 @@ const LatestJobsSection = () => {
                 <button
                   onClick={() => handleViewDetails(job)}
                   className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all duration-300 ${isDark
-                      ? "bg-slate-700 text-white hover:bg-slate-600"
-                      : "bg-gray-100 text-slate-900 hover:bg-gray-200"
+                    ? "bg-slate-700 text-white hover:bg-slate-600"
+                    : "bg-gray-100 text-slate-900 hover:bg-gray-200"
                     }`}
                 >
                   View Details
@@ -385,8 +385,8 @@ const LatestJobsSection = () => {
             <button
               onClick={() => setShowDetailsModal(false)}
               className={`absolute top-4 right-4 p-2 rounded-full transition-colors ${isDark
-                  ? "hover:bg-slate-700 text-slate-400"
-                  : "hover:bg-gray-100 text-gray-500"
+                ? "hover:bg-slate-700 text-slate-400"
+                : "hover:bg-gray-100 text-gray-500"
                 }`}
             >
               <svg
@@ -603,8 +603,8 @@ const LatestJobsSection = () => {
                       <span
                         key={idx}
                         className={`px-3 py-1 rounded-full text-sm font-medium ${isDark
-                            ? "bg-blue-900/50 text-blue-300"
-                            : "bg-blue-100 text-blue-700"
+                          ? "bg-blue-900/50 text-blue-300"
+                          : "bg-blue-100 text-blue-700"
                           }`}
                       >
                         {skill}
@@ -643,8 +643,8 @@ const LatestJobsSection = () => {
             <button
               onClick={() => setShowLoginModal(false)}
               className={`absolute top-4 right-4 p-2 rounded-full transition-colors ${isDark
-                  ? "hover:bg-slate-700 text-slate-400"
-                  : "hover:bg-gray-100 text-gray-500"
+                ? "hover:bg-slate-700 text-slate-400"
+                : "hover:bg-gray-100 text-gray-500"
                 }`}
             >
               <svg
@@ -700,7 +700,7 @@ const LatestJobsSection = () => {
                     className={`text-center mb-8 ${isDark ? "text-slate-400" : "text-slate-600"
                       }`}
                   >
-                    {isHR 
+                    {isHR
                       ? "You are logged in as HR. Please login with an Employee account to apply for jobs."
                       : "You need to login or create an account to apply for this job"
                     }
@@ -720,8 +720,8 @@ const LatestJobsSection = () => {
               <button
                 onClick={handleRegisterRedirect}
                 className={`w-full py-4 px-6 rounded-xl font-bold text-lg transition-all duration-300 ${isDark
-                    ? "bg-slate-700 text-white hover:bg-slate-600"
-                    : "bg-gray-100 text-slate-900 hover:bg-gray-200"
+                  ? "bg-slate-700 text-white hover:bg-slate-600"
+                  : "bg-gray-100 text-slate-900 hover:bg-gray-200"
                   }`}
               >
                 Create Employee Account

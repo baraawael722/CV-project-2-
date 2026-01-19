@@ -233,12 +233,12 @@ export default function MatchedCandidates() {
                 {/* Rank Badge */}
                 <div
                   className={`flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white ${index === 0
-                      ? "bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-lg"
-                      : index === 1
-                        ? "bg-gradient-to-br from-gray-300 to-gray-500"
-                        : index === 2
-                          ? "bg-gradient-to-br from-orange-400 to-orange-600"
-                          : "bg-gradient-to-br from-purple-500 to-pink-500"
+                    ? "bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-lg"
+                    : index === 1
+                      ? "bg-gradient-to-br from-gray-300 to-gray-500"
+                      : index === 2
+                        ? "bg-gradient-to-br from-orange-400 to-orange-600"
+                        : "bg-gradient-to-br from-purple-500 to-pink-500"
                     }`}
                 >
                   #{index + 1}
@@ -296,13 +296,12 @@ export default function MatchedCandidates() {
                         Match Score:
                       </span>
                       <span
-                        className={`px-3 py-1.5 rounded-full text-sm font-bold ${
-                          candidate.matchScore >= 80
+                        className={`px-3 py-1.5 rounded-full text-sm font-bold ${candidate.matchScore >= 80
                             ? "bg-green-500/20 text-green-400 border border-green-500/30"
                             : candidate.matchScore >= 60
-                            ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
-                            : "bg-red-500/20 text-red-400 border border-red-500/30"
-                        }`}
+                              ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                              : "bg-red-500/20 text-red-400 border border-red-500/30"
+                          }`}
                       >
                         {candidate.matchScore.toFixed(1)}% -{" "}
                         {candidate.matchScore >= 80
@@ -315,10 +314,10 @@ export default function MatchedCandidates() {
                     <div className="relative w-full bg-slate-700 rounded-full h-3 overflow-hidden">
                       <div
                         className={`absolute top-0 left-0 h-full rounded-full transition-all duration-500 ${candidate.matchScore >= 80
-                            ? "bg-gradient-to-r from-green-500 to-emerald-600"
-                            : candidate.matchScore >= 60
-                              ? "bg-gradient-to-r from-yellow-500 to-orange-500"
-                              : "bg-gradient-to-r from-red-500 to-pink-500"
+                          ? "bg-gradient-to-r from-green-500 to-emerald-600"
+                          : candidate.matchScore >= 60
+                            ? "bg-gradient-to-r from-yellow-500 to-orange-500"
+                            : "bg-gradient-to-r from-red-500 to-pink-500"
                           }`}
                         style={{ width: `${candidate.matchScore}%` }}
                       ></div>
