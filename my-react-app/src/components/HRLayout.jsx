@@ -34,7 +34,7 @@ export default function HRLayout({ children }) {
           "http://localhost:5000/api/notifications/unread-count",
           {
             headers: { Authorization: `Bearer ${token}` },
-          }
+          },
         );
         if (res.ok) {
           const data = await res.json();
