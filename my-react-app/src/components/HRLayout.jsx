@@ -69,15 +69,9 @@ export default function HRLayout({ children }) {
       path: "/hr/messages",
       badge: stats.messagesReceived || 0,
     },
-    { icon: "company", label: "Company Profile", path: "/hr/company" },
-    { icon: "applicants", label: "All Applicants", path: "/hr/applicants" },
-    { icon: "schedule", label: "My Schedule", path: "/hr/schedule" },
   ];
 
-  const settingsItems = [
-    { icon: "settings", label: "Settings", path: "/hr/settings" },
-    { icon: "help", label: "Help Center", path: "/hr/help" },
-  ];
+  const settingsItems = [];
 
   // Icon component for sidebar
   const SidebarIcon = ({ name }) => {

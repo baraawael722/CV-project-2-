@@ -223,66 +223,6 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/hr/company"
-          element={
-            <ProtectedRoute allowedRoles={["hr"]}>
-              <HRLayout>
-                <PageTransition>
-                  <HRCompanyProfile />
-                </PageTransition>
-              </HRLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/hr/applicants"
-          element={
-            <ProtectedRoute allowedRoles={["hr"]}>
-              <HRLayout>
-                <PageTransition>
-                  <HRApplicants />
-                </PageTransition>
-              </HRLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/hr/schedule"
-          element={
-            <ProtectedRoute allowedRoles={["hr"]}>
-              <HRLayout>
-                <PageTransition>
-                  <HRSchedule />
-                </PageTransition>
-              </HRLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/hr/settings"
-          element={
-            <ProtectedRoute allowedRoles={["hr"]}>
-              <HRLayout>
-                <PageTransition>
-                  <HRSettings />
-                </PageTransition>
-              </HRLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/hr/help"
-          element={
-            <ProtectedRoute allowedRoles={["hr"]}>
-              <HRLayout>
-                <PageTransition>
-                  <HRHelpCenter />
-                </PageTransition>
-              </HRLayout>
-            </ProtectedRoute>
-          }
-        />
 
         {/* Redirect old routes to new structure */}
         <Route
