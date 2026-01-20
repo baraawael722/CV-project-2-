@@ -80,38 +80,57 @@ export default function Login() {
 
   return (
     <div
-      className={`min-h-screen flex items-center justify-center py-8 transition-colors duration-300 relative overflow-hidden ${
-        isDark
+      className={`min-h-screen flex items-center justify-center py-8 transition-colors duration-300 relative overflow-hidden ${isDark
           ? "bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800"
           : "bg-gradient-to-br from-blue-50 via-white to-cyan-50"
-      }`}
+        }`}
     >
+      {/* Back to Home Button */}
+      <Link
+        to="/"
+        className={`absolute top-6 left-6 z-20 flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 hover:scale-105 ${isDark
+            ? "bg-slate-800/80 text-white hover:bg-slate-700 border border-slate-600"
+            : "bg-white/80 text-gray-700 hover:bg-white border border-gray-200 shadow-md"
+          }`}
+      >
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+          />
+        </svg>
+        <span className="font-medium">Home</span>
+      </Link>
+
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
-          className={`absolute top-20 left-10 w-72 h-72 rounded-full mix-blend-multiply filter blur-3xl animate-float ${
-            isDark ? "bg-blue-500 opacity-20" : "bg-blue-400 opacity-30"
-          }`}
+          className={`absolute top-20 left-10 w-72 h-72 rounded-full mix-blend-multiply filter blur-3xl animate-float ${isDark ? "bg-blue-500 opacity-20" : "bg-blue-400 opacity-30"
+            }`}
           style={{ animationDelay: "0s" }}
         ></div>
         <div
-          className={`absolute top-40 right-10 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl animate-float ${
-            isDark ? "bg-blue-600 opacity-20" : "bg-cyan-400 opacity-30"
-          }`}
+          className={`absolute top-40 right-10 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl animate-float ${isDark ? "bg-blue-600 opacity-20" : "bg-cyan-400 opacity-30"
+            }`}
           style={{ animationDelay: "2s" }}
         ></div>
         <div
-          className={`absolute -bottom-32 left-1/3 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl animate-float ${
-            isDark ? "bg-cyan-500 opacity-20" : "bg-blue-300 opacity-30"
-          }`}
+          className={`absolute -bottom-32 left-1/3 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl animate-float ${isDark ? "bg-cyan-500 opacity-20" : "bg-blue-300 opacity-30"
+            }`}
           style={{ animationDelay: "4s" }}
         ></div>
       </div>
       {/* Main Container - Split Layout */}
       <div
-        className={`relative z-10 w-full max-w-4xl shadow-2xl rounded-2xl overflow-hidden animate-fadeIn border ${
-          isDark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-200"
-        }`}
+        className={`relative z-10 w-full max-w-4xl shadow-2xl rounded-2xl overflow-hidden animate-fadeIn border ${isDark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-200"
+          }`}
       >
         <style>{`
           @keyframes fadeIn {
@@ -327,22 +346,20 @@ export default function Login() {
                     <button
                       type="button"
                       onClick={() => setRole("employee")}
-                      className={`py-2 px-3 rounded-lg font-medium transition-all duration-200 border-2 ${
-                        role === "employee"
+                      className={`py-2 px-3 rounded-lg font-medium transition-all duration-200 border-2 ${role === "employee"
                           ? "bg-blue-600 text-white border-blue-600"
                           : "bg-slate-700 text-slate-300 border-slate-600 hover:border-blue-400"
-                      }`}
+                        }`}
                     >
                       Employee
                     </button>
                     <button
                       type="button"
                       onClick={() => setRole("hr")}
-                      className={`py-2 px-3 rounded-lg font-medium transition-all duration-200 border-2 ${
-                        role === "hr"
+                      className={`py-2 px-3 rounded-lg font-medium transition-all duration-200 border-2 ${role === "hr"
                           ? "bg-blue-600 text-white border-blue-600"
                           : "bg-slate-700 text-slate-300 border-slate-600 hover:border-blue-400"
-                      }`}
+                        }`}
                     >
                       HR
                     </button>
