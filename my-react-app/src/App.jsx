@@ -66,249 +66,189 @@ export default function App() {
             }
           />
 
-        {/* Auth Pages */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+          {/* Auth Pages */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-        {/* ========== EMPLOYEE ROUTES ========== */}
-        <Route
-          path="/employee/dashboard"
-          element={
-            <ProtectedRoute allowedRoles={["employee", "user"]}>
-              <TopNavbar />
-              <PageTransition>
-                <Dashboard />
-              </PageTransition>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/employee/profile"
-          element={
-            <ProtectedRoute allowedRoles={["employee", "user"]}>
-              <TopNavbar />
-              <PageTransition>
-                <Profile />
-              </PageTransition>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/employee/jobs"
-          element={
-            <ProtectedRoute allowedRoles={["employee", "user"]}>
-              <TopNavbar />
-              <PageTransition>
-                <Jobs />
-              </PageTransition>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/employee/jobs/:jobId"
-          element={
-            <ProtectedRoute allowedRoles={["employee", "user"]}>
-              <TopNavbar />
-              <PageTransition>
-                <JobDetails />
-              </PageTransition>
-            </ProtectedRoute>
-          }
-        />
-        {/* /employee/skills removed */}
-        {/* /employee/learning removed */}
-        <Route
-          path="/employee/interview"
-          element={
-            <ProtectedRoute allowedRoles={["employee", "user"]}>
-              <TopNavbar />
-              <PageTransition>
-                <Interview />
-              </PageTransition>
-            </ProtectedRoute>
-          }
-        />
-
-        {/* ========== HR ROUTES ========== */}
-        <Route
-          path="/hr/dashboard"
-          element={
-            <ProtectedRoute allowedRoles={["hr"]}>
-              <HRLayout>
+          {/* ========== EMPLOYEE ROUTES ========== */}
+          <Route
+            path="/employee/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["employee", "user"]}>
+                <TopNavbar />
                 <PageTransition>
-                  <HRDashboard />
+                  <Dashboard />
                 </PageTransition>
-              </HRLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/hr/matched-candidates"
-          element={
-            <ProtectedRoute allowedRoles={["hr"]}>
-              <HRLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/employee/profile"
+            element={
+              <ProtectedRoute allowedRoles={["employee", "user"]}>
+                <TopNavbar />
                 <PageTransition>
-                  <MatchedCandidates />
+                  <Profile />
                 </PageTransition>
-              </HRLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/hr/all-jobs-matching"
-          element={
-            <ProtectedRoute allowedRoles={["hr"]}>
-              <TopNavbar />
-              <AllJobsMatching />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/hr/profile"
-          element={
-            <ProtectedRoute allowedRoles={["hr"]}>
-              <HRLayout>
-                <PageTransition>
-                  <HRProfile />
-                </PageTransition>
-              </HRLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/hr/jobs"
-          element={
-            <ProtectedRoute allowedRoles={["hr"]}>
-              <HRLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/employee/jobs"
+            element={
+              <ProtectedRoute allowedRoles={["employee", "user"]}>
+                <TopNavbar />
                 <PageTransition>
                   <Jobs />
                 </PageTransition>
-              </HRLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/hr/jobs/:jobId/applicants"
-          element={
-            <ProtectedRoute allowedRoles={["hr"]}>
-              <HRLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/employee/jobs/:jobId"
+            element={
+              <ProtectedRoute allowedRoles={["employee", "user"]}>
+                <TopNavbar />
                 <PageTransition>
-                  <JobApplicants />
+                  <JobDetails />
                 </PageTransition>
-              </HRLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/hr/candidates/:candidateId"
-          element={
-            <ProtectedRoute allowedRoles={["hr"]}>
-              <HRLayout>
+              </ProtectedRoute>
+            }
+          />
+          {/* /employee/skills removed */}
+          {/* /employee/learning removed */}
+          <Route
+            path="/employee/interview"
+            element={
+              <ProtectedRoute allowedRoles={["employee", "user"]}>
+                <TopNavbar />
                 <PageTransition>
-                  <CandidateProfile />
+                  <Interview />
                 </PageTransition>
-              </HRLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/hr/messages"
-          element={
-            <ProtectedRoute allowedRoles={["hr"]}>
-              <HRLayout>
-                <PageTransition>
-                  <HRMessages />
-                </PageTransition>
-              </HRLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/hr/company"
-          element={
-            <ProtectedRoute allowedRoles={["hr"]}>
-              <HRLayout>
-                <PageTransition>
-                  <HRCompanyProfile />
-                </PageTransition>
-              </HRLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/hr/applicants"
-          element={
-            <ProtectedRoute allowedRoles={["hr"]}>
-              <HRLayout>
-                <PageTransition>
-                  <HRApplicants />
-                </PageTransition>
-              </HRLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/hr/schedule"
-          element={
-            <ProtectedRoute allowedRoles={["hr"]}>
-              <HRLayout>
-                <PageTransition>
-                  <HRSchedule />
-                </PageTransition>
-              </HRLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/hr/settings"
-          element={
-            <ProtectedRoute allowedRoles={["hr"]}>
-              <HRLayout>
-                <PageTransition>
-                  <HRSettings />
-                </PageTransition>
-              </HRLayout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/hr/help"
-          element={
-            <ProtectedRoute allowedRoles={["hr"]}>
-              <HRLayout>
-                <PageTransition>
-                  <HRHelpCenter />
-                </PageTransition>
-              </HRLayout>
-            </ProtectedRoute>
-          }
-        />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Redirect old routes to new structure */}
-        <Route
-          path="/dashboard"
-          element={<Navigate to="/employee/dashboard" replace />}
-        />
-        <Route
-          path="/hr-dashboard"
-          element={<Navigate to="/hr/dashboard" replace />}
-        />
-        <Route
-          path="/profile"
-          element={<Navigate to="/employee/profile" replace />}
-        />
-        <Route
-          path="/jobs"
-          element={<Navigate to="/employee/jobs" replace />}
-        />
-        {/* /skills redirect removed */}
-        {/* /learning redirect removed */}
-        <Route
-          path="/interview"
-          element={<Navigate to="/employee/interview" replace />}
-        />
-      </Routes>
-    </Router>
+          {/* ========== HR ROUTES ========== */}
+          <Route
+            path="/hr/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["hr"]}>
+                <HRLayout>
+                  <PageTransition>
+                    <HRDashboard />
+                  </PageTransition>
+                </HRLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/hr/matched-candidates"
+            element={
+              <ProtectedRoute allowedRoles={["hr"]}>
+                <HRLayout>
+                  <PageTransition>
+                    <MatchedCandidates />
+                  </PageTransition>
+                </HRLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/hr/all-jobs-matching"
+            element={
+              <ProtectedRoute allowedRoles={["hr"]}>
+                <TopNavbar />
+                <AllJobsMatching />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/hr/profile"
+            element={
+              <ProtectedRoute allowedRoles={["hr"]}>
+                <HRLayout>
+                  <PageTransition>
+                    <HRProfile />
+                  </PageTransition>
+                </HRLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/hr/jobs"
+            element={
+              <ProtectedRoute allowedRoles={["hr"]}>
+                <HRLayout>
+                  <PageTransition>
+                    <Jobs />
+                  </PageTransition>
+                </HRLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/hr/jobs/:jobId/applicants"
+            element={
+              <ProtectedRoute allowedRoles={["hr"]}>
+                <HRLayout>
+                  <PageTransition>
+                    <JobApplicants />
+                  </PageTransition>
+                </HRLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/hr/candidates/:candidateId"
+            element={
+              <ProtectedRoute allowedRoles={["hr"]}>
+                <HRLayout>
+                  <PageTransition>
+                    <CandidateProfile />
+                  </PageTransition>
+                </HRLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/hr/messages"
+            element={
+              <ProtectedRoute allowedRoles={["hr"]}>
+                <HRLayout>
+                  <PageTransition>
+                    <HRMessages />
+                  </PageTransition>
+                </HRLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Redirect old routes to new structure */}
+          <Route
+            path="/dashboard"
+            element={<Navigate to="/employee/dashboard" replace />}
+          />
+          <Route
+            path="/hr-dashboard"
+            element={<Navigate to="/hr/dashboard" replace />}
+          />
+          <Route
+            path="/profile"
+            element={<Navigate to="/employee/profile" replace />}
+          />
+          <Route
+            path="/jobs"
+            element={<Navigate to="/employee/jobs" replace />}
+          />
+          {/* /skills redirect removed */}
+          {/* /learning redirect removed */}
+          <Route
+            path="/interview"
+            element={<Navigate to="/employee/interview" replace />}
+          />
+        </Routes>
+      </Router>
     </ThemeProvider>
   );
 }
