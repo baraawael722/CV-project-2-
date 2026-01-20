@@ -203,11 +203,11 @@ export default function MatchedCandidates() {
             </div>
           </div>
           {job.description && (
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-              <p className="text-xs font-semibold text-slate-300 mb-2">
+            <div className="mt-4 p-4 bg-slate-700/50 rounded-xl border border-slate-600">
+              <p className="text-xs font-semibold text-cyan-400 mb-2">
                 Description:
               </p>
-              <p className="text-sm text-slate-400 leading-relaxed line-clamp-3">
+              <p className="text-sm text-slate-300 leading-relaxed line-clamp-3">
                 {job.description}
               </p>
             </div>
@@ -233,12 +233,12 @@ export default function MatchedCandidates() {
                 {/* Rank Badge */}
                 <div
                   className={`flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white ${index === 0
-                      ? "bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-lg"
-                      : index === 1
-                        ? "bg-gradient-to-br from-gray-300 to-gray-500"
-                        : index === 2
-                          ? "bg-gradient-to-br from-orange-400 to-orange-600"
-                          : "bg-gradient-to-br from-purple-500 to-pink-500"
+                    ? "bg-gradient-to-br from-yellow-400 to-yellow-600 shadow-lg"
+                    : index === 1
+                      ? "bg-gradient-to-br from-gray-300 to-gray-500"
+                      : index === 2
+                        ? "bg-gradient-to-br from-orange-400 to-orange-600"
+                        : "bg-gradient-to-br from-purple-500 to-pink-500"
                     }`}
                 >
                   #{index + 1}
@@ -296,13 +296,12 @@ export default function MatchedCandidates() {
                         Match Score:
                       </span>
                       <span
-                        className={`px-3 py-1 rounded-full text-sm font-bold ${
-                          candidate.matchScore >= 80
-                            ? "bg-green-100 text-green-400"
+                        className={`px-3 py-1.5 rounded-full text-sm font-bold ${candidate.matchScore >= 80
+                            ? "bg-green-500/20 text-green-400 border border-green-500/30"
                             : candidate.matchScore >= 60
-                            ? "bg-yellow-100 text-yellow-400"
-                            : "bg-red-100 text-red-400"
-                        }`}
+                              ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
+                              : "bg-red-500/20 text-red-400 border border-red-500/30"
+                          }`}
                       >
                         {candidate.matchScore.toFixed(1)}% -{" "}
                         {candidate.matchScore >= 80
@@ -312,13 +311,13 @@ export default function MatchedCandidates() {
                             : "Low Match"}
                       </span>
                     </div>
-                    <div className="relative w-full bg-gray-200 rounded-full h-8 overflow-hidden">
+                    <div className="relative w-full bg-slate-700 rounded-full h-3 overflow-hidden">
                       <div
                         className={`absolute top-0 left-0 h-full rounded-full transition-all duration-500 ${candidate.matchScore >= 80
-                            ? "bg-gradient-to-r from-green-500 to-emerald-600"
-                            : candidate.matchScore >= 60
-                              ? "bg-gradient-to-r from-yellow-500 to-orange-500"
-                              : "bg-gradient-to-r from-red-500 to-pink-500"
+                          ? "bg-gradient-to-r from-green-500 to-emerald-600"
+                          : candidate.matchScore >= 60
+                            ? "bg-gradient-to-r from-yellow-500 to-orange-500"
+                            : "bg-gradient-to-r from-red-500 to-pink-500"
                           }`}
                         style={{ width: `${candidate.matchScore}%` }}
                       ></div>
@@ -335,7 +334,7 @@ export default function MatchedCandidates() {
                         {candidate.skills.map((skill, idx) => (
                           <span
                             key={idx}
-                            className="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold"
+                            className="px-3 py-1.5 bg-slate-700 text-cyan-400 rounded-lg text-sm font-medium border border-slate-600 hover:border-cyan-500/50 transition-colors"
                           >
                             {skill}
                           </span>
@@ -406,8 +405,8 @@ export default function MatchedCandidates() {
 
                   {/* CV Preview */}
                   {candidate.resumeText && (
-                    <div className="p-4 bg-gray-50 rounded-lg mb-4">
-                      <p className="text-xs font-bold text-slate-300 mb-2 flex items-center gap-1">
+                    <div className="p-4 bg-slate-700/50 rounded-xl border border-slate-600 mb-4">
+                      <p className="text-xs font-bold text-cyan-400 mb-2 flex items-center gap-1">
                         <svg
                           className="w-4 h-4"
                           fill="none"
@@ -477,7 +476,7 @@ export default function MatchedCandidates() {
                           state: { candidate },
                         })
                       }
-                      className="px-6 py-3 bg-purple-100 text-purple-700 rounded-lg font-semibold hover:bg-purple-200 transition-all flex items-center gap-2"
+                      className="px-6 py-3 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-xl font-semibold hover:bg-purple-500/30 transition-all flex items-center gap-2"
                     >
                       <svg
                         className="w-5 h-5"

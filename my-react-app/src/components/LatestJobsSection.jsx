@@ -64,13 +64,13 @@ const LatestJobsSection = () => {
     const user = JSON.parse(localStorage.getItem("user") || "null");
     const token = localStorage.getItem("token");
 
-    if (!token || !user) {
-      // Save job ID to redirect back after login
-      localStorage.setItem("redirectAfterLogin", `/employee/jobs`);
-      localStorage.setItem("applyToJobId", job._id || job.id);
-      navigate("/login");
+    // Must be logged in AND be an employee (not HR) to apply
+    if (!token || !user || user.role !== "employee") {
+      // Show login modal - user needs to login as employee
+      setSelectedJob(job);
+      setShowLoginModal(true);
     } else {
-      // Navigate to job details page for application
+      // User is logged in as employee - navigate to job details
       navigate(`/employee/jobs/${job._id || job.id}`);
     }
   };
@@ -79,7 +79,9 @@ const LatestJobsSection = () => {
     setShowLoginModal(false);
     // Save job ID for redirect after login
     localStorage.setItem("redirectAfterLogin", `/employee/jobs`);
-    localStorage.setItem("applyToJobId", selectedJob._id || selectedJob.id);
+    if (selectedJob) {
+      localStorage.setItem("applyToJobId", selectedJob._id || selectedJob.id);
+    }
     navigate("/login");
   };
 
@@ -87,16 +89,17 @@ const LatestJobsSection = () => {
     setShowLoginModal(false);
     // Save job ID for redirect after registration
     localStorage.setItem("redirectAfterLogin", `/employee/jobs`);
-    localStorage.setItem("applyToJobId", selectedJob._id || selectedJob.id);
+    if (selectedJob) {
+      localStorage.setItem("applyToJobId", selectedJob._id || selectedJob.id);
+    }
     navigate("/register");
   };
 
   if (loading) {
     return (
       <section
-        className={`relative py-24 px-4 transition-colors duration-300 ${
-          isDark ? "bg-slate-900" : "bg-white"
-        }`}
+        className={`relative py-24 px-4 transition-colors duration-300 ${isDark ? "bg-slate-900" : "bg-white"
+          }`}
       >
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col justify-center items-center h-64">
@@ -115,18 +118,16 @@ const LatestJobsSection = () => {
   if (error) {
     return (
       <section
-        className={`relative py-24 px-4 transition-colors duration-300 ${
-          isDark ? "bg-slate-900" : "bg-white"
-        }`}
+        className={`relative py-24 px-4 transition-colors duration-300 ${isDark ? "bg-slate-900" : "bg-white"
+          }`}
       >
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
             <div
-              className={`inline-flex items-center gap-2 px-6 py-3 rounded-full ${
-                isDark
-                  ? "bg-red-900/30 text-red-400"
-                  : "bg-red-100 text-red-600"
-              }`}
+              className={`inline-flex items-center gap-2 px-6 py-3 rounded-full ${isDark
+                ? "bg-red-900/30 text-red-400"
+                : "bg-red-100 text-red-600"
+                }`}
             >
               <svg
                 className="w-5 h-5"
@@ -152,18 +153,16 @@ const LatestJobsSection = () => {
   if (jobs.length === 0) {
     return (
       <section
-        className={`relative py-24 px-4 transition-colors duration-300 ${
-          isDark ? "bg-slate-900" : "bg-white"
-        }`}
+        className={`relative py-24 px-4 transition-colors duration-300 ${isDark ? "bg-slate-900" : "bg-white"
+          }`}
       >
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
             <div
-              className={`inline-flex flex-col items-center gap-4 px-8 py-6 rounded-2xl ${
-                isDark
-                  ? "bg-slate-800 border border-slate-700"
-                  : "bg-gray-100 border border-gray-200"
-              }`}
+              className={`inline-flex flex-col items-center gap-4 px-8 py-6 rounded-2xl ${isDark
+                ? "bg-slate-800 border border-slate-700"
+                : "bg-gray-100 border border-gray-200"
+                }`}
             >
               <svg
                 className={`w-16 h-16 ${isDark ? "text-slate-600" : "text-gray-400"}`}
@@ -207,9 +206,8 @@ const LatestJobsSection = () => {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2
-            className={`text-4xl lg:text-5xl font-bold mb-4 ${
-              isDark ? "text-white" : "text-slate-900"
-            }`}
+            className={`text-4xl lg:text-5xl font-bold mb-4 ${isDark ? "text-white" : "text-slate-900"
+              }`}
           >
             Latest{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
@@ -217,9 +215,8 @@ const LatestJobsSection = () => {
             </span>
           </h2>
           <p
-            className={`text-lg max-w-2xl mx-auto ${
-              isDark ? "text-slate-300" : "text-slate-600"
-            }`}
+            className={`text-lg max-w-2xl mx-auto ${isDark ? "text-slate-300" : "text-slate-600"
+              }`}
           >
             Discover the newest positions added by top companies
           </p>
@@ -230,18 +227,16 @@ const LatestJobsSection = () => {
           {jobs.map((job, index) => (
             <div
               key={job._id || job.id || index}
-              className={`group relative rounded-3xl p-8 cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-3 ${
-                isDark
-                  ? "bg-slate-900 border-2 border-slate-700 hover:border-blue-500"
-                  : "bg-white border-2 border-gray-300 shadow-xl hover:border-blue-500"
-              }`}
+              className={`group relative rounded-3xl p-8 cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-3 ${isDark
+                ? "bg-slate-900 border-2 border-slate-700 hover:border-blue-500"
+                : "bg-white border-2 border-gray-300 shadow-xl hover:border-blue-500"
+                }`}
             >
               {/* Company Logo */}
               <div className="flex items-start justify-between mb-6">
                 <div
-                  className={`w-16 h-16 rounded-2xl flex items-center justify-center ${
-                    isDark ? "bg-slate-700" : "bg-blue-50"
-                  }`}
+                  className={`w-16 h-16 rounded-2xl flex items-center justify-center ${isDark ? "bg-slate-700" : "bg-blue-50"
+                    }`}
                 >
                   {job.companyLogo ? (
                     <img
@@ -260,13 +255,12 @@ const LatestJobsSection = () => {
                   )}
                 </div>
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    job.jobType === "Full-time"
-                      ? "bg-green-100 text-green-700"
-                      : job.jobType === "Part-time"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-blue-100 text-blue-700"
-                  }`}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold ${job.jobType === "Full-time"
+                    ? "bg-green-100 text-green-700"
+                    : job.jobType === "Part-time"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : "bg-blue-100 text-blue-700"
+                    }`}
                 >
                   {job.jobType || "Full-time"}
                 </span>
@@ -274,18 +268,16 @@ const LatestJobsSection = () => {
 
               {/* Job Title */}
               <h3
-                className={`text-xl font-bold mb-2 group-hover:text-blue-500 transition-colors ${
-                  isDark ? "text-white" : "text-slate-900"
-                }`}
+                className={`text-xl font-bold mb-2 group-hover:text-blue-500 transition-colors ${isDark ? "text-white" : "text-slate-900"
+                  }`}
               >
                 {job.title}
               </h3>
 
               {/* Company Name */}
               <p
-                className={`text-sm font-medium mb-4 ${
-                  isDark ? "text-blue-400" : "text-blue-600"
-                }`}
+                className={`text-sm font-medium mb-4 ${isDark ? "text-blue-400" : "text-blue-600"
+                  }`}
               >
                 {job.company}
               </p>
@@ -294,9 +286,8 @@ const LatestJobsSection = () => {
               <div className="flex flex-wrap gap-3 mb-6">
                 {job.location && (
                   <span
-                    className={`flex items-center gap-1 text-sm ${
-                      isDark ? "text-slate-400" : "text-slate-600"
-                    }`}
+                    className={`flex items-center gap-1 text-sm ${isDark ? "text-slate-400" : "text-slate-600"
+                      }`}
                   >
                     <svg
                       className="w-4 h-4"
@@ -322,9 +313,8 @@ const LatestJobsSection = () => {
                 )}
                 {job.department && (
                   <span
-                    className={`flex items-center gap-1 text-sm ${
-                      isDark ? "text-slate-400" : "text-slate-600"
-                    }`}
+                    className={`flex items-center gap-1 text-sm ${isDark ? "text-slate-400" : "text-slate-600"
+                      }`}
                   >
                     <svg
                       className="w-4 h-4"
@@ -347,9 +337,8 @@ const LatestJobsSection = () => {
               {/* Salary */}
               {(job.salaryMin || job.salaryMax) && (
                 <p
-                  className={`text-lg font-semibold mb-6 ${
-                    isDark ? "text-green-400" : "text-green-600"
-                  }`}
+                  className={`text-lg font-semibold mb-6 ${isDark ? "text-green-400" : "text-green-600"
+                    }`}
                 >
                   {job.currency || "$"}
                   {job.salaryMin?.toLocaleString() || "0"} -{" "}
@@ -362,11 +351,10 @@ const LatestJobsSection = () => {
               <div className="flex gap-3 mt-auto">
                 <button
                   onClick={() => handleViewDetails(job)}
-                  className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all duration-300 ${
-                    isDark
-                      ? "bg-slate-700 text-white hover:bg-slate-600"
-                      : "bg-gray-100 text-slate-900 hover:bg-gray-200"
-                  }`}
+                  className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-all duration-300 ${isDark
+                    ? "bg-slate-700 text-white hover:bg-slate-600"
+                    : "bg-gray-100 text-slate-900 hover:bg-gray-200"
+                    }`}
                 >
                   View Details
                 </button>
@@ -389,19 +377,17 @@ const LatestJobsSection = () => {
           onClick={() => setShowDetailsModal(false)}
         >
           <div
-            className={`relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 transform transition-all duration-500 animate-zoomIn ${
-              isDark ? "bg-slate-800" : "bg-white"
-            }`}
+            className={`relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl p-8 transform transition-all duration-500 animate-zoomIn ${isDark ? "bg-slate-800" : "bg-white"
+              }`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
             <button
               onClick={() => setShowDetailsModal(false)}
-              className={`absolute top-4 right-4 p-2 rounded-full transition-colors ${
-                isDark
-                  ? "hover:bg-slate-700 text-slate-400"
-                  : "hover:bg-gray-100 text-gray-500"
-              }`}
+              className={`absolute top-4 right-4 p-2 rounded-full transition-colors ${isDark
+                ? "hover:bg-slate-700 text-slate-400"
+                : "hover:bg-gray-100 text-gray-500"
+                }`}
             >
               <svg
                 className="w-6 h-6"
@@ -421,9 +407,8 @@ const LatestJobsSection = () => {
             {/* Job Header */}
             <div className="flex items-start gap-4 mb-6">
               <div
-                className={`w-20 h-20 rounded-2xl flex items-center justify-center ${
-                  isDark ? "bg-slate-700" : "bg-blue-50"
-                }`}
+                className={`w-20 h-20 rounded-2xl flex items-center justify-center ${isDark ? "bg-slate-700" : "bg-blue-50"
+                  }`}
               >
                 {selectedJob.companyLogo ? (
                   <img
@@ -443,16 +428,14 @@ const LatestJobsSection = () => {
               </div>
               <div className="flex-1">
                 <h2
-                  className={`text-2xl font-bold mb-1 ${
-                    isDark ? "text-white" : "text-slate-900"
-                  }`}
+                  className={`text-2xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"
+                    }`}
                 >
                   {selectedJob.title}
                 </h2>
                 <p
-                  className={`text-lg font-medium ${
-                    isDark ? "text-blue-400" : "text-blue-600"
-                  }`}
+                  className={`text-lg font-medium ${isDark ? "text-blue-400" : "text-blue-600"
+                    }`}
                 >
                   {selectedJob.company}
                 </p>
@@ -463,9 +446,8 @@ const LatestJobsSection = () => {
             <div className="grid grid-cols-2 gap-4 mb-6">
               {selectedJob.location && (
                 <div
-                  className={`flex items-center gap-2 p-3 rounded-xl ${
-                    isDark ? "bg-slate-700" : "bg-gray-50"
-                  }`}
+                  className={`flex items-center gap-2 p-3 rounded-xl ${isDark ? "bg-slate-700" : "bg-gray-50"
+                    }`}
                 >
                   <svg
                     className="w-5 h-5 text-blue-500"
@@ -495,9 +477,8 @@ const LatestJobsSection = () => {
               )}
               {selectedJob.jobType && (
                 <div
-                  className={`flex items-center gap-2 p-3 rounded-xl ${
-                    isDark ? "bg-slate-700" : "bg-gray-50"
-                  }`}
+                  className={`flex items-center gap-2 p-3 rounded-xl ${isDark ? "bg-slate-700" : "bg-gray-50"
+                    }`}
                 >
                   <svg
                     className="w-5 h-5 text-green-500"
@@ -521,9 +502,8 @@ const LatestJobsSection = () => {
               )}
               {selectedJob.department && (
                 <div
-                  className={`flex items-center gap-2 p-3 rounded-xl ${
-                    isDark ? "bg-slate-700" : "bg-gray-50"
-                  }`}
+                  className={`flex items-center gap-2 p-3 rounded-xl ${isDark ? "bg-slate-700" : "bg-gray-50"
+                    }`}
                 >
                   <svg
                     className="w-5 h-5 text-purple-500"
@@ -547,9 +527,8 @@ const LatestJobsSection = () => {
               )}
               {selectedJob.experienceLevel && (
                 <div
-                  className={`flex items-center gap-2 p-3 rounded-xl ${
-                    isDark ? "bg-slate-700" : "bg-gray-50"
-                  }`}
+                  className={`flex items-center gap-2 p-3 rounded-xl ${isDark ? "bg-slate-700" : "bg-gray-50"
+                    }`}
                 >
                   <svg
                     className="w-5 h-5 text-orange-500"
@@ -576,14 +555,12 @@ const LatestJobsSection = () => {
             {/* Salary */}
             {(selectedJob.salaryMin || selectedJob.salaryMax) && (
               <div
-                className={`p-4 rounded-xl mb-6 ${
-                  isDark ? "bg-green-900/30" : "bg-green-50"
-                }`}
+                className={`p-4 rounded-xl mb-6 ${isDark ? "bg-green-900/30" : "bg-green-50"
+                  }`}
               >
                 <p
-                  className={`text-xl font-bold ${
-                    isDark ? "text-green-400" : "text-green-600"
-                  }`}
+                  className={`text-xl font-bold ${isDark ? "text-green-400" : "text-green-600"
+                    }`}
                 >
                   Salary: {selectedJob.currency || "$"}
                   {selectedJob.salaryMin?.toLocaleString() || "0"} -{" "}
@@ -597,16 +574,14 @@ const LatestJobsSection = () => {
             {selectedJob.description && (
               <div className="mb-6">
                 <h3
-                  className={`text-lg font-bold mb-3 ${
-                    isDark ? "text-white" : "text-slate-900"
-                  }`}
+                  className={`text-lg font-bold mb-3 ${isDark ? "text-white" : "text-slate-900"
+                    }`}
                 >
                   Job Description
                 </h3>
                 <p
-                  className={`leading-relaxed whitespace-pre-wrap ${
-                    isDark ? "text-slate-300" : "text-slate-600"
-                  }`}
+                  className={`leading-relaxed whitespace-pre-wrap ${isDark ? "text-slate-300" : "text-slate-600"
+                    }`}
                 >
                   {selectedJob.description}
                 </p>
@@ -618,9 +593,8 @@ const LatestJobsSection = () => {
               selectedJob.requiredSkills.length > 0 && (
                 <div className="mb-6">
                   <h3
-                    className={`text-lg font-bold mb-3 ${
-                      isDark ? "text-white" : "text-slate-900"
-                    }`}
+                    className={`text-lg font-bold mb-3 ${isDark ? "text-white" : "text-slate-900"
+                      }`}
                   >
                     Required Skills
                   </h3>
@@ -628,11 +602,10 @@ const LatestJobsSection = () => {
                     {selectedJob.requiredSkills.map((skill, idx) => (
                       <span
                         key={idx}
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          isDark
-                            ? "bg-blue-900/50 text-blue-300"
-                            : "bg-blue-100 text-blue-700"
-                        }`}
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${isDark
+                          ? "bg-blue-900/50 text-blue-300"
+                          : "bg-blue-100 text-blue-700"
+                          }`}
                       >
                         {skill}
                       </span>
@@ -662,19 +635,17 @@ const LatestJobsSection = () => {
           onClick={() => setShowLoginModal(false)}
         >
           <div
-            className={`relative w-full max-w-md rounded-3xl p-8 transform transition-all duration-500 animate-zoomIn ${
-              isDark ? "bg-slate-800" : "bg-white"
-            }`}
+            className={`relative w-full max-w-md rounded-3xl p-8 transform transition-all duration-500 animate-zoomIn ${isDark ? "bg-slate-800" : "bg-white"
+              }`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
             <button
               onClick={() => setShowLoginModal(false)}
-              className={`absolute top-4 right-4 p-2 rounded-full transition-colors ${
-                isDark
-                  ? "hover:bg-slate-700 text-slate-400"
-                  : "hover:bg-gray-100 text-gray-500"
-              }`}
+              className={`absolute top-4 right-4 p-2 rounded-full transition-colors ${isDark
+                ? "hover:bg-slate-700 text-slate-400"
+                : "hover:bg-gray-100 text-gray-500"
+                }`}
             >
               <svg
                 className="w-6 h-6"
@@ -694,9 +665,8 @@ const LatestJobsSection = () => {
             {/* Icon */}
             <div className="flex justify-center mb-6">
               <div
-                className={`w-20 h-20 rounded-full flex items-center justify-center ${
-                  isDark ? "bg-blue-900/50" : "bg-blue-100"
-                }`}
+                className={`w-20 h-20 rounded-full flex items-center justify-center ${isDark ? "bg-blue-900/50" : "bg-blue-100"
+                  }`}
               >
                 <svg
                   className="w-10 h-10 text-blue-500"
@@ -714,21 +684,30 @@ const LatestJobsSection = () => {
               </div>
             </div>
 
-            {/* Title */}
-            <h2
-              className={`text-2xl font-bold text-center mb-2 ${
-                isDark ? "text-white" : "text-slate-900"
-              }`}
-            >
-              Login Required
-            </h2>
-            <p
-              className={`text-center mb-8 ${
-                isDark ? "text-slate-400" : "text-slate-600"
-              }`}
-            >
-              You need to login or create an account to apply for this job
-            </p>
+            {/* Title - Check if user is HR */}
+            {(() => {
+              const user = JSON.parse(localStorage.getItem("user") || "null");
+              const isHR = user?.role === "hr";
+              return (
+                <>
+                  <h2
+                    className={`text-2xl font-bold text-center mb-2 ${isDark ? "text-white" : "text-slate-900"
+                      }`}
+                  >
+                    {isHR ? "Employee Account Required" : "Login Required"}
+                  </h2>
+                  <p
+                    className={`text-center mb-8 ${isDark ? "text-slate-400" : "text-slate-600"
+                      }`}
+                  >
+                    {isHR
+                      ? "You are logged in as HR. Please login with an Employee account to apply for jobs."
+                      : "You need to login or create an account to apply for this job"
+                    }
+                  </p>
+                </>
+              );
+            })()}
 
             {/* Buttons */}
             <div className="space-y-4">
@@ -736,17 +715,16 @@ const LatestJobsSection = () => {
                 onClick={handleLoginRedirect}
                 className="w-full py-4 px-6 rounded-xl font-bold text-lg bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300"
               >
-                Login
+                Login as Employee
               </button>
               <button
                 onClick={handleRegisterRedirect}
-                className={`w-full py-4 px-6 rounded-xl font-bold text-lg transition-all duration-300 ${
-                  isDark
-                    ? "bg-slate-700 text-white hover:bg-slate-600"
-                    : "bg-gray-100 text-slate-900 hover:bg-gray-200"
-                }`}
+                className={`w-full py-4 px-6 rounded-xl font-bold text-lg transition-all duration-300 ${isDark
+                  ? "bg-slate-700 text-white hover:bg-slate-600"
+                  : "bg-gray-100 text-slate-900 hover:bg-gray-200"
+                  }`}
               >
-                Create New Account
+                Create Employee Account
               </button>
             </div>
           </div>
