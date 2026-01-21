@@ -23,6 +23,8 @@ export default function Jobs() {
   const [newQuestion, setNewQuestion] = useState("");
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
+  const [matchingCVs, setMatchingCVs] = useState(false);
+  const [matchingJobId, setMatchingJobId] = useState(null);
   const [newJob, setNewJob] = useState({
     title: "",
     company: "",
@@ -332,6 +334,43 @@ export default function Jobs() {
     }
   };
 
+  // HR: Find matching CVs for a job using ML
+  const handleFindMatchingCVs = async (job) => {
+    setMatchingCVs(true);
+    setMatchingJobId(job._id || job.id);
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://localhost:5000/api/ml/match-cvs", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ jobId: job._id || job.id }),
+        signal: AbortSignal.timeout(90000),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        const candidates = data.data || [];
+        if (candidates.length > 0) {
+          navigate("/hr/matched-candidates", { state: { job, candidates } });
+        } else {
+          setError("⚠️ No matching CVs found for this job");
+        }
+      } else {
+        setError(data.message || "Failed to find matching CVs");
+      }
+    } catch (error) {
+      setError("Error: " + error.message);
+    } finally {
+      setMatchingCVs(false);
+      setMatchingJobId(null);
+    }
+  };
+
   return (
     <div className="page-slide-up">
       <div className="min-h-screen bg-slate-900">
@@ -351,8 +390,8 @@ export default function Jobs() {
             <button
               onClick={() => setFilter("all")}
               className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === "all"
-                  ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white"
-                  : "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
+                ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white"
+                : "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
                 }`}
             >
               All Jobs
@@ -360,8 +399,8 @@ export default function Jobs() {
             <button
               onClick={() => setFilter("remote")}
               className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === "remote"
-                  ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white"
-                  : "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
+                ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white"
+                : "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
                 }`}
             >
               Remote
@@ -369,8 +408,8 @@ export default function Jobs() {
             <button
               onClick={() => setFilter("fulltime")}
               className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === "fulltime"
-                  ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white"
-                  : "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
+                ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white"
+                : "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
                 }`}
             >
               Full-time
@@ -378,8 +417,8 @@ export default function Jobs() {
             <button
               onClick={() => setFilter("saved")}
               className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === "saved"
-                  ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white"
-                  : "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
+                ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white"
+                : "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
                 }`}
             >
               Saved
@@ -389,8 +428,8 @@ export default function Jobs() {
                 onClick={fetchMLMatches}
                 disabled={matchLoading}
                 className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === "ai-matched"
-                    ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white"
-                    : "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
+                  ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white"
+                  : "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
                   }`}
               >
                 {matchLoading ? "Loading..." : "AI Recommendations"}
@@ -696,6 +735,17 @@ export default function Jobs() {
                       </div>
 
                       <div className="flex gap-3 mt-4">
+                        {user?.role === "hr" && (
+                          <button
+                            onClick={() => handleFindMatchingCVs(job)}
+                            disabled={matchingCVs}
+                            className="flex-1 px-6 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-cyan-600 transition-all disabled:opacity-50"
+                          >
+                            {matchingCVs && matchingJobId === (job._id || job.id)
+                              ? "Finding..."
+                              : "Find CVs"}
+                          </button>
+                        )}
                         {user?.role === "employee" && (
                           <button
                             onClick={() =>
@@ -709,8 +759,8 @@ export default function Jobs() {
                         <button
                           onClick={() => toggleSave(job._id || job.id)}
                           className={`px-6 py-2.5 font-semibold rounded-lg transition-all ${savedJobs.includes(job._id || job.id)
-                              ? "bg-amber-500 text-white hover:bg-amber-600"
-                              : "bg-slate-700 text-slate-300 hover:bg-slate-600 border border-slate-600"
+                            ? "bg-amber-500 text-white hover:bg-amber-600"
+                            : "bg-slate-700 text-slate-300 hover:bg-slate-600 border border-slate-600"
                             }`}
                         >
                           {savedJobs.includes(job._id || job.id)
