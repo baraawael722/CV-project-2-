@@ -350,41 +350,37 @@ export default function Jobs() {
           <div className="flex flex-wrap gap-3 mb-8">
             <button
               onClick={() => setFilter("all")}
-              className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                filter === "all"
+              className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === "all"
                   ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white"
                   : "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
-              }`}
+                }`}
             >
               All Jobs
             </button>
             <button
               onClick={() => setFilter("remote")}
-              className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                filter === "remote"
+              className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === "remote"
                   ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white"
                   : "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
-              }`}
+                }`}
             >
               Remote
             </button>
             <button
               onClick={() => setFilter("fulltime")}
-              className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                filter === "fulltime"
+              className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === "fulltime"
                   ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white"
                   : "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
-              }`}
+                }`}
             >
               Full-time
             </button>
             <button
               onClick={() => setFilter("saved")}
-              className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                filter === "saved"
+              className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === "saved"
                   ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white"
                   : "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
-              }`}
+                }`}
             >
               Saved
             </button>
@@ -392,11 +388,10 @@ export default function Jobs() {
               <button
                 onClick={fetchMLMatches}
                 disabled={matchLoading}
-                className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                  filter === "ai-matched"
+                className={`px-6 py-3 rounded-lg font-semibold transition-all ${filter === "ai-matched"
                     ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white"
                     : "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
-                }`}
+                  }`}
               >
                 {matchLoading ? "Loading..." : "AI Recommendations"}
               </button>
@@ -429,7 +424,12 @@ export default function Jobs() {
 
               // Apply filters
               if (filter === "ai-matched") {
-                displayJobs = matchedJobs;
+                // Filter AI matched jobs to show only 60% and above
+                displayJobs = matchedJobs.filter((job) => {
+                  const raw = job.matchScore ?? job.match_percentage ?? job.matchPercent;
+                  const scoreNum = typeof raw === "number" ? (raw > 1 ? raw : raw * 100) : 0;
+                  return scoreNum >= 60;
+                });
               } else if (filter === "saved") {
                 displayJobs = jobs.filter((job) =>
                   savedJobs.includes(job._id || job.id)
@@ -500,15 +500,15 @@ export default function Jobs() {
                         scoreNum >= 80
                           ? "Excellent Match"
                           : scoreNum >= 60
-                          ? "Fair Match"
-                          : "Low Match";
+                            ? "Fair Match"
+                            : "Low Match";
 
                       const bgColor =
                         scoreNum >= 80
                           ? "from-green-500 to-emerald-600"
                           : scoreNum >= 60
-                          ? "from-yellow-500 to-orange-500"
-                          : "from-red-500 to-pink-500";
+                            ? "from-yellow-500 to-orange-500"
+                            : "from-red-500 to-pink-500";
 
                       return (
                         <div
@@ -615,10 +615,8 @@ export default function Jobs() {
                             />
                           </svg>
                           {job.salary
-                            ? `${job.salary.min ?? ""}${
-                                job.salary.min ? "-" : ""
-                              }${job.salary.max ?? ""} ${
-                                job.salary.currency || ""
+                            ? `${job.salary.min ?? ""}${job.salary.min ? "-" : ""
+                              }${job.salary.max ?? ""} ${job.salary.currency || ""
                               }`.trim()
                             : "Negotiable"}
                         </span>
@@ -658,12 +656,10 @@ export default function Jobs() {
                             {job.salaryMin && job.salaryMax
                               ? `${job.salaryMin}-${job.salaryMax} USD`
                               : job.salary
-                              ? `${job.salary.min ?? ""}${
-                                  job.salary.min ? "-" : ""
-                                }${job.salary.max ?? ""} ${
-                                  job.salary.currency || ""
-                                }`.trim()
-                              : "Negotiable"}
+                                ? `${job.salary.min ?? ""}${job.salary.min ? "-" : ""
+                                  }${job.salary.max ?? ""} ${job.salary.currency || ""
+                                  }`.trim()
+                                : "Negotiable"}
                           </span>
                         </div>
                         <div className="flex items-center gap-2 text-sm text-slate-300">
@@ -712,11 +708,10 @@ export default function Jobs() {
                         )}
                         <button
                           onClick={() => toggleSave(job._id || job.id)}
-                          className={`px-6 py-2.5 font-semibold rounded-lg transition-all ${
-                            savedJobs.includes(job._id || job.id)
+                          className={`px-6 py-2.5 font-semibold rounded-lg transition-all ${savedJobs.includes(job._id || job.id)
                               ? "bg-amber-500 text-white hover:bg-amber-600"
                               : "bg-slate-700 text-slate-300 hover:bg-slate-600 border border-slate-600"
-                          }`}
+                            }`}
                         >
                           {savedJobs.includes(job._id || job.id)
                             ? "Saved"
@@ -890,12 +885,10 @@ export default function Jobs() {
                         {selectedJob.salaryMin && selectedJob.salaryMax
                           ? `$${selectedJob.salaryMin}-${selectedJob.salaryMax} USD`
                           : selectedJob.salary
-                          ? `${selectedJob.salary.min ?? ""}${
-                              selectedJob.salary.min ? "-" : ""
-                            }${selectedJob.salary.max ?? ""} ${
-                              selectedJob.salary.currency || ""
-                            }`.trim()
-                          : "Negotiable"}
+                            ? `${selectedJob.salary.min ?? ""}${selectedJob.salary.min ? "-" : ""
+                              }${selectedJob.salary.max ?? ""} ${selectedJob.salary.currency || ""
+                              }`.trim()
+                            : "Negotiable"}
                       </p>
                     </div>
 
@@ -977,7 +970,7 @@ export default function Jobs() {
                   {/* Required Skills */}
                   {(selectedJob.requiredSkills || selectedJob.skills) &&
                     (selectedJob.requiredSkills || selectedJob.skills).length >
-                      0 && (
+                    0 && (
                       <div className="bg-slate-700 p-6 rounded-xl border border-slate-600">
                         <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                           <svg
@@ -1017,8 +1010,7 @@ export default function Jobs() {
                         onClick={() => {
                           setShowDetailsModal(false);
                           navigate(
-                            `/employee/jobs/${
-                              selectedJob._id || selectedJob.id
+                            `/employee/jobs/${selectedJob._id || selectedJob.id
                             }`
                           );
                         }}
