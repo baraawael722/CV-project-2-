@@ -93,8 +93,8 @@ export default function Navbar() {
                     ? "text-white text-xl"
                     : "text-slate-900 text-xl"
                   : isDark
-                  ? "text-white text-2xl"
-                  : "text-slate-900 text-2xl"
+                    ? "text-white text-2xl"
+                    : "text-slate-900 text-2xl"
               }`}
             >
               JobCompass
@@ -102,47 +102,31 @@ export default function Navbar() {
           </div>
 
           {/* Navigation Links - Center */}
-          <div className="hidden md:flex items-center gap-12">
+          <div className="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2">
             <a
               href="#home"
-              className={`nav-link font-semibold transition-all duration-300 ${
-                isDark
-                  ? "text-slate-300 hover:text-white"
-                  : "text-slate-600 hover:text-slate-900"
-              } ${isScrolled ? "text-base" : "text-2xl"}`}
+              className={`nav-link font-medium transition-all duration-300 text-white hover:text-blue-400 ${isScrolled ? "text-sm" : "text-base"}`}
               onClick={(e) => handleNavClick(e, "home")}
             >
               Home
             </a>
             <a
               href="#about"
-              className={`nav-link font-semibold transition-all duration-300 ${
-                isDark
-                  ? "text-slate-300 hover:text-white"
-                  : "text-slate-600 hover:text-slate-900"
-              } ${isScrolled ? "text-base" : "text-2xl"}`}
+              className={`nav-link font-medium transition-all duration-300 text-white hover:text-blue-400 ${isScrolled ? "text-sm" : "text-base"}`}
               onClick={(e) => handleNavClick(e, "about")}
             >
               About Us
             </a>
             <a
               href="#jobs"
-              className={`nav-link font-semibold transition-all duration-300 ${
-                isDark
-                  ? "text-slate-300 hover:text-white"
-                  : "text-slate-600 hover:text-slate-900"
-              } ${isScrolled ? "text-base" : "text-2xl"}`}
+              className={`nav-link font-medium transition-all duration-300 text-white hover:text-blue-400 ${isScrolled ? "text-sm" : "text-base"}`}
               onClick={(e) => handleNavClick(e, "jobs")}
             >
               Jobs
             </a>
             <a
               href="#features"
-              className={`nav-link font-semibold transition-all duration-300 ${
-                isDark
-                  ? "text-slate-300 hover:text-white"
-                  : "text-slate-600 hover:text-slate-900"
-              } ${isScrolled ? "text-base" : "text-2xl"}`}
+              className={`nav-link font-medium transition-all duration-300 text-white hover:text-blue-400 ${isScrolled ? "text-sm" : "text-base"}`}
               onClick={(e) => handleNavClick(e, "features")}
             >
               Features
